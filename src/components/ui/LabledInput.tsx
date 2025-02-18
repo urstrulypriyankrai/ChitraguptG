@@ -9,14 +9,15 @@ interface LabeledInputProps extends React.ComponentProps<"input"> {
   danger?: boolean;
   placeholder?: string;
   message?: string;
+  hidden?: boolean;
 }
 
 const LabeledInput = React.forwardRef<HTMLInputElement, LabeledInputProps>(
-  ({ label, id, name, type = "text", ...props }, ref) => {
+  ({ label, id, name, type = "text", hidden = false, ...props }, ref) => {
     const inputId = id || `input-${Math.random().toString(36).substring(2, 9)}`;
 
     return (
-      <div>
+      <div hidden={hidden}>
         <div className="relative">
           <input
             type={type}

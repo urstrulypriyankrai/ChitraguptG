@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toaster";
 import DashboardTiles from "./_components/DashboardTiles";
 
 export default function Home() {
@@ -6,6 +7,7 @@ export default function Home() {
       <main>
         <DashboardTiles />
       </main>
+      <Toaster />
     </div>
   );
 }

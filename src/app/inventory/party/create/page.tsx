@@ -6,9 +6,7 @@ const CreateParty = () => {
   return (
     <>
       <PageHeading heading="Create a Party" />
-      <div className="mt-10">
-        <CreatePartyForm />
-        </div>
+      <CreatePartyForm />
     </>
   );
 };
