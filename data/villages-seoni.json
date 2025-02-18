@@ -1,0 +1,12 @@
+{
+    "villages": {
+        "khari": {
+            "_id": 1,
+            "name": "khari"
+        },
+        "palari": {
+            "_id": 2,
+            "name": "palari"
+        }
+    }
+}   

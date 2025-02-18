@@ -3,63 +3,90 @@ import React, { useEffect, useState } from "react";
 import { LabeledInput } from "../ui/LabledInput";
 import Data from "@/../data/state-districts.json";
 import CustomSelectBox from "./CustomSelectBox";
-
+import { FormObjectType } from "@/lib/types/forms";
+import villages from "@/../data/villages-seoni.json";
 const allStates = Object.keys(Data as StateData);
 
-const AddressForm = () => {
-  const [stateValue, setStateValue] = useState<string | null>(null);
-  const [districtValue, setDistrictValue] = useState<string[] | null>(null);
+const AddressForm = ({
+  formValue,
+  setFormValue,
+}: {
+  formValue: FormObjectType;
+  setFormValue: (prev: FormObjectType) => void;
+}) => {
+  const [stateValue, setStateValue] = useState<string>("");
+  const [districtValue, setDistrictValue] = useState("");
+  const [possibleDistrictValue, setPossibleDistrictValue] = useState<
+    string[] | null
+  >(null);
+  const [isStateOpen, setIsStateOpen] = useState(false);
 
   useEffect(() => {
-    if (stateValue) {
-      const stateData = (Data as StateData)[stateValue];
-      setDistrictValue(stateData?.districts || []);
-    } else {
-      setDistrictValue(null);
-    }
+    if (!stateValue) return;
+    const allDistrict = (Data as StateData)[stateValue]?.districts || [];
+    setPossibleDistrictValue(allDistrict);
+    setDistrictValue(""); // Reset district when state changes
   }, [stateValue]);
 
+  useEffect(() => {
+    setFormValue({
+      ...formValue,
+      district: districtValue,
+      state: stateValue,
+    });
+  }, [districtValue]);
   return (
     <div className="">
       <h2>Address details</h2>
-      <div className="  grid md:grid-cols-12 grid-cols-6 [&>*]:col-span-3   p-6 gap-6 my-2  w-full ">
-        <LabeledInput
-          name="address"
-          label="Enter Office Locality"
-          type="locality"
-          required
-        />
+      <div className="grid md:grid-cols-12 grid-cols-6 [&>*]:col-span-6 p-6 gap-6 my-2 w-full">
+        {formValue.partyType == "FARMER" ? (
+          <>
+            <CustomSelectBox
+              data={Object.keys(villages.villages)}
+              name="street"
+              setValue={setStateValue}
+              placeholder="Enter village"
+            />
+            <LabeledInput
+              name="fathersName"
+              label="Enter Father Name"
+              type="text"
+              required
+            />
+          </>
+        ) : (
+          <LabeledInput
+            name="street"
+            label="Enter Office Locality"
+            type="text"
+            required
+          />
+        )}
 
         <CustomSelectBox
           data={allStates}
           name="state"
           setValue={setStateValue}
-          placeholder="Select a State" // Added placeholder
+          placeholder="Select a State"
+          disabled={false}
+          onOpenChange={() => setIsStateOpen(!isStateOpen)}
         />
 
-        {districtValue && districtValue.length > 0 ? (
-          <CustomSelectBox
-            data={districtValue}
-            name="district"
-            // Pass setValue for district
-            placeholder="Select a District" // Added placeholder
-          />
-        ) : (
-          <CustomSelectBox
-            data={[]}
-            name="district"
-            disabled // disabled untill state selected
-            placeholder="Select a District"
-          />
-        )}
+        <CustomSelectBox
+          data={possibleDistrictValue || []}
+          name="district"
+          setValue={setDistrictValue}
+          disabled={!possibleDistrictValue?.length}
+          placeholder="Select a District"
+        />
 
         <LabeledInput
           name="pincode"
           label="Enter Office Pincode"
           type="number"
           defaultValue={480991}
-          min={6}
-          max={6}
+          minLength={6}
+          maxLength={6}
           required
         />
       </div>

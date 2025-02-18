@@ -17,6 +17,7 @@ type Props = {
     value: string
   ) => void | Dispatch<SetStateAction<string | null> | string[] | null>; // Updated type
   placeholder: string; // Added placeholder prop
+  onOpenChange?: (isOpen: boolean) => void;
 };
 
 const CustomSelectBox = ({
@@ -25,6 +26,7 @@ const CustomSelectBox = ({
   disabled,
   setValue,
   placeholder,
+  onOpenChange,
 }: Props) => {
   // Destructured props
   return (
@@ -33,6 +35,7 @@ const CustomSelectBox = ({
         if (setValue) setValue(val);
       }}
       disabled={disabled} // Added disabled prop
+      onOpenChange={onOpenChange}
     >
       <SelectTrigger
         name={name}
