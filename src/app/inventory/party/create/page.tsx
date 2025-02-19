@@ -1,6 +1,6 @@
 import PageHeading from "@/app/_components/PageHeading";
 import React from "react";
-import CreatePartyForm from "./CreatePartyForm";
+import CreatePartyForm from "../../../../components/forms/CreatePartyForm";
 
 const CreateParty = () => {
   return (
