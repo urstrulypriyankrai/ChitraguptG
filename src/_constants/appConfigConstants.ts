@@ -63,13 +63,19 @@ export const TILES_DATA = [
     _id: 6,
     name: "Farmer Credit Ledger",
     href: "/farmer/credit",
-    icon: "📜", // Scroll emoji for credit tracking
+    icon: "📜",
   },
   {
     _id: 7, // Updated to avoid duplicate ID
     name: "Retailer Credit Ledger",
     href: "/retailer/credit",
-    icon: "📜", // Scroll emoji for credit tracking
+    icon: "📜",
+  },
+  {
+    _id: 9,
+    name: "Create a Farmer",
+    href: "/farmer/create",
+    icon: "➕", // Scroll emoji for credit tracking
   },
 ];
 
