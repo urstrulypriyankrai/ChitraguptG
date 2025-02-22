@@ -13,6 +13,8 @@ type Props = {
   data: string[];
   name: string;
   disabled?: boolean;
+  defaultValue?: string;
+
   setValue?: (
     value: string
   ) => void | Dispatch<SetStateAction<string | null> | string[] | null>; // Updated type
@@ -27,6 +29,8 @@ const CustomSelectBox = ({
   setValue,
   placeholder,
   onOpenChange,
+  defaultValue,
+  ...props
 }: Props) => {
   // Destructured props
   return (
@@ -36,6 +40,8 @@ const CustomSelectBox = ({
       }}
       disabled={disabled} // Added disabled prop
       onOpenChange={onOpenChange}
+      defaultValue={defaultValue}
+      {...props}
     >
       <SelectTrigger
         name={name}

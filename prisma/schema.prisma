@@ -39,9 +39,8 @@ model Party {
   id            Int       @id @default(autoincrement())
   name          String
   type          PartyType
-  fathersName   String
-  mobile        String?
-  email         String?
+  mobile        String?   @unique
+  email         String?   @unique
   street        String?
   district      String    @default("seoni")
   state         String    @default("madhya pradesh")
@@ -49,7 +48,26 @@ model Party {
   creditBalance Decimal   @default(0) @db.Decimal(10, 2)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  gstNumber     String    @db.VarChar(15)
+  gstNumber     String?   @unique @db.VarChar(15)
+
+  transactions  Transaction[]
+  creditEntries CreditLedger[]
+  payments      SupplierPayment[]
+  stockHistory  StockHistory[]
+}
+
+model farmer {
+  id            Int      @id @default(autoincrement())
+  name          String
+  fathersName   String
+  mobile        String
+  village       String
+  district      String   @default("seoni")
+  state         String   @default("madhya pradesh")
+  zip           Int      @default(480991)
+  creditBalance Decimal  @default(0) @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   transactions  Transaction[]
   creditEntries CreditLedger[]
@@ -61,17 +79,17 @@ model Transaction {
   id                Int               @id @default(autoincrement())
   transactionNumber String?           @unique // Optional: Unique transaction number
   type              TransactionType
-  partyId           Int
+  partyId           Int?
   totalAmount       Decimal           @db.Decimal(10, 2)
   paymentMethod     PaymentMethod
   status            TransactionStatus @default(COMPLETED)
   date              DateTime          @default(now())
   items             TransactionItem[]
   creditEntry       CreditLedger?
+  farmerId          Int?
 
-  party    Party   @relation(fields: [partyId], references: [id])
-  farmer   farmer? @relation(fields: [farmerId], references: [id])
-  farmerId Int?
+  party  Party?  @relation(fields: [partyId], references: [id])
+  farmer farmer? @relation(fields: [farmerId], references: [id])
 }
 
 model TransactionItem {
@@ -89,17 +107,17 @@ model TransactionItem {
 
 model CreditLedger {
   id            Int        @id @default(autoincrement())
-  partyId       Int
+  partyId       Int?
   amount        Decimal    @db.Decimal(10, 2)
   type          LedgerType
   date          DateTime   @default(now())
   description   String?
   transactionId Int?       @unique
+  farmerId      Int?
 
-  party       Party        @relation(fields: [partyId], references: [id])
+  party       Party?       @relation(fields: [partyId], references: [id])
   transaction Transaction? @relation(fields: [transactionId], references: [id])
   farmer      farmer?      @relation(fields: [farmerId], references: [id])
-  farmerId    Int?
 }
 
 model StockHistory {
@@ -111,23 +129,23 @@ model StockHistory {
   partyId                Int?
   date                   DateTime            @default(now())
   referenceTransactionId Int? // Link to a transaction (optional)
+  farmerId               Int?
 
-  product  Product @relation(fields: [productId], references: [id])
-  party    Party?  @relation(fields: [partyId], references: [id])
-  farmer   farmer? @relation(fields: [farmerId], references: [id])
-  farmerId Int?
+  product Product @relation(fields: [productId], references: [id])
+  party   Party?  @relation(fields: [partyId], references: [id])
+  farmer  farmer? @relation(fields: [farmerId], references: [id])
 }
 
 model SupplierPayment {
   id          Int      @id @default(autoincrement())
-  partyId     Int
+  partyId     Int?
   amount      Decimal  @db.Decimal(10, 2)
   paymentDate DateTime @default(now())
   reference   String?
+  farmerId    Int?
 
-  party    Party   @relation(fields: [partyId], references: [id])
-  farmer   farmer? @relation(fields: [farmerId], references: [id])
-  farmerId Int?
+  party  Party?  @relation(fields: [partyId], references: [id])
+  farmer farmer? @relation(fields: [farmerId], references: [id])
 }
 
 model Tax {
@@ -152,7 +170,6 @@ enum Unit {
 
 enum PartyType {
   SUPPLIER
-  FARMER
   RETAILER
 }
 

@@ -6,8 +6,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import React, { FormEvent, SetStateAction, useEffect } from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { z, ZodIssue } from "zod";
-import { FormObjectType } from "@/lib/types/forms";
+import { z } from "zod";
+import { FormObjectType, ErrorMsgObj } from "@/lib/types/forms";
+import CreateNewFarmer from "./CreateNewFarmer";
 
 const initialFormValue = {
   partyName: "",
@@ -36,17 +37,7 @@ const formSchema = z.object({
   district: z.string().min(2, "District is required"),
 });
 const CreatePartyForm = () => {
-  const [errorMsg, setErrorMsg] = useState<{
-    partyName: ZodIssue[];
-    fathersName: ZodIssue[];
-    partyType: ZodIssue[];
-    gstNumber: ZodIssue[];
-    mobile: ZodIssue[];
-    street: ZodIssue[];
-    state: ZodIssue[];
-    email: ZodIssue[];
-    district: ZodIssue[];
-  }>({
+  const [errorMsg, setErrorMsg] = useState<ErrorMsgObj>({
     partyName: [],
     fathersName: [],
     partyType: [],
@@ -64,6 +55,7 @@ const CreatePartyForm = () => {
     try {
       const parsedData = formSchema.safeParse(formValue);
       console.log("Parsed Form Data", parsedData.error?.errors);
+      console.log("street", formValue);
     } catch (error) {
       console.error("Validation Failed", error);
     }
@@ -120,75 +112,93 @@ const CreatePartyForm = () => {
     }
   }, [formValue.gstNumber]);
 
-
-
   // eof effects
 
   return (
     <div className="md:w-[60vw] w-[90vw] mx-auto">
       <form className="space-y-6 mb-6">
         <PartyType setFormValue={setFormValue} name="partyType" />
-        <LabeledInput
-          name="PartyName"
-          label="Enter Name"
-          required
-          message={errorMsg?.partyName}
-          onChange={(e) =>
-            setFormValue(() => {
-              return { ...formValue, partyName: e.target.value };
-            })
-          }
-        />
-        <LabeledInput
-          name="gstNumber"
-          label="Enter GSTIN"
-          // required={formValue.partyType != "FARMER" ? true : false}
-          hidden={formValue.partyType !== "FARMER" ? false : true}
-          message={errorMsg?.gstNumber}
-          onChange={(e) =>
-            setFormValue(() => {
-              return { ...formValue, gstNumber: e.target.value };
-            })
-          }
-        />
-        <LabeledInput
-          name="mobile"
-          label="Enter Contact Number"
-          required
-          type="number"
-          message={errorMsg?.mobile}
-          maxLength={13}
-          minLength={10}
-          onChange={(e) =>
-            setFormValue(() => {
-              return { ...formValue, mobile: e.target.value };
-            })
-          }
-        />
-        <LabeledInput
-          name="email"
-          label="Enter Email address"
-          required={formValue.partyType != "FARMER"}
-          hidden={formValue.partyType === "FARMER"}
-          type="mail"
-          message={errorMsg?.email}
-          onChange={(e) =>
-            setFormValue(() => {
-              return { ...formValue, email: e.target.value };
-            })
-          }
-        />
-
-        <AddressForm formValue={formValue} setFormValue={setFormValue} />
-        <Button onClick={handleSubmit} className="text-center mx-auto w-full ">
+        {formValue.partyType != "FARMER" ? (
+          <PartyFrom
+            formValue={formValue}
+            setFormValue={setFormValue}
+            errorMsg={errorMsg}
+          />
+        ) : (
+          <CreateNewFarmer />
+        )}
+      </form>
+      {formValue.partyType !== "FARMER" && (
+        <Button
+          onClick={handleSubmit}
+          className="text-center mx-auto w-full mb-6 "
+        >
           Submit
         </Button>
-      </form>
+      )}
     </div>
   );
 };
 
 export default CreatePartyForm;
+
+const PartyFrom = ({
+  formValue,
+  setFormValue,
+  errorMsg,
+}: {
+  formValue: FormObjectType;
+  setFormValue: (formValue: FormObjectType) => void;
+  errorMsg: ErrorMsgObj;
+}) => {
+  return (
+    <>
+      <LabeledInput
+        name="PartyName"
+        label="Enter Name"
+        required
+        message={errorMsg?.partyName}
+        onChange={(e) =>
+          setFormValue({ ...formValue, partyName: e.target.value })
+        }
+      />
+      <LabeledInput
+        name="gstNumber"
+        label="Enter GSTIN"
+        // required={formValue.partyType != "FARMER" ? true : false}
+        hidden={formValue.partyType !== "FARMER" ? false : true}
+        message={errorMsg?.gstNumber}
+        onChange={(e) =>
+          setFormValue({
+            ...formValue,
+            gstNumber: e.target.value,
+          })
+        }
+      />
+      <LabeledInput
+        name="mobile"
+        label="Enter Contact Number"
+        required
+        type="number"
+        message={errorMsg?.mobile}
+        maxLength={13}
+        minLength={10}
+        onChange={(e) => setFormValue({ ...formValue, mobile: e.target.value })}
+      />
+      <LabeledInput
+        name="email"
+        label="Enter Email address"
+        required={formValue.partyType != "FARMER"}
+        hidden={formValue.partyType === "FARMER"}
+        type="mail"
+        message={errorMsg?.email}
+        onChange={(e) => setFormValue({ ...formValue, email: e.target.value })}
+      />
+
+      <AddressForm formValue={formValue} setFormValue={setFormValue} />
+    </>
+  );
+};
 
 //========= Radio Group for Party type
 const PartyType = ({
@@ -220,4 +230,3 @@ const PartyType = ({
     </RadioGroup>
   );
 };
-

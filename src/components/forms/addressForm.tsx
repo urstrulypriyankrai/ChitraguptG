@@ -52,6 +52,9 @@ const AddressForm = ({
               label="Enter Father Name"
               type="text"
               required
+              onChange={(e) => {
+                setFormValue({ ...formValue, fathersName: e.target.value });
+              }}
             />
           </>
         ) : (
@@ -60,6 +63,10 @@ const AddressForm = ({
             label="Enter Office Locality"
             type="text"
             required
+            onChange={(e) => {
+              console.log(e.target.value, "form ti");
+              setFormValue({ ...formValue, street: e.target.value });
+            }}
           />
         )}
 
