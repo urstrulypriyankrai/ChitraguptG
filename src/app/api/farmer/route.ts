@@ -1,21 +1,32 @@
 import { NextRequest } from "next/server";
-
+import { z } from "zod";
 import prisma from "@/lib/prisma";
+import { checkDataValidation } from "../_utils/CheckDataValidation";
 
 export async function GET(request: NextRequest) {
   console.log(request);
   const allParty = await prisma.party.findMany();
 
   return Response.json({
-    messager: "hi",
+    message: "hi",
     party: allParty,
   });
 }
 
+/*
+@POST
+*/
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json(); //extract data from req
-    console.log(data);
+
+    const farmerValidation = checkDataValidation(farmerSchema, data);
+    // console.log(farmerValidation.error);
+    if (!farmerValidation.success)
+      return Response.json(
+        { message: "data Validataion failed" },
+        { status: 500 }
+      );
 
     // check if user is already present
     const isUserAlreadyPresent = await prisma.farmer.findMany({
@@ -26,7 +37,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log(isUserAlreadyPresent, "present users");
+    // console.log(isUserAlreadyPresent, "present users");
 
     if (isUserAlreadyPresent.length > 0) {
       return Response.json(
@@ -65,3 +76,12 @@ export async function POST(request: NextRequest) {
     }
   }
 }
+
+const farmerSchema = z.object({
+  partyName: z.string().min(3),
+  fathersName: z.string().min(3),
+  village: z.string().min(3),
+  state: z.string().min(3),
+  zipCode: z.string().length(6),
+  mobile: z.string().min(10).max(13),
+});

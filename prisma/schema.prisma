@@ -77,7 +77,7 @@ model farmer {
 
 model Transaction {
   id                Int               @id @default(autoincrement())
-  transactionNumber String?           @unique // Optional: Unique transaction number
+  transactionNumber String?           @unique // Optional: Unique 
   type              TransactionType
   partyId           Int?
   totalAmount       Decimal           @db.Decimal(10, 2)
