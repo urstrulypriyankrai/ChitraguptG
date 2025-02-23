@@ -7,6 +7,7 @@ import VILLAGE_DATA from "@/../data/villages-seoni.json";
 import STATE_DATA from "@/../data/state-districts.json";
 import { z } from "zod";
 import { Button } from "../ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const allStates = Object.keys(STATE_DATA as StateData);
 const defaultState = "Madhya Pradesh"; // Define default state as a constant
@@ -36,6 +37,7 @@ export default function CreateNewFarmer() {
     state: [],
     email: [],
     district: [],
+    zipCode: [],
   });
   const [stateValue, setStateValue] = useState<string>(defaultState);
   const [districtValue, setDistrictValue] = useState<string>(defaultDistrict);
@@ -44,6 +46,8 @@ export default function CreateNewFarmer() {
     string[] | null
   >(null);
   const [isStateOpen, setIsStateOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { toast } = useToast();
 
   // --- Fetch Districts based on State (using useCallback for memoization) ---
   const fetchDistrictsForState = useCallback(
@@ -138,15 +142,68 @@ export default function CreateNewFarmer() {
     e.preventDefault();
     try {
       const data = formSchema.safeParse(formValue);
+
+      setIsLoading(true);
       if (data.success) {
         const res = await fetch("/api/farmer", {
           method: "POST",
           body: JSON.stringify(formValue),
         });
-        console.log(res);
+        let response = await res.json();
+
+        if (res.status === 200) {
+          response = JSON.parse(response.data);
+          toast({
+            title: `✅ Farmer Created Sucessfull`,
+            description: `farmerName: ${response.name}`,
+            variant: "default",
+          });
+          console.log("toast should be called");
+        } else {
+          toast({
+            title: `❌ Unable to create farmer`,
+            description: `${response.message}`,
+            variant: "destructive",
+          });
+        }
+      } else {
+        // Validation failed, handle errors
+        console.log(data.error);
+        if (data.error) {
+          const errors: ErrorMsgObj = {
+            partyName: [],
+            fathersName: [],
+            partyType: [],
+            gstNumber: [],
+            mobile: [],
+            street: [],
+            state: [],
+            email: [],
+            district: [],
+          }; // Explicitly type the errors object
+
+          data.error.issues.forEach((issue) => {
+            if (issue.path && issue.path.length > 0) {
+              const fieldName = issue.path[0] as keyof ErrorMsgObj; // Type assertion
+
+              if (!errors[fieldName]) {
+                errors[fieldName] = [];
+              }
+              errors[fieldName]?.push(issue);
+            }
+          });
+          setErrorMsg(errors);
+        }
       }
     } catch (err) {
       console.log(err);
+      toast({
+        title: `❌ Unable to create farmer`,
+        description: `farmerName: ${err}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -234,6 +291,7 @@ export default function CreateNewFarmer() {
               label="Enter Office Pincode"
               type="number"
               defaultValue={defaultPincode}
+              message={errorMsg?.zipCode}
               minLength={6}
               maxLength={6}
               required
@@ -246,6 +304,7 @@ export default function CreateNewFarmer() {
         <Button
           onClick={handleSubmit}
           className="text-center mx-auto w-full mb-6 "
+          disabled={isLoading}
         >
           Submit
         </Button>

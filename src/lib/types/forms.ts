@@ -22,4 +22,5 @@ export type ErrorMsgObj = {
   state: ZodIssue[];
   email: ZodIssue[];
   district: ZodIssue[];
+  zipCode?: ZodIssue[];
 };
