@@ -14,7 +14,6 @@ export type FormObjectType = {
 
 export type ErrorMsgObj = {
   partyName: ZodIssue[];
-  fathersName: ZodIssue[];
   partyType: ZodIssue[];
   gstNumber: ZodIssue[];
   mobile: ZodIssue[];
