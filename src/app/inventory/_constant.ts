@@ -2,7 +2,7 @@ export const INVENTORY_TILES = [
   {
     _id: 1,
     name: "Add Product",
-    href: "/inventory-management/add-product",
+    href: "/inventory/product/create",
     icon: "➕", // Plus sign emoji for adding
     description: "Add a new product to the inventory database.",
   },
@@ -16,7 +16,7 @@ export const INVENTORY_TILES = [
   {
     _id: 3,
     name: "View All Products",
-    href: "/inventory-management/view-products",
+    href: "/inventory/product",
     icon: "📋", // Clipboard emoji for viewing items
     description: "View all products currently in inventory.",
   },

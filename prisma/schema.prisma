@@ -13,27 +13,36 @@ model Product {
   name              String
   description       String?
   category          Category
-  unit              Unit
   inStock           Decimal  @default(0) @db.Decimal(10, 2)
   lowStockThreshold Int      @default(10)
-  price             Decimal  @db.Decimal(10, 2)
-  hsnCode           String?  @db.VarChar(8)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  variants     ProductVariant[]
   transactions TransactionItem[]
   stockHistory StockHistory[]
   tax          Tax               @relation(fields: [taxHsnCode], references: [hsnCode])
   taxHsnCode   String            @db.VarChar(8)
-  images       ProductImage[] // New: Product Images
 }
 
-model ProductImage {
-  id        Int     @id @default(autoincrement())
-  productId Int
-  url       String // URL of the image
-  product   Product @relation(fields: [productId], references: [id])
+model ProductVariant {
+  id         Int     @id @default(autoincrement())
+  productId  Int
+  weight     Decimal @db.Decimal(10, 2) // Weight of the variant (e.g., 1, 10)
+  weightUnit Unit // Unit of weight (e.g., KG)
+  price      Decimal @db.Decimal(10, 2) // Price for this variant
+  inStock    Decimal @default(0) @db.Decimal(10, 2) // Stock specific to this variant
+
+  product Product @relation(fields: [productId], references: [id])
 }
+
+// model ProductImage {
+//   id        Int     @id @default(autoincrement())
+//   productId Int
+//   url       String // URL of the image
+//   product   Product @relation(fields: [productId], references: [id])
+// }
 
 model Party {
   id            Int       @id @default(autoincrement())
