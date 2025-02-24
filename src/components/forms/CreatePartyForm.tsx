@@ -8,7 +8,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { FormObjectType, ErrorMsgObj } from "@/lib/types/forms";
-import CreateNewFarmer from "./CreateNewFarmer";
 
 const initialFormValue = {
   partyName: "",
@@ -39,7 +38,6 @@ const formSchema = z.object({
 const CreatePartyForm = () => {
   const [errorMsg, setErrorMsg] = useState<ErrorMsgObj>({
     partyName: [],
-    fathersName: [],
     partyType: [],
     gstNumber: [],
     mobile: [],
@@ -49,15 +47,20 @@ const CreatePartyForm = () => {
     district: [],
   });
   const [formValue, setFormValue] = useState(initialFormValue);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+
     try {
+      setIsLoading(true);
       const parsedData = formSchema.safeParse(formValue);
       console.log("Parsed Form Data", parsedData.error?.errors);
       console.log("street", formValue);
     } catch (error) {
       console.error("Validation Failed", error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -118,20 +121,18 @@ const CreatePartyForm = () => {
     <div className="md:w-[60vw] w-[90vw] mx-auto">
       <form className="space-y-6 mb-6">
         <PartyType setFormValue={setFormValue} name="partyType" />
-        {formValue.partyType != "FARMER" ? (
-          <PartyFrom
-            formValue={formValue}
-            setFormValue={setFormValue}
-            errorMsg={errorMsg}
-          />
-        ) : (
-          <CreateNewFarmer />
-        )}
+
+        <PartyFrom
+          formValue={formValue}
+          setFormValue={setFormValue}
+          errorMsg={errorMsg}
+        />
       </form>
       {formValue.partyType !== "FARMER" && (
         <Button
           onClick={handleSubmit}
           className="text-center mx-auto w-full mb-6 "
+          disabled={isLoading}
         >
           Submit
         </Button>
@@ -209,7 +210,7 @@ const PartyType = ({
   setFormValue: React.Dispatch<SetStateAction<FormObjectType>>;
   name: string;
 }) => {
-  const partyType = ["SUPPLIER", "RETAILER", "FARMER"];
+  const partyType = ["SUPPLIER", "RETAILER"];
   return (
     <RadioGroup
       name={name}

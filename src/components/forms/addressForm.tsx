@@ -64,7 +64,6 @@ const AddressForm = ({
             type="text"
             required
             onChange={(e) => {
-              console.log(e.target.value, "form ti");
               setFormValue({ ...formValue, street: e.target.value });
             }}
           />
