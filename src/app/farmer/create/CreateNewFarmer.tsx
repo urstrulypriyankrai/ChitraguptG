@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react"; // Import useCallback
-import { LabeledInput } from "../ui/LabledInput";
+import { LabeledInput } from "../../../components/ui/LabledInput";
 import { ErrorMsgObj } from "@/lib/types/forms";
-import CustomSelectBox from "./CustomSelectBox"; // Assuming CustomSelectBox is in the same directory
+import CustomSelectBox from "../../../components/forms/CustomSelectBox"; // Assuming CustomSelectBox is in the same directory
 import VILLAGE_DATA from "@/../data/villages-seoni.json";
 import STATE_DATA from "@/../data/state-districts.json";
 import { z } from "zod";
-import { Button } from "../ui/button";
+import { Button } from "../../../components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 const allStates = Object.keys(STATE_DATA as StateData);
@@ -92,7 +92,7 @@ export default function CreateNewFarmer() {
     if (!data.success)
       setErrorMsg((prevErrors) => ({
         ...prevErrors,
-        mobile: data.error.errors,
+        mobile: data.error.flatten().formErrors,
       }));
     else setErrorMsg((prevErrors) => ({ ...prevErrors, mobile: [] }));
   }, [formValue.mobile]);
@@ -106,7 +106,7 @@ export default function CreateNewFarmer() {
     if (!data.success)
       setErrorMsg((prevErrors) => ({
         ...prevErrors,
-        partyName: data.error?.errors,
+        partyName: data.error.flatten().formErrors,
       }));
     else setErrorMsg((prevErrors) => ({ ...prevErrors, partyName: [] }));
   }, [formValue.partyName]);
@@ -120,7 +120,7 @@ export default function CreateNewFarmer() {
     if (!data.success)
       setErrorMsg((prevErrors) => ({
         ...prevErrors,
-        fathersName: data.error?.errors,
+        fathersName: data.error.flatten().formErrors,
       }));
     else setErrorMsg((prevErrors) => ({ ...prevErrors, fathersName: [] }));
   }, [formValue.fathersName]);
@@ -168,31 +168,12 @@ export default function CreateNewFarmer() {
         }
       } else {
         // Validation failed, handle errors
-        console.log(data.error);
         if (data.error) {
-          const errors: ErrorMsgObj = {
-            partyName: [],
-            fathersName: [],
-            partyType: [],
-            gstNumber: [],
-            mobile: [],
-            street: [],
-            state: [],
-            email: [],
-            district: [],
-          }; // Explicitly type the errors object
-
-          data.error.issues.forEach((issue) => {
-            if (issue.path && issue.path.length > 0) {
-              const fieldName = issue.path[0] as keyof ErrorMsgObj; // Type assertion
-
-              if (!errors[fieldName]) {
-                errors[fieldName] = [];
-              }
-              errors[fieldName]?.push(issue);
-            }
+          const error = data.error.flatten().fieldErrors;
+          Object.entries(error).map(([key, value]) => {
+            setErrorMsg({ ...errorMsg, [key]: value });
           });
-          setErrorMsg(errors);
+          console.log(error);
         }
       }
     } catch (err) {
@@ -234,7 +215,7 @@ export default function CreateNewFarmer() {
         />
         <LabeledInput
           name="fathersName"
-          label="Enter Fathers Number"
+          label="Enter Fathers Name"
           required
           type="text"
           message={errorMsg?.fathersName}
