@@ -27,12 +27,13 @@ model Product {
 }
 
 model ProductVariant {
-  id         Int     @id @default(autoincrement())
-  productId  Int
-  weight     Decimal @db.Decimal(10, 2) // Weight of the variant (e.g., 1, 10)
-  weightUnit Unit // Unit of weight (e.g., KG)
-  price      Decimal @db.Decimal(10, 2) // Price for this variant
-  inStock    Decimal @default(0) @db.Decimal(10, 2) // Stock specific to this variant
+  id             Int     @id @default(autoincrement())
+  productId      Int
+  weight         Decimal @db.Decimal(10, 2) // Weight of the variant (e.g., 1, 10)
+  weightUnit     Unit // Unit of weight (e.g., KG)
+  price          Decimal @db.Decimal(10, 2) // Price for this variant
+  inStock        Decimal @default(0) @db.Decimal(10, 2) // Stock specific to this variant
+  goDownLocation String  @unique
 
   product Product @relation(fields: [productId], references: [id])
 }
@@ -69,7 +70,8 @@ model farmer {
   id            Int      @id @default(autoincrement())
   name          String
   fathersName   String
-  mobile        String
+  mobile        String   @unique
+  aadhar        String?  @unique
   village       String
   district      String   @default("seoni")
   state         String   @default("madhya pradesh")
