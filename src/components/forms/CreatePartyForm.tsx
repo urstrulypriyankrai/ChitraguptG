@@ -20,7 +20,7 @@ const initialFormValue = {
   street: "",
   state: "",
   district: "",
-  zipCode: "",
+  zipCode: "480991",
 };
 
 const formSchema = z.object({
@@ -65,11 +65,10 @@ const CreatePartyForm = () => {
       if (parsedData.success) {
         const res = await fetch("/api/party", {
           method: "POST",
-          body: JSON.stringify({ ...formValue }),
+          body: JSON.stringify(formValue),
         });
         if (res.status === 200) {
-          let data = await res.json();
-          data = JSON.parse(data.data);
+          const data = await res.json();
           toast({
             variant: "default",
             title: "✅ Party Created Successfuly!",

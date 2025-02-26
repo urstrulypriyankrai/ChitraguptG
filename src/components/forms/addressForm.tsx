@@ -74,11 +74,14 @@ const AddressForm = ({
           name="pincode"
           label="Enter Office Pincode"
           type="number"
-          defaultValue={480991}
+          defaultValue={formValue.zipCode}
           minLength={6}
           maxLength={6}
           message={errorMsg.zipCode}
           required
+          onChange={(e) => {
+            setFormValue({ ...formValue, zipCode: e.target.value });
+          }}
         />
       </div>
     </div>
