@@ -1,7 +1,6 @@
 "use client";
 import InputErrorMsg from "@/app/inventory/party/create/InputErrorMsg";
 import * as React from "react";
-import { ZodIssue } from "zod";
 // type Message = { code: string; message: string }; // Singular object, not an array
 
 interface LabeledInputProps extends React.ComponentProps<"input"> {
@@ -11,7 +10,7 @@ interface LabeledInputProps extends React.ComponentProps<"input"> {
   error?: boolean;
   danger?: boolean;
   placeholder?: string;
-  message?: ZodIssue[];
+  message: string[];
   hidden?: boolean;
 }
 
@@ -38,7 +37,7 @@ const LabeledInput = React.forwardRef<HTMLInputElement, LabeledInputProps>(
           </label>
         </div>
 
-        {message && <InputErrorMsg message={message} />}
+        {<InputErrorMsg message={message} />}
       </div>
     );
   }

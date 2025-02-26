@@ -1,5 +1,5 @@
 import PageHeading from "@/app/_components/PageHeading";
-import CreateNewFarmer from "@/components/forms/CreateNewFarmer";
+import CreateNewFarmer from "@/app/farmer/create/CreateNewFarmer";
 import React from "react";
 
 const page = () => {

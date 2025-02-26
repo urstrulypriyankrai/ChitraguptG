@@ -3,16 +3,17 @@ import React, { useEffect, useState } from "react";
 import { LabeledInput } from "../ui/LabledInput";
 import Data from "@/../data/state-districts.json";
 import CustomSelectBox from "./CustomSelectBox";
-import { FormObjectType } from "@/lib/types/forms";
-import villages from "@/../data/villages-seoni.json";
+import { ErrorMsgObj, FormObjectType } from "@/lib/types/forms";
 const allStates = Object.keys(Data as StateData);
 
 const AddressForm = ({
   formValue,
   setFormValue,
+  errorMsg,
 }: {
   formValue: FormObjectType;
   setFormValue: (prev: FormObjectType) => void;
+  errorMsg: ErrorMsgObj;
 }) => {
   const [stateValue, setStateValue] = useState<string>("");
   const [districtValue, setDistrictValue] = useState("");
@@ -39,35 +40,16 @@ const AddressForm = ({
     <div className="">
       <h2>Address details</h2>
       <div className="grid md:grid-cols-12 grid-cols-6 [&>*]:col-span-6 p-6 gap-6 my-2 w-full">
-        {formValue.partyType == "FARMER" ? (
-          <>
-            <CustomSelectBox
-              data={Object.keys(villages.villages)}
-              name="street"
-              setValue={setStateValue}
-              placeholder="Enter village"
-            />
-            <LabeledInput
-              name="fathersName"
-              label="Enter Father Name"
-              type="text"
-              required
-              onChange={(e) => {
-                setFormValue({ ...formValue, fathersName: e.target.value });
-              }}
-            />
-          </>
-        ) : (
-          <LabeledInput
-            name="street"
-            label="Enter Office Locality"
-            type="text"
-            required
-            onChange={(e) => {
-              setFormValue({ ...formValue, street: e.target.value });
-            }}
-          />
-        )}
+        <LabeledInput
+          name="street"
+          label="Enter Office Locality"
+          type="text"
+          required
+          message={errorMsg.street}
+          onChange={(e) => {
+            setFormValue({ ...formValue, street: e.target.value });
+          }}
+        />
 
         <CustomSelectBox
           data={allStates}
@@ -76,6 +58,7 @@ const AddressForm = ({
           placeholder="Select a State"
           disabled={false}
           onOpenChange={() => setIsStateOpen(!isStateOpen)}
+          message={errorMsg.state}
         />
 
         <CustomSelectBox
@@ -84,6 +67,7 @@ const AddressForm = ({
           setValue={setDistrictValue}
           disabled={!possibleDistrictValue?.length}
           placeholder="Select a District"
+          message={errorMsg.district}
         />
 
         <LabeledInput
@@ -93,6 +77,7 @@ const AddressForm = ({
           defaultValue={480991}
           minLength={6}
           maxLength={6}
+          message={errorMsg.zipCode}
           required
         />
       </div>

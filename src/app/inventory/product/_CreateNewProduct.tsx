@@ -3,8 +3,6 @@ import PageHeading from "@/app/_components/PageHeading";
 import { LabeledInput } from "@/components/ui/LabledInput";
 import React, { useState } from "react";
 
-type Props = {};
-
 export default function _CreateNewProduct() {
   return (
     <>

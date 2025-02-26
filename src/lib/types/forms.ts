@@ -1,5 +1,3 @@
-import { ZodIssue } from "zod";
-
 export type FormObjectType = {
   fathersName: string;
   partyName: string;
@@ -10,16 +8,18 @@ export type FormObjectType = {
   street: string;
   state: string;
   district: string;
+  zipCode: string;
 };
 
 export type ErrorMsgObj = {
-  partyName: ZodIssue[];
-  partyType: ZodIssue[];
-  gstNumber: ZodIssue[];
-  mobile: ZodIssue[];
-  street: ZodIssue[];
-  state: ZodIssue[];
-  email: ZodIssue[];
-  district: ZodIssue[];
-  zipCode?: ZodIssue[];
+  partyName: string[];
+  fathersName: string[];
+  partyType: string[];
+  gstNumber: string[];
+  mobile: string[];
+  street: string[];
+  state: string[];
+  email: string[];
+  district: string[];
+  zipCode: string[];
 };
