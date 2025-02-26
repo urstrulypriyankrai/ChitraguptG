@@ -8,6 +8,7 @@ import STATE_DATA from "@/../data/state-districts.json";
 import { z } from "zod";
 import { Button } from "../../../components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { farmerSchema } from "@/lib/ZodSchema/farmerSchema";
 
 const allStates = Object.keys(STATE_DATA as StateData);
 const defaultState = "Madhya Pradesh"; // Define default state as a constant
@@ -141,7 +142,7 @@ export default function CreateNewFarmer() {
   ) {
     e.preventDefault();
     try {
-      const data = formSchema.safeParse(formValue);
+      const data = farmerSchema.safeParse(formValue);
 
       setIsLoading(true);
       if (data.success) {
@@ -296,16 +297,6 @@ export default function CreateNewFarmer() {
     </div>
   );
 }
-
-const formSchema = z.object({
-  partyName: z.string().min(3, "kisaan ka nam bharo"),
-  fathersName: z.string().min(3, "Please enter farmer name"),
-  village: z.string().min(3, "village name required"),
-  state: z.string().min(2, "State is required"),
-  district: z.string().min(2, "District is required"),
-  mobile: z.string().min(10).max(13, "mobile number should be of 10 digits"),
-  zipCode: z.string().length(6, "Pincode 6 number ka hota h"),
-});
 
 interface StateData {
   [state: string]: DistrictData;
