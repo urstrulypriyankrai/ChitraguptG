@@ -43,6 +43,7 @@ const CreatePartyForm = () => {
   const [errorMsg, setErrorMsg] = useState<ErrorMsgObj>({
     partyName: [],
     partyType: [],
+    fathersName: [],
     gstNumber: [],
     mobile: [],
     street: [],
@@ -98,6 +99,7 @@ const CreatePartyForm = () => {
           email: fieldErrors.email || [],
           district: fieldErrors.district || [],
           zipCode: fieldErrors.zipCode || [],
+          fathersName: [],
         };
         setErrorMsg(newErrorMsg);
         console.log(fieldErrors);
@@ -227,7 +229,7 @@ const PartyFrom = ({
         label="Enter Contact Number"
         required
         type="number"
-        message={errorMsg?.mobile}
+        message={errorMsg.mobile}
         maxLength={13}
         minLength={10}
         onChange={(e) => setFormValue({ ...formValue, mobile: e.target.value })}

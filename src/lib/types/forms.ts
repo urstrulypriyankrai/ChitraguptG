@@ -13,13 +13,13 @@ export type FormObjectType = {
 
 export type ErrorMsgObj = {
   partyName: string[];
-  fathersName?: string[];
+  fathersName: string[];
   partyType: string[];
   gstNumber: string[];
-  mobile?: string[];
+  mobile: string[];
   street: string[];
   state: string[];
   email: string[];
   district: string[];
-  zipCode?: string[];
+  zipCode: string[];
 };

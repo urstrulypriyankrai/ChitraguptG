@@ -10,7 +10,7 @@ interface LabeledInputProps extends React.ComponentProps<"input"> {
   error?: boolean;
   danger?: boolean;
   placeholder?: string;
-  message?: string[];
+  message: string[];
   hidden?: boolean;
 }
 

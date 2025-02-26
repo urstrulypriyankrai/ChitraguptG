@@ -218,7 +218,7 @@ export default function CreateNewFarmer() {
           label="Enter Fathers Name"
           required
           type="text"
-          message={errorMsg?.fathersName}
+          message={errorMsg.fathersName}
           minLength={3}
           onChange={(e) =>
             setFormValue((prev) => ({ ...prev, fathersName: e.target.value }))
@@ -236,6 +236,7 @@ export default function CreateNewFarmer() {
               }}
               placeholder="Enter village"
               defaultValue={defaultVillage}
+              message={[]}
             />
 
             <CustomSelectBox
@@ -254,6 +255,7 @@ export default function CreateNewFarmer() {
               disabled={false}
               onOpenChange={() => setIsStateOpen(!isStateOpen)}
               defaultValue={defaultState}
+              message={errorMsg.state}
             />
 
             <CustomSelectBox
@@ -265,6 +267,7 @@ export default function CreateNewFarmer() {
               placeholder="Select a District"
               defaultValue={defaultDistrict}
               disabled={!possibleDistrictValue}
+              message={errorMsg.district}
             />
 
             <LabeledInput

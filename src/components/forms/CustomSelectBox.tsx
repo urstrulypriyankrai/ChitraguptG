@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Dispatch, SetStateAction } from "react";
-import { ZodIssue } from "zod";
+import InputErrorMsg from "./ErrorMessage";
 
 type Props = {
   key?: string;
@@ -15,7 +15,7 @@ type Props = {
   name: string;
   disabled?: boolean;
   defaultValue?: string;
-  message?: ZodIssue[] | string;
+  message: string[];
 
   setValue?: (
     value: string
@@ -69,7 +69,7 @@ const CustomSelectBox = ({
           )}
         </SelectContent>
       </Select>
-      <span className="text-red-500 italic">{message}</span>
+      <InputErrorMsg message={message} />
     </div>
   );
 };
