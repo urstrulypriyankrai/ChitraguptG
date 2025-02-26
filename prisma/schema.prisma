@@ -48,7 +48,7 @@ model Party {
   id            Int       @id @default(autoincrement())
   name          String
   type          PartyType
-  mobile        String?   @unique
+  mobile        String    @unique
   email         String?   @unique
   street        String?
   district      String    @default("seoni")
@@ -57,7 +57,7 @@ model Party {
   creditBalance Decimal   @default(0) @db.Decimal(10, 2)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  gstNumber     String?   @unique @db.VarChar(15)
+  gstNumber     String    @unique @db.VarChar(15)
 
   transactions  Transaction[]
   creditEntries CreditLedger[]

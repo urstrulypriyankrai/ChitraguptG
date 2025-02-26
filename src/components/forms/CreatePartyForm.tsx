@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { FormObjectType, ErrorMsgObj } from "@/lib/types/forms";
 import { useToast } from "@/hooks/use-toast";
+import { partySchema } from "@/lib/ZodSchema/partySchema";
 
 const initialFormValue = {
   partyName: "",
@@ -20,24 +21,8 @@ const initialFormValue = {
   street: "",
   state: "",
   district: "",
-  zipCode: "",
+  zipCode: "480991",
 };
-
-const formSchema = z.object({
-  partyName: z.string().min(2),
-  fathersName: z.string().optional(),
-  gstNumber: z
-    .string()
-    .optional()
-    .refine((val) => !val || /^[0-9A-Z]{15}$/.test(val), {
-      message: "Invalid GST Number",
-    }),
-  email: z.string().email("Invalid email format"),
-  street: z.string().min(3, "Street must be at least 3 characters"),
-  state: z.string().min(2, "State is required"),
-  district: z.string().min(2, "District is required"),
-  zipCode: z.string().length(6),
-});
 
 const CreatePartyForm = () => {
   const [errorMsg, setErrorMsg] = useState<ErrorMsgObj>({
@@ -61,19 +46,18 @@ const CreatePartyForm = () => {
 
     try {
       setIsLoading(true);
-      const parsedData = formSchema.safeParse(formValue);
+      const parsedData = partySchema.safeParse(formValue);
       if (parsedData.success) {
         const res = await fetch("/api/party", {
           method: "POST",
-          body: JSON.stringify({ ...formValue }),
+          body: JSON.stringify(formValue),
         });
         if (res.status === 200) {
-          let data = await res.json();
-          data = JSON.parse(data.data);
+          const data = await res.json();
           toast({
             variant: "default",
             title: "✅ Party Created Successfuly!",
-            description: `Party Name: ${data.partyName}`,
+            description: `${data.message}`,
           });
         } else {
           toast({
