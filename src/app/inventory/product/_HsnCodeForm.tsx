@@ -1,38 +1,73 @@
 "use client";
+import CustomSelectBox from "@/components/forms/CustomSelectBox";
 import { LabeledInput } from "@/components/ui/LabledInput";
+import { GST_RATE_MAP } from "@/lib/ZodSchema/productSchema";
 
 import React, { useEffect, useState } from "react";
-
-const HsnCodeForm = () => {
-  const [hsnCode, setHsnCode] = useState("");
-  const [taxData, setTaxData] = useState({
-    hsnCode: "",
-    gstRate: "",
-  });
-
+type Props = {
+  taxInformation: { hsnCode: string; gstRate: string };
+  setTaxInformation: React.Dispatch<
+    React.SetStateAction<{ hsnCode: string; gstRate: string }>
+  >;
+};
+const HsnCodeForm = ({ taxInformation, setTaxInformation }: Props) => {
+  const [isGstRateDisabled, setisGstRateDisabled] = useState(false);
   useEffect(() => {
-    if (hsnCode.length < 4) return;
+    setisGstRateDisabled(false);
+    if (taxInformation.hsnCode.length < 4) return;
     const ref = setTimeout(async () => {
-      let res = await fetch(`/api/product/hsnCode?hsnCode=${hsnCode}`);
-      res = await res.json();
-      console.log(res);
+      const response = await fetch(
+        `/api/product/hsnCode?hsnCode=${taxInformation.hsnCode}`
+      );
+      const res = await response.json();
+      if (res.gstRate) {
+        setTaxInformation({
+          ...taxInformation,
+          gstRate: res.gstRate,
+        });
+        setisGstRateDisabled(true);
+      }
     }, 2000);
 
     return () => clearTimeout(ref);
-  }, [hsnCode]);
+  }, [taxInformation.hsnCode]);
 
   return (
     <div>
       <h2>Tax Details</h2>
-      <LabeledInput
-        label="HSN Code"
-        name="hsnCode"
-        message={[]}
-        type="number"
-        minLength={4}
-        maxLength={8}
-        onChange={(e) => setHsnCode(e.target.value)}
-      />
+      <div className="flex flex-row [&>*]:w-full space-x-6 mt-2">
+        <LabeledInput
+          label="HSN Code"
+          name="hsnCode"
+          message={[]}
+          type="number"
+          minLength={4}
+          maxLength={8}
+          onChange={(e) =>
+            setTaxInformation({ ...taxInformation, hsnCode: e.target.value })
+          }
+        />
+
+        <CustomSelectBox
+          data={
+            isGstRateDisabled
+              ? [taxInformation.gstRate]
+              : Object.keys(GST_RATE_MAP)
+          }
+          name="gstRate"
+          placeholder="Select GST Rate"
+          message={[]}
+          disabled={isGstRateDisabled}
+          value={isGstRateDisabled ? taxInformation.gstRate : undefined}
+          setValue={(value) => {
+            if (!isGstRateDisabled)
+              setTaxInformation((prev) => ({
+                ...prev,
+                gstRate: value,
+              }));
+          }}
+        />
+      </div>
     </div>
   );
 };

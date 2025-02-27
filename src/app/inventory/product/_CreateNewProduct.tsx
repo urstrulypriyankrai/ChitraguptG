@@ -32,6 +32,10 @@ const NewProductForm = () => {
       goDownLocation: "",
     },
   ]);
+  const [taxInformation, setTaxInformation] = useState({
+    gstRate: "",
+    hsnCode: "",
+  });
 
   return (
     <div className="md:w-[60vw] w-[90vw] mx-auto space-y-6 mt-6">
@@ -55,16 +59,10 @@ const NewProductForm = () => {
         message={[]}
         placeholder="Select Category"
       />
-      {/* <LabeledInput
-        label="HSN Code"
-        name="hsnCode"
-        message={[]}
-        type="number"
-        minLength={4}
-        maxLength={8}
-        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-      /> */}
-      <_HsnCodeForm />
+      <_HsnCodeForm
+        taxInformation={taxInformation}
+        setTaxInformation={setTaxInformation}
+      />
     </div>
   );
 };
