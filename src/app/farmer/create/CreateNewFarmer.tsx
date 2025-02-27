@@ -1,14 +1,13 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react"; // Import useCallback
 import { LabeledInput } from "../../../components/ui/LabledInput";
-import { ErrorMsgObj } from "@/lib/types/forms";
 import CustomSelectBox from "../../../components/forms/CustomSelectBox"; // Assuming CustomSelectBox is in the same directory
 import VILLAGE_DATA from "@/../data/villages-seoni.json";
 import STATE_DATA from "@/../data/state-districts.json";
 import { z } from "zod";
 import { Button } from "../../../components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { farmerSchema } from "@/lib/ZodSchema/farmerSchema";
+import { farmerSchema, ErrorMsgObj } from "@/lib/ZodSchema/farmerSchema";
 
 const allStates = Object.keys(STATE_DATA as StateData);
 const defaultState = "Madhya Pradesh"; // Define default state as a constant
@@ -21,6 +20,7 @@ export default function CreateNewFarmer() {
   const [formValue, setFormValue] = useState({
     partyName: "",
     partyType: "FARMER",
+    aadhar: "",
     fathersName: "",
     mobile: "",
     village: defaultVillage,
@@ -31,6 +31,7 @@ export default function CreateNewFarmer() {
   const [errorMsg, setErrorMsg] = useState<ErrorMsgObj>({
     partyName: [],
     fathersName: [],
+    aadhar: [],
     partyType: [],
     gstNumber: [],
     mobile: [],
@@ -178,12 +179,14 @@ export default function CreateNewFarmer() {
         }
       }
     } catch (err) {
-      console.log(err);
-      toast({
-        title: `❌ Unable to create farmer`,
-        description: `farmerName: ${err}`,
-        variant: "destructive",
-      });
+      if (err instanceof Error) {
+        console.log(err);
+        toast({
+          title: `❌ Unable to create farmer`,
+          description: `farmerName: ${err.message}`,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -212,6 +215,18 @@ export default function CreateNewFarmer() {
           minLength={10}
           onChange={(e) =>
             setFormValue((prev) => ({ ...prev, mobile: e.target.value }))
+          }
+        />
+        <LabeledInput
+          name="aadhar"
+          label="Enter Aadhar Number"
+          required
+          type="number"
+          message={errorMsg?.aadhar}
+          maxLength={13}
+          minLength={10}
+          onChange={(e) =>
+            setFormValue((prev) => ({ ...prev, aadhar: e.target.value }))
           }
         />
         <LabeledInput

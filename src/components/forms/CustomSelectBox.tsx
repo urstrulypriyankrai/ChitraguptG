@@ -16,6 +16,7 @@ type Props = {
   disabled?: boolean;
   defaultValue?: string;
   message: string[];
+  value?: string;
 
   setValue?: (
     value: string
@@ -33,12 +34,14 @@ const CustomSelectBox = ({
   onOpenChange,
   defaultValue,
   message,
+  value,
   ...props
 }: Props) => {
   // Destructured props
   return (
     <div className="flex flex-col">
       <Select
+        value={value}
         onValueChange={(val) => {
           if (setValue) setValue(val);
         }}
