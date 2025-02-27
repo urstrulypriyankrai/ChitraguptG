@@ -8,34 +8,37 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// old models
+
 model Product {
-  id                Int      @id @default(autoincrement())
+  id                Int               @id @default(autoincrement())
   name              String
   description       String?
   category          Category
-  inStock           Decimal  @default(0) @db.Decimal(10, 2)
-  lowStockThreshold Int      @default(10)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  variants     ProductVariant[]
-  transactions TransactionItem[]
-  stockHistory StockHistory[]
-  tax          Tax               @relation(fields: [taxHsnCode], references: [hsnCode])
-  taxHsnCode   String            @db.VarChar(8)
+  inStock           Decimal           @default(0) @db.Decimal(10, 2)
+  lowStockThreshold Int               @default(10)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  variants          ProductVariant[]
+  transactions      TransactionItem[]
+  stockHistory      StockHistory[]
+  tax               Tax               @relation(fields: [taxHsnCode], references: [hsnCode])
+  taxHsnCode        String            @db.VarChar(8)
 }
 
 model ProductVariant {
-  id             Int     @id @default(autoincrement())
+  id             Int        @id @default(autoincrement())
   productId      Int
-  weight         Decimal @db.Decimal(10, 2) // Weight of the variant (e.g., 1, 10)
-  weightUnit     Unit // Unit of weight (e.g., KG)
-  price          Decimal @db.Decimal(10, 2) // Price for this variant
-  inStock        Decimal @default(0) @db.Decimal(10, 2) // Stock specific to this variant
-  goDownLocation String  @unique
+  weight         Decimal    @db.Decimal(10, 2)
+  weightUnit     Unit
+  price          Decimal    @db.Decimal(10, 2) // Selling price
+  costPrice      Decimal?   @db.Decimal(10, 2) // Last purchase price
+  inStock        Decimal    @default(0) @db.Decimal(10, 2)
+  goDownLocation String     @unique
+  purchases      Purchase[]
 
-  product Product @relation(fields: [productId], references: [id])
+  product      Product        @relation(fields: [productId], references: [id])
+  StockHistory StockHistory[]
 }
 
 // model ProductImage {
@@ -44,6 +47,21 @@ model ProductVariant {
 //   url       String // URL of the image
 //   product   Product @relation(fields: [productId], references: [id])
 // }
+
+model Purchase {
+  id           Int      @id @default(autoincrement())
+  variantId    Int
+  supplierId   Int
+  quantity     Decimal  @db.Decimal(10, 2)
+  unitPrice    Decimal  @db.Decimal(10, 2)
+  totalPrice   Decimal  @db.Decimal(10, 2)
+  purchaseDate DateTime @default(now())
+  reference    String?
+
+  variant      ProductVariant @relation(fields: [variantId], references: [id])
+  supplier     Party          @relation(fields: [supplierId], references: [id])
+  stockHistory StockHistory[]
+}
 
 model Party {
   id            Int       @id @default(autoincrement())
@@ -64,6 +82,7 @@ model Party {
   creditEntries CreditLedger[]
   payments      SupplierPayment[]
   stockHistory  StockHistory[]
+  purchases     Purchase[]
 }
 
 model farmer {
@@ -84,6 +103,26 @@ model farmer {
   creditEntries CreditLedger[]
   payments      SupplierPayment[]
   stockHistory  StockHistory[]
+}
+
+model StockHistory {
+  id                     Int                 @id @default(autoincrement())
+  productId              Int
+  variantId              Int?
+  quantity               Decimal             @db.Decimal(10, 2)
+  type                   StockAdjustmentType
+  reason                 String?
+  purchaseId             Int?
+  partyId                Int?
+  date                   DateTime            @default(now())
+  referenceTransactionId Int?
+  farmerId               Int?
+
+  product  Product         @relation(fields: [productId], references: [id])
+  variant  ProductVariant? @relation(fields: [variantId], references: [id])
+  purchase Purchase?       @relation(fields: [purchaseId], references: [id])
+  party    Party?          @relation(fields: [partyId], references: [id])
+  farmer   farmer?         @relation(fields: [farmerId], references: [id])
 }
 
 model Transaction {
@@ -131,22 +170,6 @@ model CreditLedger {
   farmer      farmer?      @relation(fields: [farmerId], references: [id])
 }
 
-model StockHistory {
-  id                     Int                 @id @default(autoincrement())
-  productId              Int
-  quantity               Decimal             @db.Decimal(10, 2)
-  type                   StockAdjustmentType
-  reason                 String?
-  partyId                Int?
-  date                   DateTime            @default(now())
-  referenceTransactionId Int? // Link to a transaction (optional)
-  farmerId               Int?
-
-  product Product @relation(fields: [productId], references: [id])
-  party   Party?  @relation(fields: [partyId], references: [id])
-  farmer  farmer? @relation(fields: [farmerId], references: [id])
-}
-
 model SupplierPayment {
   id          Int      @id @default(autoincrement())
   partyId     Int?
@@ -161,8 +184,15 @@ model SupplierPayment {
 
 model Tax {
   hsnCode  String    @id @db.VarChar(8)
-  gstRate  Decimal   @db.Decimal(5, 2)
+  gstRate  GSTRATE
   products Product[]
+}
+
+enum GSTRATE {
+  ZERO
+  FIVE
+  EIGHTEEN
+  TWENTY_EIGHT
 }
 
 enum Category {

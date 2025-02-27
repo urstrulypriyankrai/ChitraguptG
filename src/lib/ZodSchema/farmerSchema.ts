@@ -14,3 +14,5 @@ export const farmerSchema = z.object({
   mobile: z.string().min(10).max(13, "mobile number should be of 10 digits"),
   zipCode: z.string().length(6, "Pincode 6 number ka hota h"),
 });
+
+
