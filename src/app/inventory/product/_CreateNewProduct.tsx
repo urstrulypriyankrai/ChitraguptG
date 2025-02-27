@@ -25,12 +25,13 @@ const NewProductForm = () => {
   });
   const [variants, setVariants] = useState([
     {
-      weight: 0,
-      weightUnit: "KG",
+      quantity: 0,
+      quantityUnit: "KG",
       price: 0,
       costPrice: 0,
+      sellingPrice: 0,
       inStock: 0,
-      goDownLocation: "",
+      warehouseLocation: "",
     },
   ]);
   const [taxInformation, setTaxInformation] = useState({
@@ -64,7 +65,7 @@ const NewProductForm = () => {
         taxInformation={taxInformation}
         setTaxInformation={setTaxInformation}
       />
-      <ProductVariant />
+      <ProductVariant variants={variants} setVariants={setVariants} />
     </div>
   );
 };
