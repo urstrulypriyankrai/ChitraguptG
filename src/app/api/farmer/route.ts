@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
       where: {
         name: data.partyName,
         fathersName: data.fathersName,
-        village: data.village,
         aadhar: data.aadhar,
       },
     });
@@ -53,10 +52,18 @@ export async function POST(request: NextRequest) {
         name: data.partyName,
         fathersName: data.fathersName,
         aadhar: data.aadhar,
-        village: data.village,
-        state: data.state,
-        zip: parseInt(data.zipCode),
         mobile: data.mobile,
+        address: {
+          create: {
+            village: data.village,
+            district: data.district,
+            state: data.state,
+            zip: data.zipCode,
+          },
+        },
+      },
+      include: {
+        address: true,
       },
     });
 

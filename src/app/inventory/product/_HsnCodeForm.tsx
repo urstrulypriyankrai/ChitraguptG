@@ -1,4 +1,5 @@
 "use client";
+import { PageSubHeading } from "@/app/_components/PageHeading";
 import CustomSelectBox from "@/components/forms/CustomSelectBox";
 import { LabeledInput } from "@/components/ui/LabledInput";
 import { GST_RATE_MAP } from "@/lib/ZodSchema/productSchema";
@@ -34,7 +35,7 @@ const HsnCodeForm = ({ taxInformation, setTaxInformation }: Props) => {
 
   return (
     <div>
-      <h2>Tax Details</h2>
+      <PageSubHeading heading="A. Tax Details" />
       <div className="flex flex-row [&>*]:w-full space-x-6 mt-2">
         <LabeledInput
           label="HSN Code"

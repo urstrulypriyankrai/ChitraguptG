@@ -5,6 +5,7 @@ import { LabeledInput } from "@/components/ui/LabledInput";
 import { CATEGORY } from "@/lib/ZodSchema/productSchema";
 import _HsnCodeForm from "./_HsnCodeForm";
 import React, { useState } from "react";
+import ProductVariant from "./_ProductVariant";
 
 export default function _CreateNewProduct() {
   return (
@@ -36,8 +37,6 @@ const NewProductForm = () => {
     gstRate: "",
     hsnCode: "",
   });
-  console.log(variants);
-  setVariants(variants);
 
   return (
     <div className="md:w-[60vw] w-[90vw] mx-auto space-y-6 mt-6">
@@ -65,6 +64,7 @@ const NewProductForm = () => {
         taxInformation={taxInformation}
         setTaxInformation={setTaxInformation}
       />
+      <ProductVariant />
     </div>
   );
 };
