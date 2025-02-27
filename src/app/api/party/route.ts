@@ -50,10 +50,17 @@ export async function POST(request: NextRequest) {
         email: data.email,
         mobile: data.mobile,
         gstNumber: data.gstNumber,
-        street: data.street,
-        district: data.district,
-        state: data.state,
-        zip: parseInt(data.zipCode),
+        address: {
+          create: {
+            street: data.street,
+            district: data.district,
+            state: data.state,
+            zip: data.zipCode,
+          },
+        },
+      },
+      include: {
+        address: true,
       },
     });
 

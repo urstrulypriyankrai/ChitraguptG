@@ -110,8 +110,8 @@ model Address {
   state    String  @default("madhya pradesh")
   zip      String  @default("480991")
 
-  Party  Party?
   Farmer Farmer?
+  Party  Party?
 }
 
 model StockHistory {
