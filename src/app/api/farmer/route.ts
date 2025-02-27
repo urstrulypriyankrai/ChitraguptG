@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
         name: data.partyName,
         fathersName: data.fathersName,
         village: data.village,
+        aadhar: data.aadhar,
       },
     });
 
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
       data: {
         name: data.partyName,
         fathersName: data.fathersName,
+        aadhar: data.aadhar,
         village: data.village,
         state: data.state,
         zip: parseInt(data.zipCode),

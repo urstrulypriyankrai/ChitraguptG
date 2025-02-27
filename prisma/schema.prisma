@@ -90,7 +90,7 @@ model farmer {
   name          String
   fathersName   String
   mobile        String   @unique
-  aadhar        String?  @unique
+  aadhar        String   @unique
   village       String
   district      String   @default("seoni")
   state         String   @default("madhya pradesh")
