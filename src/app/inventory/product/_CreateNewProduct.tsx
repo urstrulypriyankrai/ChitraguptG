@@ -36,6 +36,8 @@ const NewProductForm = () => {
     gstRate: "",
     hsnCode: "",
   });
+  console.log(variants);
+  setVariants(variants);
 
   return (
     <div className="md:w-[60vw] w-[90vw] mx-auto space-y-6 mt-6">

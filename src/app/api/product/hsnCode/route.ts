@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
-import { NextApiRequest } from "next";
+import { NextRequest } from "next/server";
 
-export async function GET(req: NextApiRequest) {
+export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(`${req.url}`);
     const hsnCode = searchParams.get("hsnCode");

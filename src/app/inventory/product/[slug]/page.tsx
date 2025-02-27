@@ -1,10 +1,12 @@
 import _CreateNewProduct from "../_CreateNewProduct";
-type Props = {
-  params: { slug: string };
-};
 
-export default async function Page(props: Props) {
-  const { slug } = await props.params;
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const slug = (await params).slug;
+
   if (slug === "create") return <_CreateNewProduct />;
-  return <>dynamic page with slug {props.params.slug}</>;
+  return <>dynamic page with slug {slug}</>;
 }
