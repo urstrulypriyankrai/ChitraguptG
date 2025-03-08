@@ -1,99 +1,164 @@
 "use client";
 
+import { revalidateCategoryAction } from "@/actions/product/revalidateCategoryAction";
 import { LabeledInput } from "@/components/ui/LabledInput";
 import { Button } from "@/components/ui/button";
-import { SetStateAction, useState } from "react";
+import { toast } from "@/hooks/use-toast";
+import { categorySchema } from "@/lib/ZodSchema/categorySchema";
+import { useState } from "react";
 
-const CategoryItem = ({
-  categories,
-}: {
-  categories: {
-    name: string;
-  }[];
-}) => {
+const CategoryItem = ({ categories }: { categories: { name: string }[] }) => {
   return (
-    <>
-      <div>
-        <ul>
-          {categories.map((category: { name: string }) => {
-            return (
-              <CategoryListItem key={category.name} name={category.name} />
-            );
-          })}
-        </ul>
-      </div>
-    </>
+    <div>
+      <ul>
+        {categories.map(({ name }) => (
+          <CategoryListItem key={name} name={name} />
+        ))}
+      </ul>
+    </div>
   );
 };
 
 export default CategoryItem;
 
 const CategoryListItem = ({ name }: { name: string }) => {
-  const [isEditPressed, setIsEditPressed] = useState(false);
-  const [labelValue, setLabelValue] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [labelValue, setLabelValue] = useState(name);
 
   return (
-    <li key={name} className="p-2 border-b">
-      <div className="w-full flex justify-between">
-        {isEditPressed ? (
+    <li className="p-2 border-b">
+      <div className="flex justify-between w-full">
+        {isEditing ? (
           <LabeledInput
             label="Enter New Name"
             message={[]}
             name={name}
-            value={name}
-            onChange={(e) => {
-              setLabelValue(e.target.value);
-            }}
+            value={labelValue}
+            onChange={(e) => setLabelValue(e.target.value)}
           />
         ) : (
           <span>{name}</span>
         )}
-        <CategoryButton
-          name={name}
+        <CategoryActions
+          prevName={name}
           labelValue={labelValue}
-          isEditPressed={isEditPressed}
-          setIsEditPressed={setIsEditPressed}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
         />
       </div>
     </li>
   );
 };
 
-const CategoryButton = ({
-  name,
+const CategoryActions = ({
+  prevName,
   labelValue,
-  isEditPressed,
-  setIsEditPressed,
+  isEditing,
+  setIsEditing,
 }: {
-  name: string;
+  prevName: string;
   labelValue: string;
-  isEditPressed: boolean;
-  setIsEditPressed: React.Dispatch<SetStateAction<boolean>>;
+  isEditing: boolean;
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  const handleSave = async () => {
+    if (prevName === labelValue) {
+      setIsEditing(false);
+      return;
+    }
+
+    setIsDisabled(true);
+    const isValidated = categorySchema.safeParse({ name: labelValue });
+
+    if (!isValidated.success) {
+      toast({
+        title: "Unable to Update Category Name",
+        description: "Validation Failed!",
+        variant: "destructive",
+      });
+      setIsDisabled(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/product/category", {
+        method: "PATCH",
+        body: JSON.stringify({ newName: labelValue, prevName }),
+      });
+
+      if (res.ok) {
+        toast({
+          title: "Category Name Changed Successfully",
+          variant: "default",
+        });
+        revalidateCategoryAction();
+      } else {
+        throw new Error("Failed to update category.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Update Failed",
+        description: "Something went wrong!",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDisabled(false);
+      setIsEditing(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm(`Are you sure you want to delete "${prevName}"?`)) return;
+
+    setIsDisabled(true);
+    try {
+      const res = await fetch(`/api/product/category`, {
+        method: "DELETE",
+        body: JSON.stringify({ name: prevName }),
+      });
+
+      if (res.ok) {
+        toast({
+          title: "Category Deleted Successfully",
+          variant: "default",
+        });
+        revalidateCategoryAction();
+      } else {
+        throw new Error("Failed to delete category.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Delete Failed",
+        description: "Something went wrong!",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDisabled(false);
+    }
+  };
+
   return (
     <div className="space-x-2">
-      {!isEditPressed ? (
-        <Button
-          onClick={() => {
-            setIsEditPressed((prev) => !prev);
-          }}
-        >
+      {!isEditing ? (
+        <Button onClick={() => setIsEditing(true)} disabled={isDisabled} >
           Edit
         </Button>
       ) : (
-        <Button
-          onClick={() => {
-            setIsEditPressed((prev) => !prev);
-            if (name != labelValue) {
-              //do save the value
-              
-            }
-          }}
-        >
+        <Button onClick={handleSave} disabled={isDisabled}>
           Save
         </Button>
       )}
-      <Button>Delete</Button>
+      <Button
+        onClick={handleDelete}
+        disabled={isDisabled}
+        variant="destructive"
+      >
+        Delete
+      </Button>
     </div>
   );
 };

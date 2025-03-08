@@ -7,7 +7,11 @@ import { toast } from "@/hooks/use-toast";
 
 import React, { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { categorySchema } from "@/lib/ZodSchema/categorySchema";
+import { z } from "zod";
+
+const categorySchema = z.object({
+  name: z.string().min(1, "Name is required"),
+});
 
 const CreateNewCategory = () => {
   const [name, setName] = useState("");

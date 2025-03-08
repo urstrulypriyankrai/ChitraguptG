@@ -1,8 +1,9 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod"; // Import zod for validation
+import { z } from "zod"; // Import Zod for validation
 
+// Validation schema
 const categorySchema = z.object({
   name: z
     .string()
@@ -10,6 +11,17 @@ const categorySchema = z.object({
     .transform((val) => val.toUpperCase()),
 });
 
+// Helper function to check if a category exists (case-insensitive)
+const isThisExistingCategory = async (name: string) => {
+  const existingCategory = await prisma.productCategory.findFirst({
+    where: {
+      name,
+    },
+  });
+  return !!existingCategory;
+};
+
+// ================== POST: Create Category =============================
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -21,22 +33,19 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
     const { name } = validation.data;
 
-    const existingCategory = await prisma.productCategory.findFirst({
-      where: { name },
-    });
-
-    if (existingCategory) {
+    if (await isThisExistingCategory(name)) {
       return NextResponse.json(
         { message: "Category already exists" },
         { status: 409 }
       );
     }
 
-    const newCategory = await prisma.productCategory.create({
-      data: { name },
-    });
+    const newCategory = await prisma.productCategory.create({ data: { name } });
+
+    // Revalidate cache
     revalidateTag("productCategory");
     revalidatePath("/admin/product/manageCategory");
 
@@ -45,51 +54,78 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating category:", error); // Enhanced logging
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { message: "Validation error", errors: error.errors },
-        { status: 400 }
-      );
-    }
-
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { message: "Failed to create category: " + error.message },
-        { status: 500 }
-      );
-    }
+    console.error("Error creating category:", error);
 
     return NextResponse.json(
-      { message: "An unexpected error occurred" },
+      {
+        message: "An unexpected error occurred",
+        error: error instanceof Error ? error.message : null,
+      },
       { status: 500 }
     );
   }
 }
 
-// ================== GET =============================
+// ================== GET: Fetch Categories =============================
 export async function GET() {
   try {
     const categories = await prisma.productCategory.findMany({
-      orderBy: {
-        name: "asc", // Optional: Order categories by name (ascending)
-      },
+      orderBy: { name: "asc" },
     });
 
     return NextResponse.json({ categories }, { status: 200 });
   } catch (error) {
     console.error("Error fetching categories:", error);
 
-    if (error instanceof Error) {
+    return NextResponse.json(
+      {
+        message: "Failed to fetch categories",
+        error: error instanceof Error ? error.message : null,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// =========== PATCH: Update Category Name =============================
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { prevName, newName } = body;
+
+    const validation = categorySchema.safeParse({ name: newName });
+
+    if (!validation.success) {
       return NextResponse.json(
-        { message: "Failed to fetch categories: " + error.message },
-        { status: 500 }
+        { message: "Invalid input", errors: validation.error.errors },
+        { status: 400 }
       );
     }
 
+    if (await isThisExistingCategory(newName)) {
+      return NextResponse.json(
+        { message: "Category already exists" },
+        { status: 409 }
+      );
+    }
+
+    const updatedCategory = await prisma.productCategory.update({
+      where: { name: prevName },
+      data: { name: newName.toUpperCase() },
+    });
+
     return NextResponse.json(
-      { message: "An unexpected error occurred" },
+      { message: "Category updated successfully", category: updatedCategory },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error updating category:", error);
+
+    return NextResponse.json(
+      {
+        message: "Unable to update category",
+        error: error instanceof Error ? error.message : null,
+      },
       { status: 500 }
     );
   }

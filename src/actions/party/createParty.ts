@@ -7,11 +7,11 @@ export async function createParty(formData: FormData) {
   const name = formData.get("name") as string;
   const type = formData.get("type") as PartyType;
   const mobile = formData.get("mobile") as string;
-  const street = formData.get("street") as string;
   const email = formData.get("email") as string;
-  const district = formData.get("district") as string;
-  const state = formData.get("state") as string;
   const gstNumber = formData.get("gstNumber") as string;
+  // const street = formData.get("street") as string;
+  // const district = formData.get("district") as string;
+  // const state = formData.get("state") as string;
 
   await prisma.party.create({
     data: {
@@ -19,9 +19,6 @@ export async function createParty(formData: FormData) {
       type,
       mobile,
       email,
-      street,
-      district,
-      state,
       gstNumber,
     },
   });
