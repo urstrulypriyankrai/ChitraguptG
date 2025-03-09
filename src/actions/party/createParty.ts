@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 export async function createParty(formData: FormData) {
   const name = formData.get("name") as string;
-  const type = formData.get("type") as PartyType;
+  const partyType = formData.get("partyType") as PartyType;
   const mobile = formData.get("mobile") as string;
   const email = formData.get("email") as string;
   const gstNumber = formData.get("gstNumber") as string;
@@ -16,12 +16,12 @@ export async function createParty(formData: FormData) {
   await prisma.party.create({
     data: {
       name,
-      type,
+      partyType,
       mobile,
       email,
       gstNumber,
     },
   });
   revalidatePath("/inventory/party");
-  console.log("Form action called data created");
+  // console.log("Form action called data created");
 }

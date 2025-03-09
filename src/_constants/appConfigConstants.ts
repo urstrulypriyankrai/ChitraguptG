@@ -77,6 +77,12 @@ export const TILES_DATA = [
     href: "/farmer/create",
     icon: "➕", // Scroll emoji for credit tracking
   },
+  {
+    _id: 10,
+    name: "Admin",
+    href: "/admin",
+    icon: "👨‍💼", // Scroll emoji for credit tracking
+  },
 ];
 
 // --------------------------- SEO ------------------------

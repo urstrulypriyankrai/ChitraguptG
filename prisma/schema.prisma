@@ -11,19 +11,20 @@ datasource db {
 // old models
 
 model Product {
-  id                Int               @id @default(autoincrement())
-  name              String
-  description       String?
-  category          Category
+  id                  Int               @id @default(autoincrement())
+  name                String
+  description         String?
+  category            ProductCategory   @relation(fields: [productCategoryName], references: [name])
   // inStock           Decimal           @default(0) @db.Decimal(10, 2)
-  lowStockThreshold Int               @default(10)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  variants          ProductVariant[]
-  transactions      TransactionItem[]
-  stockHistory      StockHistory[]
-  tax               Tax               @relation(fields: [taxHsnCode], references: [hsnCode])
-  taxHsnCode        String            @db.VarChar(8)
+  lowStockThreshold   Int               @default(10)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  variants            ProductVariant[]
+  transactions        TransactionItem[]
+  stockHistory        StockHistory[]
+  tax                 Tax               @relation(fields: [taxHsnCode], references: [hsnCode])
+  taxHsnCode          String            @db.VarChar(8)
+  productCategoryName String
 }
 
 model ProductVariant {
@@ -110,7 +111,7 @@ model Purchase {
 model Party {
   id            Int       @id @default(autoincrement())
   name          String
-  type          PartyType
+  partyType     PartyType
   mobile        String    @unique
   email         String?   @unique
   // Farmer-specific fields (nullable)
@@ -229,7 +230,13 @@ model Tax {
 }
 
 model ProductCategory {
-  name String @id @unique
+  name    String    @id @unique
+  Product Product[]
+}
+
+model ProductUnit {
+  id   Int    @id @default(autoincrement())
+  name String @unique
 }
 
 enum GSTRATE {
@@ -237,13 +244,6 @@ enum GSTRATE {
   FIVE
   EIGHTEEN
   TWENTY_EIGHT
-}
-
-enum Category {
-  FERTILIZER
-  PESTICIDE
-  INSECTICIDE
-  EQUIPMENT
 }
 
 enum Unit {
@@ -256,6 +256,7 @@ enum Unit {
 enum PartyType {
   SUPPLIER
   RETAILER
+  FARMER
 }
 
 enum TransactionType {

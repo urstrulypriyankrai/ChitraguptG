@@ -1,19 +1,13 @@
 "use client";
 
-import { revalidateCategoryAction } from "@/actions/product/revalidateCategoryAction";
 import { LabeledInput } from "@/components/ui/LabledInput";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-
 import React, { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { z } from "zod";
-
-const categorySchema = z.object({
-  name: z.string().min(1, "Name is required"),
-});
-
-const CreateNewCategory = () => {
+import { unitSchema } from "@/lib/ZodSchema/product/UnitSchema";
+import { revalidateProductUnits } from "@/actions/product/revalidateProductUnits";
+const CreateNewProductUnit = () => {
   const [name, setName] = useState("");
   const { pending } = useFormStatus();
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -22,7 +16,7 @@ const CreateNewCategory = () => {
     e.preventDefault();
     setValidationError(null); // Reset validation errors
 
-    const validation = categorySchema.safeParse({ name });
+    const validation = unitSchema.safeParse({ name });
 
     if (!validation.success) {
       setValidationError(validation.error.errors[0].message);
@@ -30,7 +24,7 @@ const CreateNewCategory = () => {
     }
 
     try {
-      const response = await fetch("/api/product/category", {
+      const response = await fetch("/api/product/unit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,12 +36,12 @@ const CreateNewCategory = () => {
 
       if (response.ok) {
         toast({
-          title: "✅ New Category Created!",
-          description: `New Category name: ${data.category.name}`,
+          title: "✅ New Unit Created!",
+          description: `New Unit name: ${data.unit.name}`,
           variant: "default",
         });
         setName(""); // Clear input on success
-        revalidateCategoryAction();
+        revalidateProductUnits();
       } else {
         if (response.status === 400) {
           toast({
@@ -59,14 +53,14 @@ const CreateNewCategory = () => {
           });
         } else if (response.status === 409) {
           toast({
-            title: "Category Already Exists",
+            title: "Unit Already Exists",
             description:
-              data.message || "A category with that name already exists.",
+              data.message || "A unit with that name already exists.",
             variant: "destructive",
           });
         } else {
           toast({
-            title: "Error creating category",
+            title: "Error creating unit",
             description: data.message || "An unexpected error occurred.",
             variant: "destructive",
           });
@@ -75,7 +69,7 @@ const CreateNewCategory = () => {
     } catch (err) {
       if (err instanceof Error) {
         toast({
-          title: "Unable to create new category",
+          title: "Unable to create new unit",
           description: `error message: ${err.message}`,
           variant: "destructive",
         });
@@ -86,14 +80,14 @@ const CreateNewCategory = () => {
   return (
     <div className="flex flex-col md:flex-row md:space-x-6 [&>*]:w-full space-y-1 items-center">
       <LabeledInput
-        label="Enter Category Name"
-        name="category"
+        label="Enter Unit Name"
+        name="unit"
         message={validationError ? [validationError] : []}
         onChange={(e) => {
           setName(e.target.value);
         }}
         value={name}
-        id="categoryName"
+        id="unitName"
       />
       <Button type="button" disabled={pending} onClick={handleSubmit}>
         {pending ? "Adding..." : "Save"}
@@ -102,4 +96,4 @@ const CreateNewCategory = () => {
   );
 };
 
-export default CreateNewCategory;
+export default CreateNewProductUnit;

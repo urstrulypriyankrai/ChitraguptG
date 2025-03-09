@@ -8,6 +8,7 @@ export const farmerSchema = z.object({
     .string()
     .min(3, "Please enter farmer name")
     .transform((val) => val.toUpperCase()),
+  partyType: z.literal("FARMER"),
   village: z.string().min(3, "village name required"),
   state: z.string().min(2, "State is required"),
   district: z.string().min(2, "District is required"),

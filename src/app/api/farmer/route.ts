@@ -29,11 +29,10 @@ export async function POST(request: NextRequest) {
       );
 
     // check if user is already present
-    const isUserAlreadyPresent = await prisma.farmer.findMany({
+    const isUserAlreadyPresent = await prisma.party.findMany({
       where: {
-        name: data.partyName,
-        fathersName: data.fathersName,
         aadhar: data.aadhar,
+        partyType: data.partyType,
       },
     });
 
@@ -47,8 +46,9 @@ export async function POST(request: NextRequest) {
     }
 
     // if user not present create a farmer
-    const newFarmer = await prisma.farmer.create({
+    const newFarmer = await prisma.party.create({
       data: {
+        partyType: data.partyType,
         name: data.partyName,
         fathersName: data.fathersName,
         aadhar: data.aadhar,

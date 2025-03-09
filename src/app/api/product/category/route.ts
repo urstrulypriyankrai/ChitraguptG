@@ -130,3 +130,52 @@ export async function PATCH(req: NextRequest) {
     );
   }
 }
+
+// =========== DELETE: Remove Category =============================
+export async function DELETE(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { name } = body;
+
+    if (!name) {
+      return NextResponse.json(
+        { message: "Category name is required" },
+        { status: 400 }
+      );
+    }
+
+    const existingCategory = await prisma.productCategory.findFirst({
+      where: { name },
+    });
+
+    if (!existingCategory) {
+      return NextResponse.json(
+        { message: "Category not found" },
+        { status: 404 }
+      );
+    }
+
+    await prisma.productCategory.delete({
+      where: { name },
+    });
+
+    // Revalidate cache
+    revalidateTag("productCategory");
+    revalidatePath("/admin/product/manageCategory");
+
+    return NextResponse.json(
+      { message: "Category deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting category:", error);
+
+    return NextResponse.json(
+      {
+        message: "Unable to delete category",
+        error: error instanceof Error ? error.message : null,
+      },
+      { status: 500 }
+    );
+  }
+}

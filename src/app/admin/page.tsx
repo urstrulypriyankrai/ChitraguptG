@@ -10,8 +10,8 @@ const ADMIN_TILE = [
   },
   {
     _id: 2,
-    name: "Manage Tax Rates",
-    href: "/admin/product/manageTaxRates",
+    name: "Manage Product Units",
+    href: "/admin/product/manageUnits",
     icon: "🏪", // Retail store emoji
   },
 ];

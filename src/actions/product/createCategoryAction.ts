@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma";
 export async function createCategoryAction(formData: FormData) {
   try {
     const categoryName = formData.get("category") as string;
-    console.log(categoryName);
+    // console.log(categoryName);
 
     const response = await prisma.productCategory.create({
       data: { name: categoryName },
