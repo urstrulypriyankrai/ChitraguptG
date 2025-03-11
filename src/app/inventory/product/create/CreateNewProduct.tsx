@@ -1,26 +1,27 @@
 "use client";
-import PageHeading from "@/app/_components/PageHeading";
-import CustomSelectBox from "@/components/forms/CustomSelectBox";
+
 import { LabeledInput } from "@/components/ui/LabledInput";
-import { CATEGORY } from "@/lib/ZodSchema/productSchema";
 import _HsnCodeForm from "./_HsnCodeForm";
-import React, { useState } from "react";
+import { useState } from "react";
 import ProductVariant from "./_ProductVariant";
 
-export default function _CreateNewProduct() {
-  return (
-    <>
-      <PageHeading heading="Create A New Product " />
-      <NewProductForm />
-    </>
-  );
-}
+import CustomSelectBox from "@/components/forms/CustomSelectBox";
+import { GenericCombobox } from "@/components/ui/combobox";
 
-const NewProductForm = () => {
+type Props = {
+  categories: { name: string }[];
+  units: { name: string }[];
+  suppliers: { label: string; value: string; id: string }[];
+};
+export default function CreateNewProduct(props: Props) {
   const [formData, setFormData] = useState({
     name: "",
+    supplier: {
+      value: "",
+      id: "",
+    },
     description: "",
-    category: CATEGORY[0],
+    category: "",
     lowStockThreshold: 10,
   });
   const [variants, setVariants] = useState([
@@ -41,6 +42,14 @@ const NewProductForm = () => {
 
   return (
     <div className="md:w-[60vw] w-[90vw] mx-auto space-y-6 mt-6">
+      <GenericCombobox
+        // placeholder="Select Supplier"
+        data={props?.suppliers}
+        setValue={(val) => {
+          console.log(val);
+        }}
+        value={formData.supplier}
+      />
       <LabeledInput
         label="Product Name"
         name="name"
@@ -55,17 +64,26 @@ const NewProductForm = () => {
           setFormData({ ...formData, description: e.target.value })
         }
       />
+
       <CustomSelectBox
         name="category"
-        data={CATEGORY}
+        data={props.categories.map((val) => val.name)}
         message={[]}
         placeholder="Select Category"
+        setValue={(value) => {
+          setFormData({ ...formData, category: value });
+        }}
       />
+
       <_HsnCodeForm
         taxInformation={taxInformation}
         setTaxInformation={setTaxInformation}
       />
-      <ProductVariant variants={variants} setVariants={setVariants} />
+      <ProductVariant
+        variants={variants}
+        setVariants={setVariants}
+        units={props.units.map((val) => val.name)}
+      />
     </div>
   );
-};
+}

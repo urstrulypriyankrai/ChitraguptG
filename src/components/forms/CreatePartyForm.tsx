@@ -50,7 +50,7 @@ const CreatePartyForm = () => {
       if (parsedData.success) {
         const res = await fetch("/api/party", {
           method: "POST",
-          body: JSON.stringify(formValue),
+          body: JSON.stringify(parsedData.data),
         });
         if (res.status === 200) {
           const data = await res.json();
@@ -76,7 +76,6 @@ const CreatePartyForm = () => {
           partyType: [],
           gstNumber: fieldErrors.gstNumber || [],
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
           mobile: fieldErrors.mobile || [],
           street: fieldErrors.street || [],
           state: fieldErrors.state || [],

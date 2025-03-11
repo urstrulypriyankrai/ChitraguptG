@@ -7,14 +7,14 @@ import React from "react";
 type Props = {
   variants: ProductVariantUnit[];
   setVariants: React.Dispatch<React.SetStateAction<ProductVariantUnit[]>>;
+  units: string[];
 };
 
 const ProductVariant = (props: Props) => {
-  console.log(props);
   return (
     <>
       <PageSubHeading heading="B. Product Variants" />
-      <div className="mt-1">
+      <div className="flex flex-row [&>*]:w-full space-x-6 mt-2">
         <LabeledInput
           label="Enter Quantity of Product"
           name="quantity"
@@ -24,7 +24,7 @@ const ProductVariant = (props: Props) => {
           placeholder="Enter Quantity Unit"
           name="quantity"
           message={[]}
-          data={[]}
+          data={props.units}
         />
       </div>
     </>
