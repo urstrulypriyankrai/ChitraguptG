@@ -19,16 +19,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+type ComboboxItem = {
+  value: string;
+  label: string;
+  id: string;
+};
+
 type GenericComboboxProps = {
-  data: {
-    value: string;
-    label: string;
-    id: string;
-  }[];
+  data: ComboboxItem[];
   value: { value: string; id: string } | null;
-  setValue: React.Dispatch<
-    React.SetStateAction<{ value: string; id: string } | null>
-  >;
+  setValue: React.Dispatch<React.SetStateAction<{ value: string; id: string } | null>>;
   placeholder?: string;
   className?: string;
 };
@@ -41,12 +41,8 @@ export function GenericCombobox({
   className,
 }: GenericComboboxProps) {
   const [open, setOpen] = React.useState(false);
-
-  // Calculate selected label with fallback to value
   const selectedLabel = React.useMemo(() => {
-    if (!value) return "";
-    const foundItem = data.find((item) => item.value === value.value);
-    return foundItem ? foundItem.label : value.value;
+    return value ? data.find((item) => item.value === value.value)?.label || "" : "";
   }, [data, value]);
 
   return (
@@ -58,7 +54,7 @@ export function GenericCombobox({
           aria-expanded={open}
           className={cn("w-[200px] justify-between", className)}
         >
-          {value ? selectedLabel : placeholder}
+          {selectedLabel || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -70,7 +66,7 @@ export function GenericCombobox({
             <CommandGroup>
               {data.map((item) => (
                 <CommandItem
-                  key={item.id} // Changed from item.label to item.id for unique keys
+                  key={item.label}
                   value={item.label}
                   onSelect={() => {
                     setValue({ value: item.value, id: item.id });

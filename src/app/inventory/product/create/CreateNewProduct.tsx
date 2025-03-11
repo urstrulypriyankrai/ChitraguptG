@@ -17,7 +17,7 @@ export default function CreateNewProduct(props: Props) {
   const [formData, setFormData] = useState({
     name: "",
     supplier: {
-      value: "",
+      value: "Select Supplier",
       id: "",
     },
     description: "",
@@ -47,6 +47,12 @@ export default function CreateNewProduct(props: Props) {
         data={props?.suppliers}
         setValue={(val) => {
           console.log(val);
+          setFormData({
+            ...formData,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            supplier: { value: val.value, id: val.id },
+          });
         }}
         value={formData.supplier}
       />
