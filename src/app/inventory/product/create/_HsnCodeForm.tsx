@@ -35,7 +35,7 @@ const HsnCodeForm = ({ taxInformation, setTaxInformation }: Props) => {
 
   return (
     <div>
-      <PageSubHeading heading="A. Tax Details" />
+      <PageSubHeading heading="B. Tax Details" />
       <div className="flex flex-row [&>*]:w-full space-x-6 mt-2">
         <LabeledInput
           label="HSN Code"

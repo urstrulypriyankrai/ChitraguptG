@@ -28,7 +28,9 @@ type ComboboxItem = {
 type GenericComboboxProps = {
   data: ComboboxItem[];
   value: { value: string; id: string } | null;
-  setValue: React.Dispatch<React.SetStateAction<{ value: string; id: string } | null>>;
+  setValue: React.Dispatch<
+    React.SetStateAction<{ value: string; id: string } | null>
+  >;
   placeholder?: string;
   className?: string;
 };
@@ -42,7 +44,9 @@ export function GenericCombobox({
 }: GenericComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const selectedLabel = React.useMemo(() => {
-    return value ? data.find((item) => item.value === value.value)?.label || "" : "";
+    return value
+      ? data.find((item) => item.value === value.value)?.label || ""
+      : "";
   }, [data, value]);
 
   return (
@@ -52,13 +56,16 @@ export function GenericCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-[200px] justify-between", className)}
+          className={cn(
+            "w-full justify-between p-6 rounded-lg active:border-blue-500",
+            className
+          )}
         >
           {selectedLabel || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[40vw] p-0">
         <Command>
           <CommandInput placeholder={placeholder} />
           <CommandList>

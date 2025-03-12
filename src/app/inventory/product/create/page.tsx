@@ -16,7 +16,10 @@ export default async function Page() {
 
   return (
     <>
-      <PageHeading heading="Create A New Product " />
+      <PageHeading
+        heading="New Product Creattion "
+        // className="border-b border-dashed"
+      />
       <CreateNewProduct
         categories={categories}
         units={units}
