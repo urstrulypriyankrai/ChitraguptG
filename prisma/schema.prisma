@@ -3,28 +3,25 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 // old models
 
 model Product {
-  id          String  @id @unique @default(uuid())
-  name        String
-  description String?
-
-  inStock           Decimal  @default(0) @db.Decimal(10, 2)
-  lowStockThreshold Int      @default(10)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  taxHsnCode          String @db.VarChar(8)
+  id                  String          @id @unique @default(uuid())
+  name                String
+  description         String?
+  inStock             Int             @default(0)
+  lowStockThreshold   Int             @default(10)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  taxHsnCode          String          @db.VarChar(8)
   productCategoryName String
-
-  tax      Tax             @relation(fields: [taxHsnCode], references: [hsnCode])
-  category ProductCategory @relation(fields: [productCategoryName], references: [name])
+  tax                 Tax             @relation(fields: [taxHsnCode], references: [hsnCode])
+  category            ProductCategory @relation(fields: [productCategoryName], references: [name])
 
   variants        ProductVariant[]
   transactions    TransactionItem[]
@@ -43,20 +40,15 @@ model ProductSupplier {
 }
 
 model ProductVariant {
-  id             String @id @unique
-  bags           Int
-  piecePerBag    Int
-  weight         Int
-  MRP            Int
-  unloading      Int
-  freightCharges Int
-
-  inStock           Int    @default(0)
-  warehouseLocation String
-
-  purchases       Purchase[]
-  StockHistory    StockHistory[]
-  TransactionItem TransactionItem[]
+  id                String  @id @unique
+  bags              Int
+  piecePerBag       Int
+  weight            Int
+  MRP               Int
+  unloading         Int
+  freightCharges    Int
+  inStock           Int?    @default(0)
+  warehouseLocation String?
 
   productId        String
   quantityUnitName String
@@ -64,6 +56,10 @@ model ProductVariant {
   // relations
   product    Product     @relation(fields: [productId], references: [id])
   weightUnit ProductUnit @relation(fields: [quantityUnitName], references: [name])
+
+  purchases       Purchase[]
+  StockHistory    StockHistory[]
+  TransactionItem TransactionItem[]
 }
 
 // model ProductImage {
