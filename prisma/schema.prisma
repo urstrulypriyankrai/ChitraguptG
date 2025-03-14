@@ -11,36 +11,61 @@ datasource db {
 // old models
 
 model Product {
-  id                  Int               @id @default(autoincrement())
-  name                String
-  description         String?
-  category            ProductCategory   @relation(fields: [productCategoryName], references: [name])
-  // inStock           Decimal           @default(0) @db.Decimal(10, 2)
-  lowStockThreshold   Int               @default(10)
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-  variants            ProductVariant[]
-  transactions        TransactionItem[]
-  stockHistory        StockHistory[]
-  tax                 Tax               @relation(fields: [taxHsnCode], references: [hsnCode])
-  taxHsnCode          String            @db.VarChar(8)
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  inStock           Decimal  @default(0) @db.Decimal(10, 2)
+  lowStockThreshold Int      @default(10)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  taxHsnCode          String          @db.VarChar(8)
   productCategoryName String
+  
+  tax                 Tax             @relation(fields: [taxHsnCode], references: [hsnCode])
+  category            ProductCategory @relation(fields: [productCategoryName], references: [name])
+
+  variants        ProductVariant[]
+  transactions    TransactionItem[]
+  stockHistory    StockHistory[]
+  ProductSupplier ProductSupplier[]
+}
+
+model ProductSupplier {
+  productId  Int
+  product    Product @relation(fields: [productId], references: [id])
+  supplierId Int
+  supplier   Party   @relation(fields: [supplierId], references: [id])
+
+  @@id([productId, supplierId]) // Composite primary key
 }
 
 model ProductVariant {
-  id                Int        @id @default(autoincrement())
-  productId         Int
-  quantity          Decimal    @db.Decimal(10, 2)
-  quantityUnit      Unit
-  price             Decimal    @db.Decimal(10, 2) // Selling price
-  costPrice         Decimal?   @db.Decimal(10, 2) // Last purchase price
-  inStock           Decimal    @default(0) @db.Decimal(10, 2)
-  warehouseLocation String     @unique
-  purchases         Purchase[]
+  id             Int         @id @default(autoincrement())
+  bags           Int
+  piecePerBag    Int
+  weight         Decimal
+  MRP            Decimal
+  unloading      Int
+  freightCharges Int
+  weightUnit     ProductUnit @relation(fields: [productUnitId], references: [id])
 
-  product         Product           @relation(fields: [productId], references: [id])
+  quantity          Decimal  @db.Decimal(10, 2)
+  quantityUnit      Unit
+  price             Decimal  @db.Decimal(10, 2) // Selling price
+  costPrice         Decimal? @db.Decimal(10, 2) // Last purchase price
+  inStock           Decimal  @default(0) @db.Decimal(10, 2)
+  warehouseLocation String   @unique
+
+  purchases       Purchase[]
   StockHistory    StockHistory[]
   TransactionItem TransactionItem[]
+
+  // relations
+  productId     Int
+  product       Product @relation(fields: [productId], references: [id])
+  productUnitId Int
 }
 
 // model ProductImage {
@@ -65,49 +90,6 @@ model Purchase {
   stockHistory StockHistory[]
 }
 
-// model Party {
-//   id     Int       @id @default(autoincrement())
-//   name   String
-//   type   PartyType
-//   mobile String    @unique
-//   email  String?   @unique
-
-//   creditBalance Decimal  @default(0) @db.Decimal(10, 2)
-//   createdAt     DateTime @default(now())
-//   updatedAt     DateTime @updatedAt
-//   gstNumber     String   @unique @db.VarChar(15)
-//   address       Address? @relation(fields: [addressId], references: [id])
-
-//   transactions  Transaction[]
-//   creditEntries CreditLedger[]
-//   payments      SupplierPayment[]
-//   stockHistory  StockHistory[]
-//   purchases     Purchase[]
-//   addressId     Int?              @unique
-
-//   @@index([gstNumber])
-// }
-
-// model Farmer {
-//   id            Int      @id @default(autoincrement())
-//   name          String
-//   fathersName   String
-//   mobile        String   @unique
-//   aadhar        String   @unique
-//   address       Address? @relation(fields: [addressId], references: [id])
-//   creditBalance Decimal  @default(0) @db.Decimal(10, 2)
-//   createdAt     DateTime @default(now())
-//   updatedAt     DateTime @updatedAt
-
-//   transactions  Transaction[]
-//   creditEntries CreditLedger[]
-//   payments      SupplierPayment[]
-//   stockHistory  StockHistory[]
-//   addressId     Int?              @unique
-
-//   @@index([mobile, aadhar])
-// }
-
 model Party {
   id            Int       @id @default(autoincrement())
   name          String
@@ -126,11 +108,12 @@ model Party {
   addressId     Int?      @unique
 
   // Relationships
-  transactions  Transaction[]
-  creditEntries CreditLedger[]
-  payments      SupplierPayment[]
-  stockHistory  StockHistory[]
-  purchases     Purchase[]
+  transactions    Transaction[]
+  creditEntries   CreditLedger[]
+  payments        SupplierPayment[]
+  stockHistory    StockHistory[]
+  purchases       Purchase[]
+  ProductSupplier ProductSupplier[]
 
   @@index([mobile, aadhar])
   @@index([gstNumber])
@@ -235,8 +218,9 @@ model ProductCategory {
 }
 
 model ProductUnit {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id             Int              @id @default(autoincrement())
+  name           String           @unique
+  ProductVariant ProductVariant[]
 }
 
 enum GSTRATE {

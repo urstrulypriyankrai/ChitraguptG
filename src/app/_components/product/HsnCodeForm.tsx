@@ -10,8 +10,9 @@ type Props = {
   setTaxInformation: React.Dispatch<
     React.SetStateAction<{ hsnCode: string; gstRate: string }>
   >;
+  message: string[];
 };
-const HsnCodeForm = ({ taxInformation, setTaxInformation }: Props) => {
+const HsnCodeForm = ({ taxInformation, setTaxInformation, message }: Props) => {
   const [isGstRateDisabled, setisGstRateDisabled] = useState(false);
   useEffect(() => {
     setisGstRateDisabled(false);
@@ -40,7 +41,7 @@ const HsnCodeForm = ({ taxInformation, setTaxInformation }: Props) => {
         <LabeledInput
           label="HSN Code"
           name="hsnCode"
-          message={[]}
+          message={message}
           type="number"
           minLength={4}
           maxLength={8}

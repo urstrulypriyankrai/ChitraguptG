@@ -17,19 +17,19 @@ const ProductVariant = (props: Props) => {
     e.preventDefault();
     const newVariant = {
       bags: 1,
-      piecesPerBag: 1,
+      piecePerBag: 1,
       weight: 1,
       quantityUnit: "KG", // Add default quantityUnit
-      _id: uuid(),
+      id: uuid(),
       MRP: 0,
-      Unloading: 0, // Add default Unloading
-      FreightCharges: 0, // Add default FreightCharges (for other charges)
+      unloading: 0, // Add default Unloading
+      freightCharges: 0, // Add default FreightCharges (for other charges)
     };
     props.setVariants((prev) => [...prev, newVariant]);
   };
   const handDeleteVariant = (id: string) => {
     const updatedVariants = props.variants.filter(
-      (variant) => variant._id !== id
+      (variant) => variant.id !== id
     );
     props.setVariants(updatedVariants);
   };
@@ -37,7 +37,7 @@ const ProductVariant = (props: Props) => {
   const handleVariantChange = useCallback(
     (updatedVariant: ProductVariantType) => {
       const updatedVariants = props.variants.map((variant) =>
-        variant._id === updatedVariant._id ? updatedVariant : variant
+        variant.id === updatedVariant.id ? updatedVariant : variant
       );
       props.setVariants(updatedVariants);
     },
@@ -55,15 +55,13 @@ const ProductVariant = (props: Props) => {
       <div className="space-y-6">
         {props?.variants.map((variant) => {
           return (
-            <>
-              <ProductVariantRow
-                key={variant._id}
-                variant={variant}
-                units={props.units}
-                onDelete={() => handDeleteVariant(variant._id)}
-                onChange={handleVariantChange} // Pass onChange handler
-              />
-            </>
+            <ProductVariantRow
+              key={variant.id}
+              variant={variant}
+              units={props.units}
+              onDelete={() => handDeleteVariant(variant.id)}
+              onChange={handleVariantChange} // Pass onChange handler
+            />
           );
         })}
       </div>
@@ -100,7 +98,7 @@ function ProductVariantRow({
         name === "piecesPerBag" ||
         name === "weight" ||
         name === "Unloading" || // Add Unloading to numeric fields
-        name === "otherCharges" || // Add otherCharges to numeric fields
+        name === "freightCharges" || // Add otherCharges to numeric fields
         name === "MRP" // Keep MRP as numeric
           ? Number(value)
           : value,
@@ -120,9 +118,9 @@ function ProductVariantRow({
 
   return (
     <div className="flex flex-row [&>*]:w-full space-x-6 mt-2 botder-b-2 border p-6">
-      <div className="w-full grid lg:grid-cols-7 gap-6 xs:grid-cols-1 sm:grid-cols-2  md:grid-cols-4  ">
+      <div className="w-full grid lg:grid-cols-7 gap-6 xs:grid-cols-1 sm:grid-cols-2  md:grid-cols-3   ">
         <LabeledInput
-          label="Number Of Bags"
+          label="No. Of Bags"
           name="bags"
           message={[]}
           type="number"
@@ -137,7 +135,7 @@ function ProductVariantRow({
           message={[]}
           type="number"
           min={1}
-          defaultValue={variant.piecesPerBag} // Use variant's value
+          defaultValue={1} // Use variant's value
           onChange={handleChange} // Implement handleChange
         />
         <LabeledInput
@@ -174,18 +172,16 @@ function ProductVariantRow({
           message={[]}
           type="number"
           min={0}
-          max={1000}
-          defaultValue={variant.Unloading} // Use variant's value
+          defaultValue={0} // Use variant's value
           onChange={handleChange} // Implement handleChange
         />
         <LabeledInput
-          label="Other Charges"
-          name="otherCharges"
+          label="Freight Charges"
+          name="freightCharges"
           message={[]}
           type="number"
           min={0}
-          max={1000}
-          defaultValue={variant.FreightCharges} // Use variant's value
+          defaultValue={0} // Use variant's value
           onChange={handleChange} // Implement handleChange
         />
       </div>
