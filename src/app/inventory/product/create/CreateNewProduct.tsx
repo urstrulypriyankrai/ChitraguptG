@@ -17,7 +17,7 @@ import { productSchema } from "@/lib/ZodSchema/product/CreateNewProductSchema";
 
 type Props = {
   categories: { name: string }[];
-  units: { name: string }[];
+  units: { name: string; id: number }[];
   suppliers: { label: string; value: string; id: string }[];
 };
 const initialErrorsObj = {
@@ -48,6 +48,7 @@ export default function CreateNewProduct(props: Props) {
       MRP: 0,
       freightCharges: 0,
       unloading: 0,
+      quantityUnitName: "KG",
     },
   ]);
   const [taxInformation, setTaxInformation] = useState({
@@ -63,6 +64,10 @@ export default function CreateNewProduct(props: Props) {
       variants: variants,
       taxInformation: taxInformation,
       lowStockThreshold: Number(formData.lowStockThreshold), // Ensure threshold is a number for validation
+      supplier: {
+        ...formData.supplier,
+        id: String(formData.supplier.id), // Ensure ID is a string, but server parses to number
+      },
     };
 
     try {
@@ -89,6 +94,7 @@ export default function CreateNewProduct(props: Props) {
             MRP: 0,
             freightCharges: 0,
             unloading: 0,
+            quantityUnitName: "",
           },
         ]);
         setTaxInformation({
@@ -116,7 +122,7 @@ export default function CreateNewProduct(props: Props) {
         toast({ title: "An unexpected error occurred." });
         console.error("Unexpected error:", error);
       }
-    } 
+    }
   }
 
   return (
@@ -187,7 +193,7 @@ export default function CreateNewProduct(props: Props) {
       <ProductVariant
         variants={variants}
         setVariants={setVariants}
-        units={props.units.map((val) => val.name)}
+        units={props.units}
       />
       <div className="w-full flex justify-center items-end">
         <Button className=" w-[30vw] " onClick={handleSubmit}>

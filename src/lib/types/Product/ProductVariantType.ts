@@ -2,7 +2,7 @@ export type ProductVariantType = {
   bags: number;
   piecePerBag: number;
   weight: number;
-  unit?: string;
+  quantityUnitName: string;
   id: string;
   MRP: number;
   freightCharges: number;

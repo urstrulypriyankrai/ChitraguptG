@@ -30,6 +30,7 @@ export const productSchema = z.object({
       MRP: z.number(),
       freightCharges: z.number(),
       unloading: z.number(),
+      quantityUnitName: z.string(),
     })
   ),
   taxInformation: z.object({

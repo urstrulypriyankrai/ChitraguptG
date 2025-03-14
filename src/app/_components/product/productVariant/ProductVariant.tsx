@@ -9,7 +9,7 @@ import React, { useState, useCallback } from "react"; // Import useState and use
 type Props = {
   variants: ProductVariantType[];
   setVariants: React.Dispatch<React.SetStateAction<ProductVariantType[]>>;
-  units: string[];
+  units: { name: string; id: number }[];
 };
 
 const ProductVariant = (props: Props) => {
@@ -19,11 +19,11 @@ const ProductVariant = (props: Props) => {
       bags: 1,
       piecePerBag: 1,
       weight: 1,
-      quantityUnit: "KG", // Add default quantityUnit
+      quantityUnitName: "KG", // Add default quantityUnit
       id: uuid(),
       MRP: 0,
       unloading: 0, // Add default Unloading
-      freightCharges: 0, // Add default FreightCharges (for other charges)
+      freightCharges: 0,
     };
     props.setVariants((prev) => [...prev, newVariant]);
   };
@@ -78,7 +78,7 @@ function ProductVariantRow({
   onChange, // Add onChange prop
 }: {
   variant: ProductVariantType;
-  units: string[];
+  units: { name: string; id: number }[];
   onDelete: () => void;
   onChange: (updatedVariant: ProductVariantType) => void; // Define onChange prop type
 }) {
@@ -95,9 +95,9 @@ function ProductVariantRow({
       ...localVariant,
       [name]:
         name === "bags" ||
-        name === "piecesPerBag" ||
+        name === "piecePerBag" ||
         name === "weight" ||
-        name === "Unloading" || // Add Unloading to numeric fields
+        name === "unloading" || // Add Unloading to numeric fields
         name === "freightCharges" || // Add otherCharges to numeric fields
         name === "MRP" // Keep MRP as numeric
           ? Number(value)
@@ -110,7 +110,7 @@ function ProductVariantRow({
   const handleUnitSelect = (unit: string) => {
     const updatedLocalVariant = {
       ...localVariant,
-      quantityUnit: unit,
+      quantityUnitName: unit,
     };
     setLocalVariant(updatedLocalVariant);
     onChange(updatedLocalVariant); // Call onChange to update parent state
@@ -131,7 +131,7 @@ function ProductVariantRow({
         />
         <LabeledInput
           label="Piece Per Bag"
-          name="piecesPerBag"
+          name="piecePerBag"
           message={[]}
           type="number"
           min={1}
@@ -150,12 +150,12 @@ function ProductVariantRow({
 
         <CustomSelectBox
           placeholder="Enter Quantity Unit"
-          name="quantityUnit" // Correct name to quantityUnit
+          name="quantityUnitName" // Correct name to quantityUnit
           message={[]}
-          data={units}
-          defaultValue={variant.unit} // Use variant's value
+          data={units.map((val) => val.name)}
+          defaultValue={"KG"} // Use variant's value
           setValue={handleUnitSelect} // Implement setValue
-          value={localVariant.unit} // Implement value
+          value={localVariant.quantityUnitName} // Implement value
         />
         <LabeledInput
           label="MRP / Unit"
@@ -167,8 +167,8 @@ function ProductVariantRow({
           onChange={handleChange} // Implement handleChange
         />
         <LabeledInput
-          label="Unloading"
-          name="Unloading"
+          label="unloading"
+          name="unloading"
           message={[]}
           type="number"
           min={0}

@@ -11,7 +11,7 @@ datasource db {
 // old models
 
 model Product {
-  id          Int     @id @default(autoincrement())
+  id          String  @id @unique @default(uuid())
   name        String
   description String?
 
@@ -20,11 +20,11 @@ model Product {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  taxHsnCode          String          @db.VarChar(8)
+  taxHsnCode          String @db.VarChar(8)
   productCategoryName String
-  
-  tax                 Tax             @relation(fields: [taxHsnCode], references: [hsnCode])
-  category            ProductCategory @relation(fields: [productCategoryName], references: [name])
+
+  tax      Tax             @relation(fields: [taxHsnCode], references: [hsnCode])
+  category ProductCategory @relation(fields: [productCategoryName], references: [name])
 
   variants        ProductVariant[]
   transactions    TransactionItem[]
@@ -33,39 +33,37 @@ model Product {
 }
 
 model ProductSupplier {
-  productId  Int
-  product    Product @relation(fields: [productId], references: [id])
+  productId  String
   supplierId Int
-  supplier   Party   @relation(fields: [supplierId], references: [id])
+
+  product  Product @relation(fields: [productId], references: [id])
+  supplier Party   @relation(fields: [supplierId], references: [id])
 
   @@id([productId, supplierId]) // Composite primary key
 }
 
 model ProductVariant {
-  id             Int         @id @default(autoincrement())
+  id             String @id @unique
   bags           Int
   piecePerBag    Int
-  weight         Decimal
-  MRP            Decimal
+  weight         Int
+  MRP            Int
   unloading      Int
   freightCharges Int
-  weightUnit     ProductUnit @relation(fields: [productUnitId], references: [id])
 
-  quantity          Decimal  @db.Decimal(10, 2)
-  quantityUnit      Unit
-  price             Decimal  @db.Decimal(10, 2) // Selling price
-  costPrice         Decimal? @db.Decimal(10, 2) // Last purchase price
-  inStock           Decimal  @default(0) @db.Decimal(10, 2)
-  warehouseLocation String   @unique
+  inStock           Int    @default(0)
+  warehouseLocation String
 
   purchases       Purchase[]
   StockHistory    StockHistory[]
   TransactionItem TransactionItem[]
 
+  productId        String
+  quantityUnitName String
+
   // relations
-  productId     Int
-  product       Product @relation(fields: [productId], references: [id])
-  productUnitId Int
+  product    Product     @relation(fields: [productId], references: [id])
+  weightUnit ProductUnit @relation(fields: [quantityUnitName], references: [name])
 }
 
 // model ProductImage {
@@ -77,7 +75,7 @@ model ProductVariant {
 
 model Purchase {
   id           Int      @id @default(autoincrement())
-  variantId    Int
+  variantId    String
   supplierId   Int
   quantity     Decimal  @db.Decimal(10, 2)
   unitPrice    Decimal  @db.Decimal(10, 2)
@@ -133,8 +131,8 @@ model Address {
 
 model StockHistory {
   id                     Int                 @id @default(autoincrement())
-  productId              Int
-  variantId              Int?
+  productId              String
+  variantId              String?
   quantity               Decimal             @db.Decimal(10, 2)
   type                   StockAdjustmentType
   reason                 String?
@@ -169,12 +167,12 @@ model Transaction {
 model TransactionItem {
   id            Int     @id @default(autoincrement())
   transactionId Int
-  productId     Int
+  productId     String
   quantity      Decimal @db.Decimal(10, 2)
   price         Decimal @db.Decimal(10, 2) // Price at the time of transaction
   gstRate       Decimal @db.Decimal(5, 2) // GST rate at the time of transaction
   taxAmount     Decimal @db.Decimal(10, 2)
-  variantId     Int
+  variantId     String
 
   transaction Transaction    @relation(fields: [transactionId], references: [id])
   product     Product        @relation(fields: [productId], references: [id])
@@ -218,8 +216,7 @@ model ProductCategory {
 }
 
 model ProductUnit {
-  id             Int              @id @default(autoincrement())
-  name           String           @unique
+  name           String           @id @unique
   ProductVariant ProductVariant[]
 }
 
@@ -228,13 +225,6 @@ enum GSTRATE {
   FIVE
   EIGHTEEN
   TWENTY_EIGHT
-}
-
-enum Unit {
-  KG
-  LITER
-  PIECE
-  BAG
 }
 
 enum PartyType {
