@@ -67,9 +67,10 @@ export async function POST(req: Request) {
         console.log("Supplier linked:", supplierLink);
 
         // 5. Create Variants (Simplified for debugging)
-        await tx.productVariant.createMany({
-          data: productVariantArray,
-        });
+        if (productVariantArray.length > 0)
+          await tx.productVariant.createMany({
+            data: productVariantArray,
+          });
 
         // Return complete product data (Simplified for debugging)
         const productWithDetails = await tx.product.findUnique({

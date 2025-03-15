@@ -4,6 +4,7 @@ import { LabeledInput } from "@/components/ui/LabledInput";
 import { Button } from "@/components/ui/button";
 import { ProductVariantType } from "@/lib/types/Product/ProductVariantType";
 import { v4 as uuid } from "uuid";
+import { initialVariantData } from "@/app/inventory/product/create/CreateNewProduct";
 import React, { useState, useCallback } from "react"; // Import useState and useCallback
 
 type Props = {
@@ -16,14 +17,8 @@ const ProductVariant = (props: Props) => {
   const handleAddNewVariant = (e: React.MouseEvent) => {
     e.preventDefault();
     const newVariant = {
-      bags: 1,
-      piecePerBag: 1,
-      weight: 1,
-      quantityUnitName: "KG", // Add default quantityUnit
+      ...initialVariantData,
       id: uuid(),
-      MRP: 0,
-      unloading: 0, // Add default Unloading
-      freightCharges: 0,
     };
     props.setVariants((prev) => [...prev, newVariant]);
   };

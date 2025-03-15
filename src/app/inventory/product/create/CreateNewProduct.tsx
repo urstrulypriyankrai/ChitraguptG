@@ -36,26 +36,33 @@ const initialFormData = {
   category: "",
   lowStockThreshold: 10,
 };
+export const initialVariantData = {
+  bags: 1,
+  piecePerBag: 1,
+  weight: 1,
+  id: uuid(),
+  MRP: 579,
+  freightCharges: 10,
+  unloading: 4,
+  quantityUnitName: "KG",
+};
 export default function CreateNewProduct(props: Props) {
   const [formErrors, setFromErrors] = useState(initialErrorsObj);
   const [formData, setFormData] = useState(initialFormData);
-  const [variants, setVariants] = useState<ProductVariantType[]>([
-    {
-      bags: 0,
-      piecePerBag: 0,
-      weight: 0,
-      id: uuid(),
-      MRP: 0,
-      freightCharges: 0,
-      unloading: 0,
-      quantityUnitName: "KG",
-    },
-  ]);
+  const [variants, setVariants] = useState<ProductVariantType[]>([]);
   const [taxInformation, setTaxInformation] = useState({
     gstRate: "",
     hsnCode: "",
   });
 
+  function ResetForm() {
+    setFormData(initialFormData);
+    setVariants([]);
+    setTaxInformation({
+      gstRate: "",
+      hsnCode: "",
+    });
+  }
   async function handleSubmit(e: React.MouseEvent) {
     e.preventDefault();
 
@@ -82,25 +89,9 @@ export default function CreateNewProduct(props: Props) {
       });
 
       if (response.ok) {
+        ResetForm();
         toast({ title: "Product created successfully" });
-        // Optionally reset form or redirect
-        setFormData(initialFormData);
-        setVariants([
-          {
-            bags: 0,
-            piecePerBag: 0,
-            weight: 0,
-            id: uuid(),
-            MRP: 0,
-            freightCharges: 0,
-            unloading: 0,
-            quantityUnitName: "",
-          },
-        ]);
-        setTaxInformation({
-          gstRate: "",
-          hsnCode: "",
-        });
+        //  reset form or redirect
       } else {
         const errorData = await response.json();
         toast({
