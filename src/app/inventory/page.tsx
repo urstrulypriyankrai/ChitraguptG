@@ -1,13 +1,14 @@
 import React from "react";
-import { INVENTORY_TILES } from "./_constant";
-import Tile from "../_components/Tile";
+import { TILES_DATA } from "@/_constants/appConfigConstants";
+import Tile, { TileWrapper } from "../_components/Tile";
+import SideBar from "@/components/sidebar";
 
 const page = () => {
   return (
-    <div>
+    <div className="m-2">
       <h1 className="text-center text-2xl">Inventory Management</h1>
-      <div className="w-full grid grid-cols-12  gap-3 md:gap-2 h-[60vh]  md:mt-10  ">
-        {INVENTORY_TILES.map((data) => {
+      <TileWrapper>
+        {TILES_DATA.map((data) => {
           return (
             <Tile
               href={data.href}
@@ -17,7 +18,7 @@ const page = () => {
             />
           );
         })}
-      </div>
+      </TileWrapper>
     </div>
   );
 };

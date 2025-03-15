@@ -1,70 +1,86 @@
-export const INVENTORY_TILES = [
+export const TILES_DATA = [
+  { id: 1, name: "Sell to Farmer", href: "/bill-to-farmer", icon: "🌾" },
+  { id: 2, name: "Sell to Retailer", href: "/bill-to-retailer", icon: "🏪" },
+
+  { id: 3, name: "Inventory Management", href: "/inventory", icon: "📦" },
   {
-    _id: 1,
+    id: 10,
     name: "Add Product",
     href: "/inventory/product/create",
-    icon: "➕", // Plus sign emoji for adding
+    icon: "➕",
     description: "Add a new product to the inventory database.",
   },
   {
-    _id: 2,
+    id: 11,
     name: "Create a Party",
     href: "/inventory/party/create",
-    icon: "🤝", // Handshake emoji for parties
+    icon: "🤝",
     description: "Add a new supplier or party for inventory management.",
   },
   {
-    _id: 3,
+    id: 12,
     name: "View All Products",
     href: "/inventory/product",
-    icon: "📋", // Clipboard emoji for viewing items
+    icon: "📋",
     description: "View all products currently in inventory.",
   },
   {
-    _id: 4,
+    id: 13,
     name: "View All Parties",
     href: "/inventory-management/view-parties",
-    icon: "👥", // People emoji for parties
+    icon: "👥",
     description:
       "View a list of all suppliers and parties linked to the inventory.",
   },
   {
-    _id: 5,
+    id: 14,
     name: "Update Stock",
     href: "/inventory-management/add-stock",
-    icon: "📦", // Box emoji for adding stock
+    icon: "📦",
+    description: "Add or remove stocks for existing products in the inventory.",
+  },
+  {
+    id: 17,
+    name: "Low Stock Alerts",
+    href: "/inventory-management/low-stock",
+    icon: "⚠️",
     description:
-      "Add stock,remove stocks to existing products in the inventory.",
+      "View items that are running low on stock to restock proactively.",
   },
 
+  { id: 4, name: "Returns", href: "/returns", icon: "🔄" },
   {
-    _id: 7,
+    id: 15,
     name: "Product Returns",
     href: "/inventory-management/product-returns",
-    icon: "🔄", // Circular arrow emoji for returns
+    icon: "🔄",
     description:
       "Manage product returns from farmers, retailers, or other parties.",
   },
   {
-    _id: 8,
-    name: "Generate Stock Report",
-    href: "/inventory-management/stock-report",
-    icon: "📊", // Bar chart emoji for reporting
-    description: "Generate detailed reports on stock and inventory levels.",
-  },
-  {
-    _id: 9,
-    name: "Low Stock Alerts",
-    href: "/inventory-management/low-stock",
-    icon: "⚠️", // Warning emoji for low stock
-    description:
-      "View items that are running low on stock to restock proactively.",
-  },
-  {
-    _id: 10,
+    id: 18,
     name: "Supplier Payments",
     href: "/inventory-management/supplier-payments",
-    icon: "💰", // Money bag emoji for payments
+    icon: "💰",
     description: "Manage payments and dues for suppliers and parties.",
   },
+
+  { id: 5, name: "Ledger", href: "/ledger", icon: "📒" },
+  { id: 6, name: "Farmer Credit Ledger", href: "/farmer/credit", icon: "📜" },
+  {
+    id: 7,
+    name: "Retailer Credit Ledger",
+    href: "/retailer/credit",
+    icon: "📜",
+  },
+  {
+    id: 16,
+    name: "Generate Stock Report",
+    href: "/inventory-management/stock-report",
+    icon: "📊",
+    description: "Generate detailed reports on stock and inventory levels.",
+  },
+
+  { id: 8, name: "Create a Farmer", href: "/farmer/create", icon: "➕" },
+  { id: 9, name: "Admin", href: "/admin", icon: "👨‍💼" },
 ];
