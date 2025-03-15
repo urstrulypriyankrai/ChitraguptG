@@ -67,7 +67,7 @@ export async function POST(req: Request) {
         console.log("Supplier linked:", supplierLink);
 
         // 5. Create Variants (Simplified for debugging)
-        const variantRef = await tx.productVariant.createMany({
+        await tx.productVariant.createMany({
           data: productVariantArray,
         });
 

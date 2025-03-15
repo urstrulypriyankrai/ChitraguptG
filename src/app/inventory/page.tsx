@@ -1,7 +1,7 @@
 import React from "react";
 import { TILES_DATA } from "@/_constants/appConfigConstants";
 import Tile, { TileWrapper } from "../_components/Tile";
-import SideBar from "@/components/sidebar";
+// import SideBar from "@/components/sidebar";
 
 const page = () => {
   return (

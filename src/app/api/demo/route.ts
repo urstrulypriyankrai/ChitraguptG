@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { v4 as uuid } from "uuid";
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     const productUUID = "test-product-uuid"; // Use a static ID for testing
     const result = await prisma.$transaction(async (tx) => {
@@ -27,19 +27,22 @@ export async function POST(req: Request) {
           variant: newVariant,
         });
       } catch (error) {
-        console.error("Error creating variant:", error);
-        return NextResponse.json(
-          { message: "Failed to create variant", error: error.message },
-          { status: 500 }
-        );
+        if (error instanceof Error) {
+          console.error("Error creating variant:", error);
+          return NextResponse.json(
+            { message: "Failed to create variant", error: error?.message },
+            { status: 500 }
+          );
+        }
       }
     });
     return result;
   } catch (error) {
     console.error("API POST error:", error);
-    return NextResponse.json(
-      { message: "API error", error: error.message },
-      { status: 500 }
-    );
+    if (error instanceof Error)
+      return NextResponse.json(
+        { message: "API error", error: error.message },
+        { status: 500 }
+      );
   }
 }
