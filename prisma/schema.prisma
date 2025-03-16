@@ -9,21 +9,18 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  password  String
-  role      String   @default("EMPLOYEE") // "ADMIN" | "EMPLOYEE"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // NextAuth required relations
+  id       String    @id @default(cuid())
+  username String    @unique
+  password String
+  role     String    @default("ADMIN")
   accounts Account[]
   sessions Session[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-// Required by NextAuth for session management
 model Account {
-  id                String  @id @default(uuid())
   userId            String
   type              String
   provider          String
@@ -35,27 +32,31 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-  user              User    @relation(fields: [userId], references: [id])
 
-  @@unique([provider, providerAccountId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
 }
 
-// Required by NextAuth for session storage
 model Session {
-  id           String   @id @default(uuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id])
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-// Only needed if you want password reset functionality later
 model VerificationToken {
   identifier String
-  token      String   @unique
+  token      String
   expires    DateTime
 
-  @@unique([identifier, token])
+  @@id([identifier, token])
 }
 
 model Product {
