@@ -5,6 +5,9 @@ import { SEO } from "@/_constants/appConfigConstants";
 import { ThemeProvider } from "@/app/_components/theme-provider";
 import Navbar from "./_components/NavbarComponents/Navbar";
 import { Toaster } from "@/components/ui/toaster";
+import { auth } from "@/auth";
+import { Session } from "next-auth";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -20,11 +23,13 @@ export const metadata: Metadata = {
   description: SEO.home.description,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html lang="en">
       <body
@@ -36,7 +41,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
+          <Navbar session={session!} />
           {children}
           <Toaster />
         </ThemeProvider>

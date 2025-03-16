@@ -8,7 +8,18 @@ import Link from "next/link";
 import ToggleDarkMode from "./ToggleDarkMode";
 import { cn } from "@/lib/utils"; // Assuming you have shadcn/ui utils
 
-const NavbarForDesktop = () => {
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { signOut } from "next-auth/react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Session } from "next-auth";
+
+const NavbarForDesktop = ({ session }: { session: Session }) => {
   return (
     <nav className="flex items-center justify-between px-6 h-16 border-b">
       <div className="flex items-center flex-1 max-w-10xl mx-auto">
@@ -16,6 +27,41 @@ const NavbarForDesktop = () => {
         <MainMenu />
         <div className="ml-auto flex items-center gap-4">
           <ToggleDarkMode />
+          {session?.user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="rounded-full flex items-center gap-2 hover:bg-accent/50"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>
+                      {session.user.name?.[0]?.toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium">{session.user.name}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="cursor-pointer">
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={async () => {
+                    await signOut({
+                      redirect: true,
+                      callbackUrl: "/",
+                    });
+                  }}
+                  className="cursor-pointer"
+                >
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </nav>
