@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
     // if user not present create a farmer
     const newFarmer = await prisma.party.create({
       data: {
+        id: String(data.aadhar),
         partyType: data.partyType,
         name: data.partyName,
         fathersName: data.fathersName,

@@ -17,7 +17,9 @@ export async function POST(request: NextRequest) {
   try {
     // get the data
     const data = await request.json();
-    const productId = (await data.aadhar) ? data.aadhar : data.gstNumber;
+    const productId = String(
+      (await data.aadhar) ? data.aadhar : data.gstNumber
+    );
     // check validation
     const partyValidation = checkDataValidation(partySchema, data);
 

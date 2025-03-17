@@ -81,7 +81,7 @@ model Product {
 
 model ProductSupplier {
   productId  String
-  supplierId Int
+  supplierId String
 
   product  Product @relation(fields: [productId], references: [id])
   supplier Party   @relation(fields: [supplierId], references: [id])
@@ -122,7 +122,7 @@ model ProductVariant {
 model Purchase {
   id           Int      @id @default(autoincrement())
   variantId    String
-  supplierId   Int
+  supplierId   String
   quantity     Decimal  @db.Decimal(10, 2)
   unitPrice    Decimal  @db.Decimal(10, 2)
   totalPrice   Decimal  @db.Decimal(10, 2)
@@ -135,7 +135,7 @@ model Purchase {
 }
 
 model Party {
-  id            Int       @id @default(autoincrement())
+  id            String    @id @default(uuid())
   name          String
   partyType     PartyType
   mobile        String    @unique
@@ -144,7 +144,7 @@ model Party {
   fathersName   String?
   aadhar        String?   @unique
   // Common fields
-  creditBalance Decimal   @default(0) @db.Decimal(10, 2)
+  creditBalance Int       @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   gstNumber     String?   @unique @db.VarChar(15)
@@ -185,7 +185,7 @@ model StockHistory {
   type                   StockAdjustmentType
   reason                 String?
   purchaseId             Int?
-  partyId                Int?
+  partyId                String?
   date                   DateTime            @default(now())
   referenceTransactionId Int?
   // farmerId               Int?
@@ -201,7 +201,7 @@ model Transaction {
   id                Int               @id @default(autoincrement())
   transactionNumber String?           @unique // Optional: Unique 
   type              TransactionType
-  partyId           Int
+  partyId           String
   totalAmount       Decimal           @db.Decimal(10, 2)
   paymentMethod     PaymentMethod
   status            TransactionStatus @default(COMPLETED)
@@ -229,7 +229,7 @@ model TransactionItem {
 
 model CreditLedger {
   id            Int        @id @default(autoincrement())
-  partyId       Int
+  partyId       String
   amount        Decimal    @db.Decimal(10, 2)
   type          LedgerType
   date          DateTime   @default(now())
@@ -243,7 +243,7 @@ model CreditLedger {
 
 model SupplierPayment {
   id          Int      @id @default(autoincrement())
-  partyId     Int?
+  partyId     String?
   amount      Decimal  @db.Decimal(10, 2)
   paymentDate DateTime @default(now())
   reference   String?
