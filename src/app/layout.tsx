@@ -6,7 +6,6 @@ import { ThemeProvider } from "@/app/_components/theme-provider";
 import Navbar from "./_components/NavbarComponents/Navbar";
 import { Toaster } from "@/components/ui/toaster";
 import { auth } from "@/auth";
-import { Session } from "next-auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

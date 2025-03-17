@@ -1,12 +1,13 @@
 "use client";
 import React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
+  CellContext,
   ColumnDef,
   ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  createColumnHelper,
+  //   SortingState,
+  //   VisibilityState,
+  //   createColumnHelper,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -34,7 +35,7 @@ import {
 } from "@/components/ui/table";
 import { Party } from "@prisma/client";
 
-const columns = [
+const columns: ColumnDef<Party>[] = [
   {
     id: "expand",
     header: "Expand",
@@ -93,9 +94,9 @@ function NestedTable({ partyId }: { partyId: string }) {
   );
 }
 
-export default function PartyTable({ DATA }: { DATA: Party }) {
-  const [data, setData] = useState<Party>(DATA);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>();
+export default function PartyTable({ DATA }: { DATA: Party[] }) {
+  const [data] = useState<Party[]>(DATA);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [expandedRows, setExpandedRows] = useState({});
   const table = useReactTable({
     data,
@@ -192,10 +193,14 @@ export default function PartyTable({ DATA }: { DATA: Party }) {
   );
 }
 
-function ExpandClose({ row }) {
+function ExpandClose(props: CellContext<Party, unknown>) {
   return (
-    <Button variant="ghost" size="icon" onClick={() => row.toggleExpanded()}>
-      {row.getIsExpanded() ? <ArrowUp /> : <ArrowDown />}
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => props.row.toggleExpanded()}
+    >
+      {props.row.getIsExpanded() ? <ArrowUp /> : <ArrowDown />}
     </Button>
   );
 }

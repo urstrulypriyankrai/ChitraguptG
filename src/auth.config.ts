@@ -1,5 +1,5 @@
 // auth.config.ts
-import { NextAuthConfig } from "next-auth";
+// import { NextAuthConfig } from "next-auth";
 
 export const authConfig = {
   secret: process.env.AUTH_SECRET,
@@ -7,4 +7,4 @@ export const authConfig = {
     signIn: "/login",
     error: "/login",
   },
-} satisfies NextAuthConfig;
+};

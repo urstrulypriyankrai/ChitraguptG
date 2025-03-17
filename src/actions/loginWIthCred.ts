@@ -5,7 +5,7 @@ import { AuthError } from "next-auth";
 
 export default async function LoginWithCred(
   formData: FormData
-): Promise<unknown> {
+): Promise<boolean | { error: string }> {
   try {
     const rawFromData = {
       username: formData.get("username") as string,
@@ -34,5 +34,6 @@ export default async function LoginWithCred(
           return { error: "Something went wrong" };
       }
     } else if (error instanceof Error) console.log(error.message);
+    return false;
   }
 }

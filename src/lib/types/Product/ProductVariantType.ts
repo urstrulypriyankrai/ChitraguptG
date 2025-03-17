@@ -6,7 +6,7 @@ export type ProductVariantType = {
   MRP: number;
   unloading: number;
   freightCharges: number;
-  inStock: number | null;
+  inStock?: number | null;
   warehouseLocation?: string | null;
   quantityUnitName: string;
   weightUnit?: { name: string };

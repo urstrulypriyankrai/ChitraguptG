@@ -54,7 +54,7 @@ const ProductVariant = (props: Props) => {
               key={variant.id}
               variant={variant}
               units={props.units}
-              onDelete={() => handDeleteVariant(variant.id)}
+              onDelete={() => handDeleteVariant(variant.id!)}
               onChange={handleVariantChange} // Pass onChange handler
             />
           );

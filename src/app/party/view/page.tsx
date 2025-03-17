@@ -1,9 +1,10 @@
 import PageHeading from "@/app/_components/PageHeading";
 import PartyTable from "./table";
 import getAllParty from "@/actions/GET/getAllParty";
+import { Party } from "@prisma/client";
 
 export default async function Page() {
-  const parties = await getAllParty({
+  const parties: Party[] | null = await getAllParty({
     include: {
       address: true,
     },

@@ -19,7 +19,9 @@ export default function LoginPage() {
 
     setIsSubmitting(false);
 
-    if (result?.error) {
+    if (!result) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       setError(result.error);
     } else {
       // Successful login, redirect to homepage

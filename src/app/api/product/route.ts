@@ -46,7 +46,7 @@ export async function POST(req: Request) {
             productCategoryName: body.category,
             taxHsnCode: tax.hsnCode,
             lowStockThreshold: body.lowStockThreshold,
-            ProductSupplier: (prev) => [...prev, body.supplier.id],
+            ProductSupplier: body.supplier.id,
           },
         });
         console.log("New product created:", newProduct);
@@ -56,12 +56,12 @@ export async function POST(req: Request) {
           where: {
             productId_supplierId: {
               productId: productUUID,
-              supplierId: parseInt(body.supplier.id),
+              supplierId: body.supplier.id,
             },
           },
           create: {
             productId: productUUID,
-            supplierId: parseInt(body.supplier.id),
+            supplierId: body.supplier.id,
           },
           update: {},
         });
