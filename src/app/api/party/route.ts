@@ -3,7 +3,6 @@ import { partySchema } from "@/lib/ZodSchema/partySchema";
 import prisma from "@/lib/prisma";
 import { checkDataValidation } from "../_utils/CheckDataValidation";
 
-
 export async function GET() {
   // console.log(request);
   const allParty = await prisma.party.findMany();
@@ -18,7 +17,7 @@ export async function POST(request: NextRequest) {
   try {
     // get the data
     const data = await request.json();
-
+    const productId = (await data.aadhar) ? data.aadhar : data.gstNumber;
     // check validation
     const partyValidation = checkDataValidation(partySchema, data);
 
@@ -33,6 +32,9 @@ export async function POST(request: NextRequest) {
     const isUserAlreadyPresent = await prisma.party.findMany({
       where: {
         gstNumber: data.gstNumber,
+        NOT: {
+          partyType: "FARMER",
+        },
       },
     });
 
@@ -46,6 +48,7 @@ export async function POST(request: NextRequest) {
     // if everything is fine
     const newParty = await prisma.party.create({
       data: {
+        id: productId,
         name: data.partyName,
         partyType: data.partyType,
         email: data.email,

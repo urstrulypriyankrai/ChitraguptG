@@ -1,8 +1,9 @@
 import React from "react";
 import PageHeading from "../_components/PageHeading";
 import Tile from "../_components/Tile";
-import { useSession } from "next-auth/react";
+// import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 const ADMIN_TILE = [
   {
     _id: 1,
@@ -18,8 +19,9 @@ const ADMIN_TILE = [
   },
 ];
 
-const Page = () => {
-  const { data: session } = useSession();
+const Page = async () => {
+  const session = await auth();
+  console.log(session);
 
   if (!session?.user) {
     redirect("/login");

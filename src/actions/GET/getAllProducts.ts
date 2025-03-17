@@ -1,19 +1,16 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 
-export default async function getALlProducts() {
+export default async function getALlProducts(
+  options: Prisma.ProductFindManyArgs = {}
+) {
   try {
     const data = await unstable_cache(
       async () => {
-        return prisma.product.findMany({
-          include: {
-            category: true,
-            ProductSupplier: true,
-            variants: true,
-          },
-        });
+        return prisma.product.findMany(options);
       },
       ["allProducts"],
       {

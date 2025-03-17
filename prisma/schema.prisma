@@ -76,6 +76,7 @@ model Product {
   transactions    TransactionItem[]
   stockHistory    StockHistory[]
   ProductSupplier ProductSupplier[]
+  Party           Party[]
 }
 
 model ProductSupplier {
@@ -157,6 +158,8 @@ model Party {
   stockHistory    StockHistory[]
   purchases       Purchase[]
   ProductSupplier ProductSupplier[]
+  Product         Product?          @relation(fields: [productId], references: [id])
+  productId       String?
 
   @@index([mobile, aadhar])
   @@index([gstNumber])

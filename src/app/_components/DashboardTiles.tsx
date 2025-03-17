@@ -54,7 +54,7 @@ const TILES_DATA = {
 
       name: "View All Parties",
 
-      href: "/inventory-management/view-parties",
+      href: "/party/view",
 
       icon: "👥",
 

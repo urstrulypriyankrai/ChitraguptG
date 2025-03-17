@@ -32,33 +32,45 @@ const NavbarForDesktop = ({ session }: { session: Session }) => {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="rounded-full flex items-center gap-2 hover:bg-accent/50"
+                  className="rounded-full flex items-center gap-2 hover:bg-accent/50 pr-3"
                 >
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback>
+                  <Avatar className="h-9 w-9">
+                    <AvatarFallback className="bg-primary text-primary-foreground">
                       {session.user.name?.[0]?.toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">{session.user.name}</span>
+                  <span className="font-medium hidden sm:inline-block">
+                    {session.user.name}
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link href="/profile" className="cursor-pointer">
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onSelect={async () => {
-                    await signOut({
-                      redirect: true,
-                      callbackUrl: "/",
-                    });
-                  }}
-                  className="cursor-pointer"
-                >
-                  Logout
-                </DropdownMenuItem>
+              <DropdownMenuContent
+                align="end"
+                className="w-48 rounded-lg shadow-lg border bg-background/95 backdrop-blur"
+              >
+                <div className="p-1">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/profile"
+                      className="w-full flex items-center px-4 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                    >
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <div
+                      onClick={async () =>
+                        await signOut({
+                          redirect: true,
+                          redirectTo: "/",
+                        })
+                      }
+                      className="w-full flex items-center px-4 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+                    >
+                      Logout
+                    </div>
+                  </DropdownMenuItem>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
