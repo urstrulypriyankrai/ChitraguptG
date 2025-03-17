@@ -68,8 +68,6 @@ export async function POST(request: NextRequest) {
         address: true,
       },
     });
-    // revalidate tag
-    revalidateTag("getAllParty");
 
     // return response success!
     return Response.json(

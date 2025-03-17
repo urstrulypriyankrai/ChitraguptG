@@ -59,6 +59,7 @@ const CreatePartyForm = () => {
             title: "✅ Party Created Successfuly!",
             description: `${data.message}`,
           });
+          await fetch("/api/revalidate?tag=getAllParty");
         } else {
           toast({
             variant: "destructive",
