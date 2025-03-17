@@ -1,5 +1,6 @@
 import { z } from "zod";
 export const farmerSchema = z.object({
+  id: z.string().optional(),
   partyName: z
     .string()
     .min(3, "kisaan ka nam bharo")

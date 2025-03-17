@@ -11,9 +11,9 @@ export default async function getAllParty(options: OptionsType = {}) {
       async () => {
         return prisma.party.findMany(options);
       },
-      ["allParty"],
+      ["getAllParty"],
       {
-        tags: ["allParty"],
+        tags: ["getAllParty"],
       }
     )();
 

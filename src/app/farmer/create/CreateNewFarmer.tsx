@@ -161,6 +161,7 @@ export default function CreateNewFarmer() {
             variant: "default",
           });
           console.log("toast should be called");
+          await fetch("/api/revalidate?tag=getAllParty");
         } else {
           toast({
             title: `❌ Unable to create farmer`,
