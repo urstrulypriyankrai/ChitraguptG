@@ -1,6 +1,4 @@
 "use client";
-
-import { revalidateCategoryAction } from "@/actions/product/revalidateCategoryAction";
 import { LabeledInput } from "@/components/ui/LabledInput";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -43,7 +41,7 @@ const CreateNewCategory = () => {
           variant: "default",
         });
         setName(""); // Clear input on success
-        revalidateCategoryAction();
+        await fetch("/api/revalidate?tag=getAllCategories");
       } else {
         if (response.status === 400) {
           toast({

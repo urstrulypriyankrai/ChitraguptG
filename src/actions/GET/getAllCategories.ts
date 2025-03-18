@@ -6,7 +6,7 @@ export default async function getAllCategories() {
   const res = await fetch(new URL(`${baseUrl}/api/product/category`), {
     method: "GET",
     next: {
-      tags: ["productCategories"],
+      tags: ["getAllCategories"],
       revalidate: 10000,
     },
   });

@@ -6,7 +6,7 @@ export default async function getAllProductUnits() {
   const res = await fetch(new URL(`${baseUrl}/api/product/unit`), {
     method: "GET",
     next: {
-      tags: ["productUnits"],
+      tags: ["getAllProductUnits"],
       revalidate: 10000,
     },
   });

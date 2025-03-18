@@ -149,7 +149,7 @@ export default function CreateNewFarmer() {
       if (data.success) {
         const res = await fetch("/api/farmer", {
           method: "POST",
-          body: JSON.stringify(formValue),
+          body: JSON.stringify(data.data),
         });
         let response = await res.json();
 

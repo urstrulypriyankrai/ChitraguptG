@@ -6,7 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import React, { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { unitSchema } from "@/lib/ZodSchema/product/UnitSchema";
-import { revalidateProductUnits } from "@/actions/product/revalidateProductUnits";
+
 const CreateNewProductUnit = () => {
   const [name, setName] = useState("");
   const { pending } = useFormStatus();
@@ -41,7 +41,7 @@ const CreateNewProductUnit = () => {
           variant: "default",
         });
         setName(""); // Clear input on success
-        revalidateProductUnits();
+        await fetch("/api/revalidate?tag=getAllProductUnits");
       } else {
         if (response.status === 400) {
           toast({
