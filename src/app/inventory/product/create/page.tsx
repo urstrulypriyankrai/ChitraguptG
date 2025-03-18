@@ -3,6 +3,7 @@ import CreateNewProduct from "./CreateNewProduct";
 import getAllCategories from "@/actions/GET/getAllCategories";
 import getAllProductUnits from "@/actions/GET/getAllProductUnits";
 import getAllSuppliers from "@/actions/GET/getAllSuppliers";
+import getAllTaxes from "@/actions/GET/getAllTaxes";
 export default async function Page() {
   const categories = await getAllCategories();
   const units = await getAllProductUnits();

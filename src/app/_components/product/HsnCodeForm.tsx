@@ -2,7 +2,7 @@
 import { PageSubHeading } from "@/app/_components/PageHeading";
 import CustomSelectBox from "@/components/forms/CustomSelectBox";
 import { LabeledInput } from "@/components/ui/LabledInput";
-import { GST_RATE_MAP } from "@/lib/ZodSchema/productSchema";
+import { GSTRATE } from "@prisma/client";
 
 import React, { useEffect, useState } from "react";
 type Props = {
@@ -11,6 +11,7 @@ type Props = {
     React.SetStateAction<{ hsnCode: string; gstRate: string }>
   >;
   message: string[];
+  taxes: { gstRate: GSTRATE; hsnCode: string }[];
 };
 const HsnCodeForm = ({ taxInformation, setTaxInformation, message }: Props) => {
   const [isGstRateDisabled, setisGstRateDisabled] = useState(false);
@@ -54,7 +55,7 @@ const HsnCodeForm = ({ taxInformation, setTaxInformation, message }: Props) => {
           data={
             isGstRateDisabled
               ? [taxInformation.gstRate]
-              : Object.keys(GST_RATE_MAP)
+              : ["ZERO", "FIVE", "EIGHTEEN", "TWENTY_EIGHT"]
           }
           name="gstRate"
           placeholder="Select GST Rate"
