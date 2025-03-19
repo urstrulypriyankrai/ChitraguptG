@@ -2,8 +2,6 @@
 import { PageSubHeading } from "@/app/_components/PageHeading";
 import CustomSelectBox from "@/components/forms/CustomSelectBox";
 import { LabeledInput } from "@/components/ui/LabledInput";
-import { GSTRATE } from "@prisma/client";
-
 import React, { useEffect, useState } from "react";
 type Props = {
   taxInformation: { hsnCode: string; gstRate: string };
@@ -11,7 +9,6 @@ type Props = {
     React.SetStateAction<{ hsnCode: string; gstRate: string }>
   >;
   message: string[];
-  taxes: { gstRate: GSTRATE; hsnCode: string }[];
 };
 const HsnCodeForm = ({ taxInformation, setTaxInformation, message }: Props) => {
   const [isGstRateDisabled, setisGstRateDisabled] = useState(false);

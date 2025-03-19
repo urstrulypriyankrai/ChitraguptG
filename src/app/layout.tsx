@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SEO } from "@/_constants/appConfigConstants";
-import { ThemeProvider } from "@/app/_components/theme-provider";
 import Navbar from "./_components/NavbarComponents/Navbar";
 import { Toaster } from "@/components/ui/toaster";
 import { auth } from "@/auth";
+import { Providers } from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +34,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
+        <Providers
           attribute="class"
           defaultTheme="system"
           enableSystem
@@ -43,7 +43,7 @@ export default async function RootLayout({
           <Navbar session={session!} />
           {children}
           <Toaster />
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );
