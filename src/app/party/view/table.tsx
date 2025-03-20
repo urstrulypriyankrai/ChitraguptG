@@ -1,8 +1,7 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import { useState } from "react";
 import {
-  CellContext,
   ColumnDef,
   ColumnFiltersState,
   //   SortingState,
@@ -15,9 +14,9 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -33,14 +32,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Party } from "@prisma/client";
-
-const columns: ColumnDef<Party>[] = [
-  {
-    id: "expand",
-    header: "Expand",
-    cell: ExpandClose,
-  },
+import { Address, Party } from "@prisma/client";
+import TableCellAction from "./TableCellAction";
+type PartyWithRelations = Party & {
+  address: Address | null;
+};
+const columns: ColumnDef<PartyWithRelations>[] = [
   {
     accessorKey: "partyType",
     header: "Party Type",
@@ -66,36 +63,55 @@ const columns: ColumnDef<Party>[] = [
     header: "Mobile",
     cell: (props) => <>{props.getValue()}</>,
   },
+  {
+    id: "action",
+    header: "Actions",
+    cell: (props) => (
+      <Suspense>
+        <TableCellAction {...props} />
+      </Suspense>
+    ),
+  },
 ];
 
-function NestedTable({ partyId }: { partyId: string }) {
+function NestedTable({ partyData }: { partyData: Address | null }) {
   // Replace with your actual nested table data fetching and rendering logic
+  console.log(partyData, "from here");
+  if (!partyData) return <div className="p-4">No address available</div>;
+
+  // Define which fields to display (with labels)
+  const addressFields = [
+    { key: "village", label: "Village" },
+    { key: "district", label: "District" },
+    { key: "state", label: "State" },
+    { key: "zip", label: "ZIP Code" },
+    { key: "street", label: "Street" },
+  ];
+
   return (
     <div className="p-4 w-full">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nested Header 1</TableHead>
-            <TableHead>Nested Header 2</TableHead>
+            <TableHead className="w-[120px]">Field</TableHead>
+            <TableHead>Value</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell>Data for {partyId} - 1</TableCell>
-            <TableCell>Data for {partyId} - 2</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Data for {partyId} - 3</TableCell>
-            <TableCell>Data for {partyId} - 4</TableCell>
-          </TableRow>
+          {addressFields.map(({ key, label }) => (
+            <TableRow key={key}>
+              <TableCell className="font-medium">{label}</TableCell>
+              <TableCell>{partyData[key as keyof Address] || "N/A"}</TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>
   );
 }
 
-export default function PartyTable({ DATA }: { DATA: Party[] }) {
-  const [data] = useState<Party[]>(DATA);
+export default function PartyTable({ DATA }: { DATA: PartyWithRelations[] }) {
+  const [data] = useState<PartyWithRelations[]>(DATA);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [expandedRows, setExpandedRows] = useState({});
   const table = useReactTable({
@@ -112,7 +128,7 @@ export default function PartyTable({ DATA }: { DATA: Party[] }) {
       expanded: expandedRows,
     },
   });
-
+  console.log(table.getRowModel().rows[0].original);
   return (
     <>
       <div className="flex items-center py-4">
@@ -181,7 +197,7 @@ export default function PartyTable({ DATA }: { DATA: Party[] }) {
               {row.getIsExpanded() && (
                 <TableRow>
                   <TableCell colSpan={columns.length}>
-                    <NestedTable partyId={row.original.id} />
+                    <NestedTable partyData={row.original.address} />
                   </TableCell>
                 </TableRow>
               )}
@@ -189,18 +205,26 @@ export default function PartyTable({ DATA }: { DATA: Party[] }) {
           ))}
         </TableBody>
       </Table>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
     </>
-  );
-}
-
-function ExpandClose(props: CellContext<Party, unknown>) {
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => props.row.toggleExpanded()}
-    >
-      {props.row.getIsExpanded() ? <ArrowUp /> : <ArrowDown />}
-    </Button>
   );
 }
