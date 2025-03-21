@@ -112,25 +112,26 @@ export default function FarmerSalesForm({
 
     if (field === "productId" && typeof value === "string") {
       updatedItems[index].productId = value;
-      const product = products.find((p) => p.id === value);
-      if (product && product.variants && product.variants.length > 0) {
-        const variant = product.variants;
-        console.log(variant, "variant");
-        updatedItems[index] = {
-          ...updatedItems[index],
-          productId: value,
-          variantId: variant.id || "",
-          price: variant.MRP || 0,
-          gstRate: product.tax?.gstRate || "",
-          hsnCode: product.tax?.hsnCode || "",
-        };
-      }
+      // const product = products.find((p) => p.id === value);
+      // if (product && product.variants && product.variants.length > 0) {
+      //   const variant = product.variants[index];
+      //   updatedItems[index] = {
+      //     ...updatedItems[index],
+      //     productId: value,
+      //     variantId: variant.id + "",
+      //     price: variant.MRP || 0,
+      //     gstRate: product.tax?.gstRate || "",
+      //     hsnCode: product.tax?.hsnCode || "",
+      //   };
+      // }
     } else if (field === "variantId" && typeof value === "string") {
       const product = products.find(
         (p) => p.id === updatedItems[index].productId
       );
       if (product) {
-        const variant = product.variants.find((v: any) => v.id === value);
+        const variant = product.variants.find(
+          (v: ProductVariantType) => v.id === value
+        );
         if (variant) {
           updatedItems[index] = {
             ...updatedItems[index],
@@ -149,15 +150,15 @@ export default function FarmerSalesForm({
     setSelectedItems(updatedItems);
   };
 
-  const calculateSubtotal = (item: any) => {
+  const calculateSubtotal = (item: variantPriceData) => {
     return item.price * item.quantity;
   };
 
-  const calculateDiscount = (item: any) => {
+  const calculateDiscount = (item: variantPriceData) => {
     return (calculateSubtotal(item) * item.discount) / 100;
   };
 
-  const calculateGST = (item: any) => {
+  const calculateGST = (item: variantPriceData) => {
     const afterDiscount = calculateSubtotal(item) - calculateDiscount(item);
     let gstRate = 0;
 
@@ -184,7 +185,7 @@ export default function FarmerSalesForm({
     return (afterDiscount * gstRate) / 100;
   };
 
-  const calculateItemTotal = (item: any) => {
+  const calculateItemTotal = (item: variantPriceData) => {
     return (
       calculateSubtotal(item) - calculateDiscount(item) + calculateGST(item)
     );
@@ -309,7 +310,7 @@ export default function FarmerSalesForm({
         items: selectedItems.map((item) => {
           const product = products.find((p) => p.id === item.productId);
           const variant = product?.variants.find(
-            (v: any) => v.id === item.variantId
+            (v: ProductVariantType) => v.id === item.variantId
           );
           return {
             productName: product?.name || "",
@@ -367,7 +368,7 @@ export default function FarmerSalesForm({
         items: selectedItems.map((item) => {
           const product = products.find((p) => p.id === item.productId);
           const variant = product?.variants.find(
-            (v: any) => v.id === item.variantId
+            (v: ProductVariantType) => v.id === item.variantId
           );
           return {
             productName: product?.name || "",
@@ -425,7 +426,7 @@ export default function FarmerSalesForm({
         items: selectedItems.map((item) => {
           const product = products.find((p) => p.id === item.productId);
           const variant = product?.variants.find(
-            (v: any) => v.id === item.variantId
+            (v: ProductVariantType) => v.id === item.variantId
           );
           return {
             productName: product?.name || "",
@@ -862,3 +863,10 @@ interface FarmerSalesFormProps {
   farmers: PartyWithAddress[];
   products: ProductType[];
 }
+
+type variantPriceData = {
+  price: number;
+  quantity: number;
+  discount: number;
+  gstRate: string;
+};
