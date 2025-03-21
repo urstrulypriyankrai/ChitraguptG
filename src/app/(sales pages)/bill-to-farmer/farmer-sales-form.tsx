@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -18,19 +17,36 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { Trash2, Plus, Printer, Download, Share2 } from "lucide-react";
 import { generateBillPDF } from "@/lib/helpers/generateBillPDF";
+import { Address, Party } from "@prisma/client";
+import { ProductType } from "@/lib/types/Product/product";
+import { ProductVariantType } from "@/lib/types/Product/ProductVariantType";
 
-interface FarmerSalesFormProps {
-  farmers: any[];
-  products: any[];
-}
+// const initialFarmerData = {
+//   name: "",
+//   id: "",
+//   partyType: "FARMER",
+//   mobile: "",
+//   email: null,
+//   fathersName: "",
+//   aadhar: "",
+//   creditBalance: 0,
+//   gstNumber: null,
+//   addressId: null,
+//   productId: null,
+//   createdAt: new Date(),
+//   updatedAt: new Date(),
+// };
 
 export default function FarmerSalesForm({
   farmers,
   products,
 }: FarmerSalesFormProps) {
   const router = useRouter();
+
   const [selectedFarmer, setSelectedFarmer] = useState<string>("");
-  const [farmerDetails, setFarmerDetails] = useState<any>(null);
+  const [farmerDetails, setFarmerDetails] = useState<PartyWithAddress | null>(
+    null
+  );
   const [selectedItems, setSelectedItems] = useState<
     Array<{
       productId: string;
@@ -50,7 +66,7 @@ export default function FarmerSalesForm({
     new Date().toISOString().split("T")[0]
   );
 
-  // Generate a bill number when component mounts
+  // Generate a bill number when component mounts/loads
   useEffect(() => {
     const date = new Date();
     const year = date.getFullYear().toString().slice(-2);
@@ -59,14 +75,14 @@ export default function FarmerSalesForm({
     const random = Math.floor(Math.random() * 1000)
       .toString()
       .padStart(3, "0");
-    setBillNumber(`F${year}${month}${day}${random}`);
+    setBillNumber(`F${year}${month}${day}/${random}`);
   }, []);
 
   // Update farmer details when a farmer is selected
   useEffect(() => {
     if (selectedFarmer) {
       const farmer = farmers.find((f) => f.id === selectedFarmer);
-      setFarmerDetails(farmer);
+      if (farmer) setFarmerDetails(farmer);
     } else {
       setFarmerDetails(null);
     }
@@ -95,9 +111,11 @@ export default function FarmerSalesForm({
     const updatedItems = [...selectedItems];
 
     if (field === "productId" && typeof value === "string") {
+      updatedItems[index].productId = value;
       const product = products.find((p) => p.id === value);
       if (product && product.variants && product.variants.length > 0) {
-        const variant = product.variants[0];
+        const variant = product.variants;
+        console.log(variant, "variant");
         updatedItems[index] = {
           ...updatedItems[index],
           productId: value,
@@ -522,7 +540,7 @@ export default function FarmerSalesForm({
       {farmerDetails && (
         <Card className="bg-muted/50">
           <CardContent className="pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm font-medium">Name</p>
                 <p>{farmerDetails.name}</p>
@@ -544,6 +562,10 @@ export default function FarmerSalesForm({
                     .join(", ")}
                 </p>
               </div>
+              <div>
+                <p className="text-sm font-medium">Id</p>
+                <p>{farmerDetails.id}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -552,7 +574,14 @@ export default function FarmerSalesForm({
       <div className="mt-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium">Products</h3>
-          <Button type="button" onClick={addItem} variant="outline" size="sm">
+
+          <Button
+            type="button"
+            onClick={addItem}
+            variant="outline"
+            size="sm"
+            disabled={!Boolean(selectedFarmer.length)}
+          >
             <Plus className="h-4 w-4 mr-2" /> Add Product
           </Button>
         </div>
@@ -578,6 +607,7 @@ export default function FarmerSalesForm({
               </thead>
               <tbody>
                 {selectedItems.map((item, index) => {
+                  console.log(selectedItems, "from here");
                   const product = products.find((p) => p.id === item.productId);
 
                   return (
@@ -585,9 +615,9 @@ export default function FarmerSalesForm({
                       <td className="px-4 py-2">
                         <Select
                           value={item.productId}
-                          onValueChange={(value) =>
-                            updateItem(index, "productId", value)
-                          }
+                          onValueChange={(value) => {
+                            updateItem(index, "productId", value);
+                          }}
                         >
                           <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Select product" />
@@ -604,20 +634,26 @@ export default function FarmerSalesForm({
                       <td className="px-4 py-2">
                         <Select
                           value={item.variantId}
-                          onValueChange={(value) =>
-                            updateItem(index, "variantId", value)
-                          }
+                          onValueChange={(value) => {
+                            updateItem(index, "variantId", value);
+                            console.log("#here", value);
+                          }}
                           disabled={!item.productId}
                         >
                           <SelectTrigger className="w-[150px]">
                             <SelectValue placeholder="Select variant" />
                           </SelectTrigger>
                           <SelectContent>
-                            {product?.variants.map((variant: any) => (
-                              <SelectItem key={variant.id} value={variant.id}>
-                                {variant.weight} {variant.quantityUnitName}
-                              </SelectItem>
-                            ))}
+                            {product?.variants.map(
+                              (variant: ProductVariantType) => (
+                                <SelectItem
+                                  key={variant.id}
+                                  value={variant.id as string}
+                                >
+                                  {variant.weight} {variant.quantityUnitName}
+                                </SelectItem>
+                              )
+                            )}
                           </SelectContent>
                         </Select>
                       </td>
@@ -815,4 +851,14 @@ export default function FarmerSalesForm({
       </div>
     </form>
   );
+}
+
+// ========= TYPE INIT ===========
+
+type PartyWithAddress = Party & {
+  address?: Address;
+};
+interface FarmerSalesFormProps {
+  farmers: PartyWithAddress[];
+  products: ProductType[];
 }
