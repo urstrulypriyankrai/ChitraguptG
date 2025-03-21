@@ -6,6 +6,7 @@ import { addressSchema } from "@/lib/ZodSchema/address/addressSchema";
 import { z } from "zod";
 import getAddress from "@/actions/GET/address/getAddress";
 import { Address } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 export default async function Page({ params }: { params: { slug: string } }) {
   const { slug } = await params;
@@ -54,6 +55,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
 
       await fetch(process.env.BASE_URL + "/api/revalidate?tag=getAllParty");
       await fetch(process.env.BASE_URL + "/api/revalidate?tag=getAddress");
+      revalidatePath("/party/view");
       return { success: true, message: "Address updated successfully" };
     } catch (error) {
       console.error("Update error:", error);

@@ -7,7 +7,7 @@ type Props = React.HTMLAttributes<HTMLHeadingElement> & {
 const PageHeading = ({ heading, ...props }: Props) => {
   return (
     <h1
-      className="text-center text-2xl md:text-3xl font-bold w-full p-2"
+      className="text-center text-2xl md:text-2xl font-bold w-full p-2 tracking-wider "
       {...props}
     >
       {heading}

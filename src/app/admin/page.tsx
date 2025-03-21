@@ -28,7 +28,7 @@ const Page = async () => {
   }
 
   if (session.user.role !== "ADMIN") {
-    redirect("/");
+    return <div>You are not authorized! Contact Admin.</div>;
   }
 
   return (

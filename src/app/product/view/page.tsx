@@ -1,18 +1,20 @@
 import PageHeading from "@/app/_components/PageHeading";
-import PartyTable from "./table";
-import getAllParty from "@/actions/GET/getAllParty";
-import { Party } from "@prisma/client";
+import { ProductTable } from "./table";
+import { Product } from "@prisma/client";
+import getALlProducts from "@/actions/GET/getAllProducts";
 
 export default async function Page() {
-  const parties: Party[] | null = await getAllParty({
+  const products: Product[] | null = await getALlProducts({
     include: {
-      address: true,
+      variants: true,
+      ProductSupplier: true,
     },
   });
+
   return (
     <div>
-      <PageHeading heading="View All Party" />
-      <div className="m-6">{parties && <PartyTable DATA={parties} />}</div>
+      <PageHeading heading="List Of Products" />
+      <div className="m-6">{products && <ProductTable DATA={products} />}</div>
     </div>
   );
 }

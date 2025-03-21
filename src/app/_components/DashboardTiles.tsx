@@ -42,7 +42,7 @@ const TILES_DATA = {
 
       name: "View All Products",
 
-      href: "/inventory/product/view",
+      href: "/product/view",
 
       icon: "📋",
 
