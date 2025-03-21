@@ -10,7 +10,7 @@ import { Edit } from "lucide-react";
 import Link from "next/link";
 
 export type ProductsWithRelations = ProductType & {
-  variants: ProductVariantType[] | null;
+  variants: ProductVariantType[];
   ProductSupplier: ProductSupplier[];
 };
 const columns: ColumnDef<ProductsWithRelations>[] = [

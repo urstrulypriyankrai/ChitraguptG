@@ -8,7 +8,11 @@ import getAddress from "@/actions/GET/address/getAddress";
 import { Address } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-export default async function Page({ params }: { params: { slug: string } }) {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
 
   // handle

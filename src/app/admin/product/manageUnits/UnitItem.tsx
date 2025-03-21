@@ -1,7 +1,4 @@
 "use client";
-
-import { revalidateProductUnits } from "@/actions/product/revalidateProductUnits";
-// import { revalidateUnitAction } from "@/actions/product/revalidateUnitAction";
 import { LabeledInput } from "@/components/ui/LabledInput";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -126,7 +123,8 @@ const UnitActions = ({
           title: "Unit Deleted Successfully",
           variant: "default",
         });
-        revalidateProductUnits();
+
+        await fetch("/api/revalidate?tag=getAllProductUnits");
       } else {
         throw new Error("Failed to delete unit.");
       }

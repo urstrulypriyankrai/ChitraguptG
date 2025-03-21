@@ -1,14 +1,17 @@
 import PageHeading from "@/app/_components/PageHeading";
 import PartyTable from "./table";
 import getAllParty from "@/actions/GET/getAllParty";
-import { Party } from "@prisma/client";
+import { Address, Party } from "@prisma/client";
 
+type PartyWithRelations = Party & {
+  address: Address | null;
+};
 export default async function Page() {
-  const parties: Party[] | null = await getAllParty({
+  const parties = (await getAllParty({
     include: {
       address: true,
     },
-  });
+  })) as PartyWithRelations[] | null;
   return (
     <div>
       <PageHeading heading="View All Party" />

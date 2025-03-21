@@ -2,7 +2,6 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { checkDataValidation } from "../_utils/CheckDataValidation";
 import { farmerSchema } from "@/lib/ZodSchema/farmerSchema";
-import { revalidateTag } from "next/cache";
 
 export async function GET(request: NextRequest) {
   console.log(request);

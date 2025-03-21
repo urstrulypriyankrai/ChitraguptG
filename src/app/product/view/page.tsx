@@ -1,15 +1,14 @@
 import PageHeading from "@/app/_components/PageHeading";
-import { ProductTable } from "./table";
-import { Product } from "@prisma/client";
+import { ProductTable, ProductsWithRelations } from "./table";
 import getALlProducts from "@/actions/GET/getAllProducts";
 
 export default async function Page() {
-  const products: Product[] | null = await getALlProducts({
+  const products = (await getALlProducts({
     include: {
       variants: true,
       ProductSupplier: true,
     },
-  });
+  })) as ProductsWithRelations[] | null;
 
   return (
     <div>

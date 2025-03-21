@@ -4,9 +4,7 @@ import UpdatePage from "./(update)/UpdatePage";
 export default async function Page({
   params,
 }: {
-  params: {
-    slug: string[];
-  };
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
   const session = await auth();
