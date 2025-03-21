@@ -112,18 +112,17 @@ export default function FarmerSalesForm({
 
     if (field === "productId" && typeof value === "string") {
       updatedItems[index].productId = value;
-      // const product = products.find((p) => p.id === value);
-      // if (product && product.variants && product.variants.length > 0) {
-      //   const variant = product.variants[index];
-      //   updatedItems[index] = {
-      //     ...updatedItems[index],
-      //     productId: value,
-      //     variantId: variant.id + "",
-      //     price: variant.MRP || 0,
-      //     gstRate: product.tax?.gstRate || "",
-      //     hsnCode: product.tax?.hsnCode || "",
-      //   };
-      // }
+      const product = products.find((p) => p.id === value);
+      if (product && product.variants && product.variants.length > 0) {
+        const variant = product.variants[index];
+        updatedItems[index] = {
+          ...updatedItems[index],
+          productId: value,
+          price: variant.MRP || 0,
+          gstRate: product.tax?.gstRate || "",
+          hsnCode: product.tax?.hsnCode || "",
+        };
+      }
     } else if (field === "variantId" && typeof value === "string") {
       const product = products.find(
         (p) => p.id === updatedItems[index].productId
@@ -261,7 +260,7 @@ export default function FarmerSalesForm({
             : "UNPAID",
         status: "COMPLETED",
       };
-
+      console.log(saleData, "from here");
       const response = await fetch("/api/sales/farmer", {
         method: "POST",
         headers: {
@@ -608,8 +607,8 @@ export default function FarmerSalesForm({
               </thead>
               <tbody>
                 {selectedItems.map((item, index) => {
-                  console.log(selectedItems, "from here");
                   const product = products.find((p) => p.id === item.productId);
+                  console.log(item, "from here");
 
                   return (
                     <tr key={index} className="border-b">

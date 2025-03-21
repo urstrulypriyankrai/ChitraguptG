@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import RetailerSalesForm from "./retailer-sales-form";
-import getAllParty from "@/actions/GET/getAllParty";
+// import getAllParty from "@/actions/GET/getAllParty";
 import getALlProducts from "@/actions/GET/getAllProducts";
 import PageHeading from "@/app/_components/PageHeading";
+import { ProductType } from "@/lib/types/Product/product";
+import getAllParty from "@/actions/GET/getAllParty";
 
 export const metadata: Metadata = {
   title: "Sell to Retailer | ChitraguptG",
@@ -11,22 +13,23 @@ export const metadata: Metadata = {
 };
 
 export default async function RetailerSalesPage() {
+  await fetch(process.env.BASE_URL + "/api/revalidate?tag=getAllParty");
   // Fetch retailers and products data
   const retailers = await getAllParty({
     where: {
-      partyType: "RETAILER",
+      partyType: "SUPPLIER",
     },
     include: {
       address: true,
     },
   });
 
-  const products = await getALlProducts({
+  const products = (await getALlProducts({
     include: {
       variants: true,
       tax: true,
     },
-  });
+  })) as unknown as ProductType[];
 
   return (
     <div className="container mx-auto py-4">

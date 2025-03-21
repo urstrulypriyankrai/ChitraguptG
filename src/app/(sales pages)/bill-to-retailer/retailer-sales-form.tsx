@@ -18,11 +18,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { Trash2, Plus, Printer, Download, Share2 } from "lucide-react";
 import { generateBillPDF } from "@/lib/helpers/generateBillPDF";
-
-interface RetailerSalesFormProps {
-  retailers: any[];
-  products: any[];
-}
+import { Address, Party } from "@prisma/client";
+import { ProductType } from "@/lib/types/Product/product";
+import { ProductVariantType } from "@/lib/types/Product/ProductVariantType";
 
 export default function RetailerSalesForm({
   retailers,
@@ -30,7 +28,8 @@ export default function RetailerSalesForm({
 }: RetailerSalesFormProps) {
   const router = useRouter();
   const [selectedRetailer, setSelectedRetailer] = useState<string>("");
-  const [retailerDetails, setRetailerDetails] = useState<any>(null);
+  const [retailerDetails, setRetailerDetails] =
+    useState<PartyWithAddress | null>(null);
   const [selectedItems, setSelectedItems] = useState<
     Array<{
       productId: string;
@@ -65,7 +64,7 @@ export default function RetailerSalesForm({
   // Update retailer details when a retailer is selected
   useEffect(() => {
     if (selectedRetailer) {
-      const retailer = retailers.find((r) => r.id === selectedRetailer);
+      const retailer = retailers.find((r) => r.id === selectedRetailer) || null;
       setRetailerDetails(retailer);
     } else {
       setRetailerDetails(null);
@@ -112,7 +111,9 @@ export default function RetailerSalesForm({
         (p) => p.id === updatedItems[index].productId
       );
       if (product) {
-        const variant = product.variants.find((v: any) => v.id === value);
+        const variant = product.variants.find(
+          (v: ProductVariantType) => v.id === value
+        );
         if (variant) {
           updatedItems[index] = {
             ...updatedItems[index],
@@ -131,15 +132,15 @@ export default function RetailerSalesForm({
     setSelectedItems(updatedItems);
   };
 
-  const calculateSubtotal = (item: any) => {
+  const calculateSubtotal = (item: variantPriceData) => {
     return item.price * item.quantity;
   };
 
-  const calculateDiscount = (item: any) => {
+  const calculateDiscount = (item: variantPriceData) => {
     return (calculateSubtotal(item) * item.discount) / 100;
   };
 
-  const calculateGST = (item: any) => {
+  const calculateGST = (item: variantPriceData) => {
     const afterDiscount = calculateSubtotal(item) - calculateDiscount(item);
     let gstRate = 0;
 
@@ -166,7 +167,7 @@ export default function RetailerSalesForm({
     return (afterDiscount * gstRate) / 100;
   };
 
-  const calculateItemTotal = (item: any) => {
+  const calculateItemTotal = (item: variantPriceData) => {
     return (
       calculateSubtotal(item) - calculateDiscount(item) + calculateGST(item)
     );
@@ -291,7 +292,7 @@ export default function RetailerSalesForm({
         items: selectedItems.map((item) => {
           const product = products.find((p) => p.id === item.productId);
           const variant = product?.variants.find(
-            (v: any) => v.id === item.variantId
+            (v: ProductVariantType) => v.id === item.variantId
           );
           return {
             productName: product?.name || "",
@@ -349,7 +350,7 @@ export default function RetailerSalesForm({
         items: selectedItems.map((item) => {
           const product = products.find((p) => p.id === item.productId);
           const variant = product?.variants.find(
-            (v: any) => v.id === item.variantId
+            (v: ProductVariantType) => v.id === item.variantId
           );
           return {
             productName: product?.name || "",
@@ -407,7 +408,7 @@ export default function RetailerSalesForm({
         items: selectedItems.map((item) => {
           const product = products.find((p) => p.id === item.productId);
           const variant = product?.variants.find(
-            (v: any) => v.id === item.variantId
+            (v: ProductVariantType) => v.id === item.variantId
           );
           return {
             productName: product?.name || "",
@@ -613,11 +614,16 @@ export default function RetailerSalesForm({
                             <SelectValue placeholder="Select variant" />
                           </SelectTrigger>
                           <SelectContent>
-                            {product?.variants.map((variant: any) => (
-                              <SelectItem key={variant.id} value={variant.id}>
-                                {variant.weight} {variant.quantityUnitName}
-                              </SelectItem>
-                            ))}
+                            {product?.variants.map(
+                              (variant: ProductVariantType) => (
+                                <SelectItem
+                                  key={variant.id}
+                                  value={variant.id as string}
+                                >
+                                  {variant.weight} {variant.quantityUnitName}
+                                </SelectItem>
+                              )
+                            )}
                           </SelectContent>
                         </Select>
                       </td>
@@ -816,3 +822,18 @@ export default function RetailerSalesForm({
     </form>
   );
 }
+
+type PartyWithAddress = Party & {
+  address?: Address;
+};
+interface RetailerSalesFormProps {
+  retailers: PartyWithAddress[];
+  products: ProductType[];
+}
+
+type variantPriceData = {
+  price: number;
+  quantity: number;
+  discount: number;
+  gstRate: string;
+};

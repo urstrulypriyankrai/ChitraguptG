@@ -3,6 +3,7 @@ import FarmerSalesForm from "./farmer-sales-form";
 import getAllParty from "@/actions/GET/getAllParty";
 import getALlProducts from "@/actions/GET/getAllProducts";
 import PageHeading from "@/app/_components/PageHeading";
+import { ProductType } from "@/lib/types/Product/product";
 
 export const metadata: Metadata = {
   title: "Sell to Farmer | ChitraguptG",
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function FarmerSalesPage() {
+  await fetch(process.env.BASE_URL + "api/revalidate?tag=getAllParty");
   // Fetch farmers and products data
   const farmers = await getAllParty({
     where: {
@@ -21,12 +23,12 @@ export default async function FarmerSalesPage() {
     },
   });
 
-  const products = await getALlProducts({
+  const products = (await getALlProducts({
     include: {
       variants: true,
       tax: true,
     },
-  });
+  })) as unknown as ProductType[];
 
   return (
     <div className="container mx-auto py-4">
