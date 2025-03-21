@@ -174,7 +174,6 @@ model Address {
   zip      String  @default("480991")
 
   Party Party?
-  // Farmer Farmer?
 }
 
 model StockHistory {
