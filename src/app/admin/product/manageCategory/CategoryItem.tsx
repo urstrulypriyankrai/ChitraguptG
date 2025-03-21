@@ -1,6 +1,5 @@
 "use client";
 
-import { revalidateCategoryAction } from "@/actions/product/revalidateCategoryAction";
 import { LabeledInput } from "@/components/ui/LabledInput";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -93,7 +92,8 @@ const CategoryActions = ({
           title: "Category Name Changed Successfully",
           variant: "default",
         });
-        revalidateCategoryAction();
+        // revalidateCategoryAction();
+        await fetch("/api/revalidate?tag=getAllCategories");
       } else {
         throw new Error("Failed to update category.");
       }
@@ -125,7 +125,9 @@ const CategoryActions = ({
           title: "Category Deleted Successfully",
           variant: "default",
         });
-        revalidateCategoryAction();
+        // revalidateCategoryAction();
+
+        await fetch("/api/revalidate?tag=getAllCategories");
       } else {
         throw new Error("Failed to delete category.");
       }
@@ -144,7 +146,7 @@ const CategoryActions = ({
   return (
     <div className="space-x-2">
       {!isEditing ? (
-        <Button onClick={() => setIsEditing(true)} disabled={isDisabled} >
+        <Button onClick={() => setIsEditing(true)} disabled={isDisabled}>
           Edit
         </Button>
       ) : (
