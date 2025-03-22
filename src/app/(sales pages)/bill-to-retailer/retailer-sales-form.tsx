@@ -92,15 +92,16 @@ export default function RetailerSalesForm({
 
   const updateItem = (index: number, field: string, value: string | number) => {
     const updatedItems = [...selectedItems];
-
     if (field === "productId" && typeof value === "string") {
+      updatedItems[index].productId = value;
+
+      updatedItems[index].productId = value;
       const product = products.find((p) => p.id === value);
       if (product && product.variants && product.variants.length > 0) {
-        const variant = product.variants[0];
+        const variant = product.variants[index];
         updatedItems[index] = {
           ...updatedItems[index],
           productId: value,
-          variantId: variant.id || "",
           price: variant.MRP || 0,
           gstRate: product.tax?.gstRate || "",
           hsnCode: product.tax?.hsnCode || "",

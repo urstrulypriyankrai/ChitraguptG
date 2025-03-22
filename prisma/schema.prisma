@@ -5,19 +5,17 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id       String    @id @default(cuid())
-  username String    @unique
-  password String
-  role     String    @default("ADMIN")
-  accounts Account[]
-  sessions Session[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(cuid())
+  username  String    @unique
+  password  String
+  role      String    @default("ADMIN")
+  accounts  Account[]
+  sessions  Session[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Account {
@@ -32,11 +30,9 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
 }
@@ -46,9 +42,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model VerificationToken {
@@ -60,78 +55,91 @@ model VerificationToken {
 }
 
 model Product {
-  id                  String          @id @unique @default(uuid())
-  name                String          @unique
+  id                  String   @id @unique @default(uuid())
+  name                String   @unique
   description         String?
-  inStock             Int             @default(0)
-  lowStockThreshold   Int             @default(10)
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
-  taxHsnCode          String          @db.VarChar(8)
+  inStock             Int      @default(0)
+  lowStockThreshold   Int      @default(10)
+  taxHsnCode          String   @db.VarChar(8)
   productCategoryName String
-  tax                 Tax             @relation(fields: [taxHsnCode], references: [hsnCode])
-  category            ProductCategory @relation(fields: [productCategoryName], references: [name])
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  isActive            Boolean  @default(true)
 
-  variants        ProductVariant[]
-  transactions    TransactionItem[]
-  stockHistory    StockHistory[]
-  ProductSupplier ProductSupplier[]
-  Party           Party[]
+  // Relations
+  tax               Tax                @relation(fields: [taxHsnCode], references: [hsnCode])
+  category          ProductCategory    @relation(fields: [productCategoryName], references: [name])
+  variants          ProductVariant[]
+  transactionItems  TransactionItem[]
+  stockHistory      StockHistory[]
+  productSuppliers  ProductSupplier[]
+  parties           Party[]
+  farmerSaleItems   FarmerSaleItem[]
+  retailerSaleItems RetailerSaleItem[]
+
+  @@index([taxHsnCode, productCategoryName])
 }
 
 model ProductSupplier {
   productId  String
   supplierId String
+  createdAt  DateTime @default(now())
 
-  product  Product @relation(fields: [productId], references: [id])
-  supplier Party   @relation(fields: [supplierId], references: [id])
+  product  Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  supplier Party   @relation(fields: [supplierId], references: [id], onDelete: Cascade)
 
-  @@id([productId, supplierId]) // Composite primary key
+  @@id([productId, supplierId])
+  @@index([supplierId])
 }
 
 model ProductVariant {
-  id                String  @id @unique
+  id                String   @id @unique
   bags              Int
   piecePerBag       Int
   weight            Int
   MRP               Int
   unloading         Int
   freightCharges    Int
-  inStock           Int?    @default(0)
+  inStock           Int      @default(0)
   warehouseLocation String?
+  productId         String
+  quantityUnitName  String
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
 
-  productId        String
-  quantityUnitName String
+  // Relations
+  product           Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  weightUnit        ProductUnit        @relation(fields: [quantityUnitName], references: [name])
+  purchases         Purchase[]
+  stockHistory      StockHistory[]
+  transactionItems  TransactionItem[]
+  farmerSaleItems   FarmerSaleItem[]
+  retailerSaleItems RetailerSaleItem[]
 
-  // relations
-  product    Product     @relation(fields: [productId], references: [id])
-  weightUnit ProductUnit @relation(fields: [quantityUnitName], references: [name])
-
-  purchases       Purchase[]
-  StockHistory    StockHistory[]
-  TransactionItem TransactionItem[]
+  @@index([productId])
 }
 
-// model ProductImage {
-//   id        Int     @id @default(autoincrement())
-//   productId Int
-//   url       String // URL of the image
-//   product   Product @relation(fields: [productId], references: [id])
-// }
-
 model Purchase {
-  id           Int      @id @default(autoincrement())
-  variantId    String
-  supplierId   String
-  quantity     Decimal  @db.Decimal(10, 2)
-  unitPrice    Decimal  @db.Decimal(10, 2)
-  totalPrice   Decimal  @db.Decimal(10, 2)
-  purchaseDate DateTime @default(now())
-  reference    String?
+  id            Int      @id @default(autoincrement())
+  variantId     String
+  supplierId    String
+  quantity      Decimal  @db.Decimal(10, 2)
+  unitPrice     Decimal  @db.Decimal(10, 2)
+  totalPrice    Decimal  @db.Decimal(10, 2)
+  purchaseDate  DateTime @default(now())
+  reference     String?
+  invoiceNumber String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  variant      ProductVariant @relation(fields: [variantId], references: [id])
-  supplier     Party          @relation(fields: [supplierId], references: [id])
-  stockHistory StockHistory[]
+  // Relations
+  variant       ProductVariant @relation(fields: [variantId], references: [id])
+  supplier      Party          @relation(fields: [supplierId], references: [id])
+  stockHistory  StockHistory[]
+  ledgerEntries Ledger[]       @relation("PurchaseLedger")
+
+  @@index([supplierId, variantId])
 }
 
 model Party {
@@ -140,40 +148,44 @@ model Party {
   partyType     PartyType
   mobile        String    @unique
   email         String?   @unique
-  // Farmer-specific fields (nullable)
   fathersName   String?
   aadhar        String?   @unique
-  // Common fields
   creditBalance Int       @default(0)
+  gstNumber     String?   @unique @db.VarChar(15)
+  addressId     Int?      @unique
+  productId     String?
+  isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  gstNumber     String?   @unique @db.VarChar(15)
-  address       Address?  @relation(fields: [addressId], references: [id])
-  addressId     Int?      @unique
 
-  // Relationships
-  transactions    Transaction[]
-  creditEntries   CreditLedger[]
-  payments        SupplierPayment[]
-  stockHistory    StockHistory[]
-  purchases       Purchase[]
-  ProductSupplier ProductSupplier[]
-  Product         Product?          @relation(fields: [productId], references: [id])
-  productId       String?
+  // Relations
+  address          Address?          @relation(fields: [addressId], references: [id])
+  transactions     Transaction[]
+  farmerSales      FarmerSale[]      @relation("FarmerSales")
+  retailerSales    RetailerSale[]    @relation("RetailerSales")
+  ledgerEntries    Ledger[]          @relation("PartyLedger")
+  payments         Payment[]         @relation("PartyPayments")
+  stockHistory     StockHistory[]
+  purchases        Purchase[]
+  productSuppliers ProductSupplier[]
+  product          Product?          @relation(fields: [productId], references: [id])
 
   @@index([mobile, aadhar])
   @@index([gstNumber])
+  @@index([partyType])
 }
 
 model Address {
-  id       Int     @id @default(autoincrement())
-  street   String?
-  village  String?
-  district String  @default("seoni")
-  state    String  @default("madhya pradesh")
-  zip      String  @default("480991")
+  id        Int      @id @default(autoincrement())
+  street    String?
+  village   String?
+  district  String   @default("seoni")
+  state     String   @default("madhya pradesh")
+  zip       String   @default("480991")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  Party Party?
+  party Party?
 }
 
 model StockHistory {
@@ -187,68 +199,209 @@ model StockHistory {
   partyId                String?
   date                   DateTime            @default(now())
   referenceTransactionId Int?
-  // farmerId               Int?
+  referenceType          String? // e.g., "FARMER_SALE", "RETAILER_SALE", "RETURN", "PURCHASE"
+  createdAt              DateTime            @default(now())
 
+  // Relations
   product  Product         @relation(fields: [productId], references: [id])
   variant  ProductVariant? @relation(fields: [variantId], references: [id])
   purchase Purchase?       @relation(fields: [purchaseId], references: [id])
   party    Party?          @relation(fields: [partyId], references: [id])
-  // farmer   Farmer?         @relation(fields: [farmerId], references: [id])
+
+  @@index([productId, variantId])
+  @@index([partyId])
+  @@index([type, date])
 }
 
 model Transaction {
   id                Int               @id @default(autoincrement())
-  transactionNumber String?           @unique // Optional: Unique 
+  transactionNumber String?           @unique
   type              TransactionType
   partyId           String
   totalAmount       Decimal           @db.Decimal(10, 2)
   paymentMethod     PaymentMethod
   status            TransactionStatus @default(COMPLETED)
   date              DateTime          @default(now())
-  items             TransactionItem[]
-  creditEntry       CreditLedger?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 
-  party Party @relation(fields: [partyId], references: [id])
+  // Relations
+  party       Party             @relation(fields: [partyId], references: [id])
+  items       TransactionItem[]
+  ledgerEntry Ledger?           @relation("TransactionLedger")
+
+  @@index([partyId, type, date])
+  @@index([transactionNumber])
 }
 
 model TransactionItem {
-  id            Int     @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   transactionId Int
   productId     String
-  quantity      Decimal @db.Decimal(10, 2)
-  price         Decimal @db.Decimal(10, 2) // Price at the time of transaction
-  gstRate       Decimal @db.Decimal(5, 2) // GST rate at the time of transaction
-  taxAmount     Decimal @db.Decimal(10, 2)
   variantId     String
+  quantity      Decimal  @db.Decimal(10, 2)
+  price         Decimal  @db.Decimal(10, 2)
+  gstRate       Decimal  @db.Decimal(5, 2)
+  taxAmount     Decimal  @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
 
-  transaction Transaction    @relation(fields: [transactionId], references: [id])
+  // Relations
+  transaction Transaction    @relation(fields: [transactionId], references: [id], onDelete: Cascade)
   product     Product        @relation(fields: [productId], references: [id])
   variant     ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@index([transactionId])
+  @@index([productId, variantId])
 }
 
-model CreditLedger {
-  id            Int        @id @default(autoincrement())
+// Universal Ledger for all financial transactions
+model Ledger {
+  id             Int        @id @default(autoincrement())
+  partyId        String
+  amount         Decimal    @db.Decimal(10, 2)
+  type           LedgerType
+  date           DateTime   @default(now())
+  description    String?
+  referenceId    Int? // Generic reference ID
+  referenceType  String? // e.g., "TRANSACTION", "PAYMENT", "PURCHASE", "FARMER_SALE", "RETAILER_SALE"
+  transactionId  Int?       @unique
+  purchaseId     Int?
+  farmerSaleId   Int?       @unique
+  retailerSaleId Int?       @unique
+  paymentId      Int?       @unique
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  // Relations
+  party        Party         @relation("PartyLedger", fields: [partyId], references: [id])
+  transaction  Transaction?  @relation("TransactionLedger", fields: [transactionId], references: [id])
+  purchase     Purchase?     @relation("PurchaseLedger", fields: [purchaseId], references: [id])
+  farmerSale   FarmerSale?   @relation("FarmerSaleLedger", fields: [farmerSaleId], references: [id])
+  retailerSale RetailerSale? @relation("RetailerSaleLedger", fields: [retailerSaleId], references: [id])
+  payment      Payment?      @relation("PaymentLedger", fields: [paymentId], references: [id])
+
+  @@index([partyId, type, date])
+  @@index([referenceType, referenceId])
+}
+
+// Payment model for all types of payments
+model Payment {
+  id            Int           @id @default(autoincrement())
   partyId       String
-  amount        Decimal    @db.Decimal(10, 2)
-  type          LedgerType
-  date          DateTime   @default(now())
+  amount        Decimal       @db.Decimal(10, 2)
+  method        PaymentMethod
+  date          DateTime      @default(now())
   description   String?
-  transactionId Int?       @unique
+  reference     String?
+  referenceId   Int? // Generic reference ID
+  referenceType String? // e.g., "FARMER_SALE", "RETAILER_SALE", "PURCHASE"
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  party Party @relation(fields: [partyId], references: [id])
+  // Relations
+  party       Party   @relation("PartyPayments", fields: [partyId], references: [id])
+  ledgerEntry Ledger? @relation("PaymentLedger")
 
-  transaction Transaction? @relation(fields: [transactionId], references: [id])
+  @@index([partyId, date])
+  @@index([referenceType, referenceId])
 }
 
-model SupplierPayment {
-  id          Int      @id @default(autoincrement())
-  partyId     String?
-  amount      Decimal  @db.Decimal(10, 2)
-  paymentDate DateTime @default(now())
-  reference   String?
-  farmerId    Int?
+// Farmer Sale specific models
+model FarmerSale {
+  id            Int               @id @default(autoincrement())
+  billNumber    String            @unique
+  billDate      DateTime          @default(now())
+  farmerId      String
+  totalAmount   Decimal           @db.Decimal(10, 2)
+  amountPaid    Decimal           @default(0) @db.Decimal(10, 2)
+  balance       Decimal           @default(0) @db.Decimal(10, 2)
+  paymentMethod PaymentMethod     @default(CASH)
+  paymentStatus String            @default("PENDING") // "PAID", "PENDING", "PARTIAL"
+  status        TransactionStatus @default(COMPLETED)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
-  party Party? @relation(fields: [partyId], references: [id])
+  // Relations
+  farmer      Party            @relation("FarmerSales", fields: [farmerId], references: [id])
+  items       FarmerSaleItem[]
+  ledgerEntry Ledger?          @relation("FarmerSaleLedger")
+
+  @@index([farmerId, billDate])
+  @@index([billNumber])
+}
+
+model FarmerSaleItem {
+  id             Int      @id @default(autoincrement())
+  saleId         Int
+  productId      String
+  variantId      String
+  quantity       Decimal  @db.Decimal(10, 2)
+  price          Decimal  @db.Decimal(10, 2)
+  discount       Decimal  @default(0) @db.Decimal(10, 2)
+  gstRate        Decimal  @db.Decimal(5, 2)
+  hsnCode        String
+  subtotal       Decimal  @db.Decimal(10, 2)
+  discountAmount Decimal  @default(0) @db.Decimal(10, 2)
+  gstAmount      Decimal  @db.Decimal(10, 2)
+  total          Decimal  @db.Decimal(10, 2)
+  createdAt      DateTime @default(now())
+
+  // Relations
+  sale    FarmerSale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product        @relation(fields: [productId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@index([saleId])
+  @@index([productId, variantId])
+}
+
+// Retailer Sale specific models
+model RetailerSale {
+  id            Int               @id @default(autoincrement())
+  billNumber    String            @unique
+  billDate      DateTime          @default(now())
+  retailerId    String
+  totalAmount   Decimal           @db.Decimal(10, 2)
+  amountPaid    Decimal           @default(0) @db.Decimal(10, 2)
+  balance       Decimal           @default(0) @db.Decimal(10, 2)
+  paymentMethod PaymentMethod     @default(CASH)
+  paymentStatus String            @default("PENDING") // "PAID", "PENDING", "PARTIAL"
+  status        TransactionStatus @default(COMPLETED)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  // Relations
+  retailer    Party              @relation("RetailerSales", fields: [retailerId], references: [id])
+  items       RetailerSaleItem[]
+  ledgerEntry Ledger?            @relation("RetailerSaleLedger")
+
+  @@index([retailerId, billDate])
+  @@index([billNumber])
+}
+
+model RetailerSaleItem {
+  id             Int      @id @default(autoincrement())
+  saleId         Int
+  productId      String
+  variantId      String
+  quantity       Decimal  @db.Decimal(10, 2)
+  price          Decimal  @db.Decimal(10, 2)
+  discount       Decimal  @default(0) @db.Decimal(10, 2)
+  gstRate        Decimal  @db.Decimal(5, 2)
+  hsnCode        String
+  subtotal       Decimal  @db.Decimal(10, 2)
+  discountAmount Decimal  @default(0) @db.Decimal(10, 2)
+  gstAmount      Decimal  @db.Decimal(10, 2)
+  total          Decimal  @db.Decimal(10, 2)
+  createdAt      DateTime @default(now())
+
+  // Relations
+  sale    RetailerSale   @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product        @relation(fields: [productId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@index([saleId])
+  @@index([productId, variantId])
 }
 
 model Tax {
@@ -289,6 +442,8 @@ enum TransactionType {
 enum PaymentMethod {
   CASH
   CREDIT
+  UPI
+  BANK
 }
 
 enum TransactionStatus {
@@ -298,8 +453,8 @@ enum TransactionStatus {
 }
 
 enum LedgerType {
-  DEBIT
-  CREDIT
+  DEBIT // Party owes money (increase in credit balance)
+  CREDIT // Party paid money (decrease in credit balance)
 }
 
 enum StockAdjustmentType {
