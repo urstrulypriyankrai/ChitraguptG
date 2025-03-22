@@ -6,7 +6,7 @@ export default async function Page() {
   const products = (await getALlProducts({
     include: {
       variants: true,
-      ProductSupplier: true,
+      productSuppliers: true,
     },
   })) as ProductsWithRelations[] | null;
 

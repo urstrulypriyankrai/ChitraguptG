@@ -229,6 +229,7 @@ export default function FarmerSalesForm({
     }
 
     setIsSubmitting(true);
+    console.log(selectedItems[0].gstRate, "GST RATE");
 
     try {
       const saleData = {

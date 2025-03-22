@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function FarmerSalesPage() {
-  await fetch(process.env.BASE_URL + "api/revalidate?tag=getAllParty");
+  await fetch(process.env.BASE_URL + "/api/revalidate?tag=getAllParty");
   // Fetch farmers and products data
   const farmers = await getAllParty({
     where: {
