@@ -265,16 +265,16 @@ export default async function BillPage({ params }: { params: { id: string } }) {
           <Separator />
           <div className="flex justify-between font-medium">
             <span>Total:</span>
-            <span>₹{0 + bill.totalAmount.toFixed(2)}</span>
+            <span>₹{parseFloat(bill.totalAmount).toFixed(2)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Amount Paid:</span>
-            <span>₹{0 + bill.amountPaid.toFixed(2)}</span>
+            <span>₹{parseFloat(bill.amountPaid).toFixed(2)}</span>
           </div>
           <div className="flex justify-between font-medium">
             <span>Balance Due:</span>
             <span className={bill.balance > 0 ? "text-red-600" : ""}>
-              ₹{0 + bill.balance.toFixed(2)}
+              ₹{parseFloat(bill.balance).toFixed(2)}
             </span>
           </div>
         </div>

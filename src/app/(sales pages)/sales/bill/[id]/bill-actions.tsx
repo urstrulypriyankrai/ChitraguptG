@@ -146,9 +146,7 @@ export default function BillActions({ bill }: { bill: any }) {
         if (phoneNumber) {
           // Create WhatsApp share link
           const message = encodeURIComponent(
-            `Bill #${bill.billNumber} for amount ₹${bill.totalAmount.toFixed(
-              2
-            )}`
+            `Bill #${bill.billNumber} for amount ₹${bill.totalAmount}`
           );
           window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
 

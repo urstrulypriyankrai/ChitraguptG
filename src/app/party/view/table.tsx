@@ -101,7 +101,9 @@ function NestedTable({ partyData }: { partyData: Address | null }) {
           {addressFields.map(({ key, label }) => (
             <TableRow key={key}>
               <TableCell className="font-medium">{label}</TableCell>
-              <TableCell>{partyData[key as keyof Address] || "N/A"}</TableCell>
+              <TableCell>
+                <>{partyData[key as keyof Address] || "N/A"}</>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -128,7 +130,7 @@ export default function PartyTable({ DATA }: { DATA: PartyWithRelations[] }) {
       expanded: expandedRows,
     },
   });
-  console.log(table.getRowModel().rows[0].original);
+  // console.log(table.getRowModel().rows[0].original);
   return (
     <>
       <div className="flex items-center py-4">

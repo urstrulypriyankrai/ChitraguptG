@@ -8,6 +8,8 @@ import { ProductType } from "@/lib/types/Product/product";
 import { ProductSupplier } from "@prisma/client";
 import { Edit } from "lucide-react";
 import Link from "next/link";
+import ProductVariant from "@/app/_components/product/productVariant/ProductVariant";
+import { z } from "zod";
 
 export type ProductsWithRelations = ProductType & {
   variants: ProductVariantType[];
@@ -16,23 +18,36 @@ export type ProductsWithRelations = ProductType & {
 const columns: ColumnDef<ProductsWithRelations>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: "NAME",
   },
   {
     accessorKey: "description",
-    header: "Description",
+    header: "DESCRIPTION",
+  },
+  {
+    accessorKey: "stock",
+    header: "STOCK",
+    cell: (props) => {
+      const stocksFromVariants = props.row.original.variants.reduce(
+        (acc, curr) => {
+          return acc + curr.bags * curr.piecePerBag * curr.weight;
+        },
+        0
+      );
+      return stocksFromVariants;
+    },
   },
   {
     accessorKey: "lowStockThreshold",
-    header: "Low Alert",
+    header: "LOW ALERT",
   },
   {
     accessorKey: "taxHsnCode",
-    header: "HSN Code",
+    header: "HSN CODE",
   },
   {
     id: "action",
-    header: "Actions",
+    header: "ACTIONS",
     cell: (props) => (
       <Suspense fallback={<span>...</span>}>
         <TableCellAction {...props} />

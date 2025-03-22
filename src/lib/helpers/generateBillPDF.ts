@@ -132,8 +132,8 @@ export async function generateBillPDF(
       `${item.productName}\n${item.variantDetails}`,
       item.hsnCode || "N/A",
       item.quantity,
-      `₹${item.price.toFixed(2)}`,
-      `${item.discount}% (₹${item.discountAmount.toFixed(2)})`,
+      `₹${item.price.toString()}`,
+      `${item.discount}% (₹${item.discountAmount})`,
       `${
         item.gstRate === "ZERO"
           ? "0%"
@@ -146,8 +146,8 @@ export async function generateBillPDF(
           : item.gstRate === "TWENTY_EIGHT"
           ? "28%"
           : "N/A"
-      } (₹${item.gstAmount.toFixed(2)})`,
-      `₹${item.total.toFixed(2)}`,
+      } (₹${item.gstAmount})`,
+      `₹${item.total}`,
     ]),
     theme: "grid",
     styles: { fontSize: 9 },
@@ -163,13 +163,9 @@ export async function generateBillPDF(
   // Summary section
   doc.setFontSize(10);
   doc.text("Payment Summary:", 130, finalY + 10);
-  doc.text(
-    `Total Amount: ₹${billData.totalAmount.toFixed(2)}`,
-    130,
-    finalY + 17
-  );
-  doc.text(`Amount Paid: ₹${billData.amountPaid.toFixed(2)}`, 130, finalY + 24);
-  doc.text(`Balance Due: ₹${billData.balance.toFixed(2)}`, 130, finalY + 31);
+  doc.text(`Total Amount: ₹${billData.totalAmount}`, 130, finalY + 17);
+  doc.text(`Amount Paid: ₹${billData.amountPaid}`, 130, finalY + 24);
+  doc.text(`Balance Due: ₹${billData.balance}`, 130, finalY + 31);
   doc.text(`Payment Method: ${billData.paymentMethod}`, 130, finalY + 38);
   doc.text(`Payment Status: ${billData.paymentStatus}`, 130, finalY + 45);
 

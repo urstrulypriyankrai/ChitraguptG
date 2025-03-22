@@ -6,6 +6,7 @@ import { SaleItem } from "@/lib/types/sales";
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
+    console.log(data, "received in server");
 
     // Validate required fields
     if (!data.retailerId || !data.items || data.items.length === 0) {
