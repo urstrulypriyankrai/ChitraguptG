@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { SaleItem } from "@/lib/types/sales";
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
 
       // 2. Create sale items
       const saleItems = await Promise.all(
-        data.items.map(async (item: any) => {
+        data.items.map(async (item: SaleItem) => {
           return tx.retailerSaleItem.create({
             data: {
               saleId: sale.id,
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest) {
 
       // 3. Update inventory (reduce stock)
       await Promise.all(
-        data.items.map(async (item: any) => {
+        data.items.map(async (item: SaleItem) => {
           const variant = await tx.productVariant.findUnique({
             where: { id: item.variantId },
           });
@@ -156,7 +157,7 @@ export async function GET(req: NextRequest) {
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
 
-    const whereClause: any = {};
+    const whereClause: Record<string, unknown> = {};
 
     if (retailerId) {
       whereClause.retailerId = retailerId;
