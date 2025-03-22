@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import PageHeading from "@/app/_components/PageHeading";
 import BillActions from "./bill-actions";
+import { BillItem } from "@/lib/types/Bill";
 
 export const metadata: Metadata = {
   title: "Bill Details | ChitraguptG",
@@ -47,15 +48,15 @@ export default async function BillPage({ params }: { params: { id: string } }) {
 
   // Calculate totals
   const subtotal = bill.items.reduce(
-    (sum: number, item: any) => sum + item.subtotal,
+    (sum: number, item: BillItem) => sum + item.subtotal,
     0
   );
   const discountTotal = bill.items.reduce(
-    (sum: number, item: any) => sum + item.discountAmount,
+    (sum: number, item: BillItem) => sum + item.discountAmount,
     0
   );
   const gstTotal = bill.items.reduce(
-    (sum: number, item: any) => sum + item.gstAmount,
+    (sum: number, item: BillItem) => sum + item.gstAmount,
     0
   );
 
@@ -175,53 +176,74 @@ export default async function BillPage({ params }: { params: { id: string } }) {
             </tr>
           </thead>
           <tbody>
-            {bill.items.map((item: any) => (
-              <tr key={item.id} className="border-b">
-                <td className="px-4 py-2 border">
-                  <div className="font-medium">{item.product.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {item.variant.weight} {item.variant.quantityUnitName}
-                  </div>
-                </td>
-                <td className="px-4 py-2 border">{item.hsnCode || "N/A"}</td>
-                <td className="px-4 py-2 text-right border">{item.quantity}</td>
-                <td className="px-4 py-2 text-right border">
-                  ₹{parseInt(item.price).toFixed()}
-                </td>
-                <td className="px-4 py-2 text-right border">
-                  {item.discount > 0 ? (
-                    <>
-                      {item.discount}%{" "}
-                      <span className="text-muted-foreground">
-                        (₹{parseInt(item.discountAmount).toFixed(2)})
-                      </span>
-                    </>
-                  ) : (
-                    "0%"
-                  )}
-                </td>
-                <td className="px-4 py-2 text-right border">
-                  {item.gstRate === "ZERO"
-                    ? "0%"
-                    : item.gstRate === "FIVE"
-                    ? "5%"
-                    : item.gstRate === "TWELVE"
-                    ? "12%"
-                    : item.gstRate === "EIGHTEEN"
-                    ? "18%"
-                    : item.gstRate === "TWENTY_EIGHT"
-                    ? "28%"
-                    : "N/A"}
-                  <span className="text-muted-foreground">
-                    {" "}
-                    (₹{parseInt(item.gstAmount).toFixed(2)})
-                  </span>
-                </td>
-                <td className="px-4 py-2 text-right font-medium border">
-                  ₹{parseFloat(item.total).toFixed()}
-                </td>
-              </tr>
-            ))}
+            {bill.items.map(
+              (item: {
+                product: {
+                  name: string;
+                };
+                variant: {
+                  weight: number;
+                  quantityUnitName: string;
+                };
+                hsnCode: string;
+                quantity: number;
+                price: string;
+                id: number;
+                discount: number;
+                discountAmount: string;
+                gstRate: string;
+                gstAmount: string;
+                total: string;
+              }) => (
+                <tr key={item.id} className="border-b">
+                  <td className="px-4 py-2 border">
+                    <div className="font-medium">{item.product.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {item.variant.weight} {item.variant.quantityUnitName}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2 border">{item.hsnCode || "N/A"}</td>
+                  <td className="px-4 py-2 text-right border">
+                    {item.quantity}
+                  </td>
+                  <td className="px-4 py-2 text-right border">
+                    ₹{parseInt(item.price).toFixed()}
+                  </td>
+                  <td className="px-4 py-2 text-right border">
+                    {item.discount > 0 ? (
+                      <>
+                        {item.discount}%{" "}
+                        <span className="text-muted-foreground">
+                          (₹{parseInt(item.discountAmount).toFixed(2)})
+                        </span>
+                      </>
+                    ) : (
+                      "0%"
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-right border">
+                    {item.gstRate === "ZERO"
+                      ? "0%"
+                      : item.gstRate === "FIVE"
+                      ? "5%"
+                      : item.gstRate === "TWELVE"
+                      ? "12%"
+                      : item.gstRate === "EIGHTEEN"
+                      ? "18%"
+                      : item.gstRate === "TWENTY_EIGHT"
+                      ? "28%"
+                      : "N/A"}
+                    <span className="text-muted-foreground">
+                      {" "}
+                      (₹{parseInt(item.gstAmount).toFixed(2)})
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 text-right font-medium border">
+                    ₹{parseFloat(item.total).toFixed()}
+                  </td>
+                </tr>
+              )
+            )}
           </tbody>
         </table>
       </div>
