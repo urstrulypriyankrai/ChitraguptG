@@ -61,7 +61,7 @@ export default async function BillPage({ params }: { params: { id: string } }) {
   );
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-6 md:p-10 p-2 ">
       <div className="flex justify-between items-center mb-6">
         <PageHeading heading={`Bill #${bill.billNumber}`} />
         <BillActions bill={bill} />

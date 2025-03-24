@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
             const currentStock = variant.inStock || 0;
             const newStock = Math.max(0, currentStock - item.quantity);
 
-            await tx.productVariant.update({
+           return await tx.productVariant.update({
               where: { id: item.variantId },
               data: { inStock: newStock },
             });
