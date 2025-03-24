@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, SetStateAction, Dispatch } from "react";
 import {
   type ColumnDef,
   flexRender,
@@ -33,16 +32,17 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { addDays } from "date-fns";
+import { DateRange } from "react-day-picker";
+import { Ledger, Party } from "@prisma/client";
 
 interface UniversalLedgerProps {
   filter: "all" | "CREDIT" | "DEBIT";
 }
 
 export default function UniversalLedger({ filter }: UniversalLedgerProps) {
-  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dateRange, setDateRange] = useState({
     from: addDays(new Date(), -30),
@@ -61,9 +61,10 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
     async function fetchLedger() {
       setIsLoading(true);
       try {
+        if (!dateRange) return;
         const fromDate = dateRange.from?.toISOString().split("T")[0];
         const toDate = dateRange.to?.toISOString().split("T")[0];
-
+        if (!fromDate || !toDate) return;
         let url = `/api/ledger?startDate=${fromDate}&endDate=${toDate}`;
         if (filter !== "all") {
           url += `&type=${filter}`;
@@ -102,7 +103,12 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
     fetchLedger();
   }, [filter, dateRange]);
 
-  const columns: ColumnDef<any>[] = [
+  useEffect(() => {});
+  const columns: ColumnDef<
+    Ledger & {
+      party: Party;
+    }
+  >[] = [
     {
       accessorKey: "date",
       header: ({ column }) => {
@@ -136,8 +142,8 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
       },
     },
     {
-      accessorKey: "partyName",
-      header: "Party",
+      accessorFn: (row) => row.party?.name,
+      header: "Party Name",
       cell: ({ row }) => {
         const party = row.original.party;
         return party?.name || "N/A";
@@ -227,7 +233,11 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
         }
 
         return (
-          <Button variant="ghost" size="icon" onClick={() => router.push(href)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => window.open(href, "_blank", "noopener,noreferrer")}
+          >
             <Eye className="h-4 w-4" />
           </Button>
         );
@@ -261,7 +271,7 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {summary.totalTransactions}
+              {summary.totalTransactions.toFixed()}
             </div>
           </CardContent>
         </Card>
@@ -274,7 +284,7 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              ₹{summary.totalCredit}
+              ₹{Number(summary.totalCredit).toFixed(2)}
             </div>
           </CardContent>
         </Card>
@@ -287,7 +297,7 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              ₹{summary.totalDebit}
+              ₹{Number(summary.totalDebit).toFixed(2)}
             </div>
           </CardContent>
         </Card>
@@ -304,7 +314,7 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
                 summary.balance >= 0 ? "text-green-600" : "text-red-600"
               }`}
             >
-              ₹{summary.balance.toFixed(2)}
+              ₹{Number(summary.balance).toFixed(2)}
             </div>
           </CardContent>
         </Card>
@@ -312,7 +322,7 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
 
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-4 gap-4">
         <div className="flex flex-col md:flex-row gap-4">
-          <Input
+          {/* <Input
             placeholder="Filter by description..."
             value={
               (table.getColumn("description")?.getFilterValue() as string) ?? ""
@@ -321,22 +331,27 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
               table.getColumn("description")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
-          />
+          /> */}
 
           <Input
             placeholder="Filter by party name..."
             value={
-              (table.getColumn("partyName")?.getFilterValue() as string) ?? ""
+              (table.getColumn("Party Name")?.getFilterValue() as string) ?? ""
             }
             onChange={(event) =>
-              table.getColumn("partyName")?.setFilterValue(event.target.value)
+              table.getColumn("Party Name")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <DateRangePicker date={dateRange} onDateChange={setDateRange} />
+          <DateRangePicker
+            date={dateRange}
+            onDateChange={
+              setDateRange as Dispatch<SetStateAction<DateRange | undefined>>
+            }
+          />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

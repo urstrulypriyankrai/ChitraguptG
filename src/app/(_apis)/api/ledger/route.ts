@@ -22,9 +22,15 @@ export async function GET(req: NextRequest) {
     }
 
     if (startDate && endDate) {
-      whereClause.date = {
-        gte: new Date(startDate),
-        lte: new Date(endDate),
+      const startDateObj = new Date(startDate);
+      const endDateObj = new Date(endDate);
+
+      // Adjust endDate to include the entire day
+      endDateObj.setHours(23, 59, 59, 999);
+
+      whereClause.createdAt = {
+        gte: startDateObj,
+        lte: endDateObj,
       };
     }
 

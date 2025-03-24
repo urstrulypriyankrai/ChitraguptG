@@ -58,7 +58,7 @@ model Product {
   id                  String   @id @unique @default(uuid())
   name                String   @unique
   description         String?
-  inStock             Int      @default(0)
+  // inStock             Int      @default(0)
   lowStockThreshold   Int      @default(10)
   taxHsnCode          String   @db.VarChar(8)
   productCategoryName String

@@ -163,9 +163,21 @@ export async function generateBillPDF(
   // Summary section
   doc.setFontSize(10);
   doc.text("Payment Summary:", 130, finalY + 10);
-  doc.text(`Total Amount: ₹${billData.totalAmount}`, 130, finalY + 17);
-  doc.text(`Amount Paid: ₹${billData.amountPaid}`, 130, finalY + 24);
-  doc.text(`Balance Due: ₹${billData.balance}`, 130, finalY + 31);
+  doc.text(
+    `Total Amount: ₹${Number(billData.totalAmount).toFixed(2)}`,
+    130,
+    finalY + 17
+  );
+  doc.text(
+    `Amount Paid: ₹${Number(billData.amountPaid).toFixed(2)}`,
+    130,
+    finalY + 24
+  );
+  doc.text(
+    `Balance Due: ₹${Number(billData.balance).toFixed(2)}`,
+    130,
+    finalY + 31
+  );
   doc.text(`Payment Method: ${billData.paymentMethod}`, 130, finalY + 38);
   doc.text(`Payment Status: ${billData.paymentStatus}`, 130, finalY + 45);
 
