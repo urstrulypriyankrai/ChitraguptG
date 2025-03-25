@@ -11,8 +11,6 @@ const TILES_DATA = {
   ],
 
   "Inventory Management": [
-    { id: 3, name: "Inventory Management", href: "/inventory", icon: "📦" },
-
     {
       id: 10,
 

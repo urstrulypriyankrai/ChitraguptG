@@ -1,6 +1,6 @@
 import React from "react";
 import PageHeading from "../_components/PageHeading";
-import Tile from "../_components/Tile";
+import Tile, { TileWrapper } from "../_components/Tile";
 // import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -21,7 +21,6 @@ const ADMIN_TILE = [
 
 const Page = async () => {
   const session = await auth();
-  console.log(session);
 
   if (!session?.user) {
     redirect("/login");
@@ -32,9 +31,9 @@ const Page = async () => {
   }
 
   return (
-    <div>
+    <div className="p-2">
       <PageHeading heading="Restricted only for admin access" />
-      <div className="w-full grid grid-cols-12  gap-3 md:gap-2 h-[60vh]  md:mt-10  ">
+      <TileWrapper>
         {ADMIN_TILE.map((tile) => {
           return (
             <Tile
@@ -45,7 +44,7 @@ const Page = async () => {
             />
           );
         })}
-      </div>
+      </TileWrapper>
     </div>
   );
 };
