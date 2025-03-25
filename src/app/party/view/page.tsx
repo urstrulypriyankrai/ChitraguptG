@@ -12,6 +12,7 @@ export default async function Page() {
       address: true,
     },
   })) as PartyWithRelations[] | null;
+  console.log(parties);
   return (
     <div>
       <PageHeading heading="View All Party" />

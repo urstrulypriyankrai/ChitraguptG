@@ -13,7 +13,7 @@ export default function LedgerPage() {
     <div className="container mx-auto py-6 md:px-10 px-2">
       <PageHeading heading="Universal Ledger" />
 
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs defaultValue="all" className="w-full px-2 ">
         <TabsList className="mb-4">
           <TabsTrigger value="all">All Transactions</TabsTrigger>
           <TabsTrigger value="credit">Credits (Incoming)</TabsTrigger>

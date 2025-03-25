@@ -1,11 +1,17 @@
 import { Suspense } from "react";
 import { PartyLedger } from "./partyLedger";
+import PageHeading from "@/app/_components/PageHeading";
 
-export default function LedgerPage({ params }: { params: { id: string } }) {
-  // const { id } = await params;
+export default async function LedgerPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const { id } = await params;
+  const party = await prisma.party.findUnique({ where: { id } });
   return (
-    <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-6">Party Ledger</h1>
+    <div className="container mx-auto py-6 md:px-10 px-2">
+      <PageHeading heading={"Party Ledger For " + party?.name} />
       <Suspense
         fallback={
           <div className="flex justify-center items-center h-64">
@@ -13,7 +19,7 @@ export default function LedgerPage({ params }: { params: { id: string } }) {
           </div>
         }
       >
-        <PartyLedger id={params.id} filter="all" />
+        <PartyLedger id={params.id} filter="DEBIT" />
       </Suspense>
     </div>
   );

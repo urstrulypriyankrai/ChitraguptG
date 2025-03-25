@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
             const currentStock = variant.inStock || 0;
             const newStock = Math.max(0, currentStock - item.quantity);
 
-           return await tx.productVariant.update({
+            return await tx.productVariant.update({
               where: { id: item.variantId },
               data: { inStock: newStock },
             });
@@ -106,35 +106,33 @@ export async function POST(req: NextRequest) {
         })
       );
 
-      // 4. Update farmer credit balance if there's a balance due
-      if (data.balance > 0) {
-        const farmer = await tx.party.findUnique({
+      // 4. Create ledger entry for the total sale amount (DEBIT)
+      await tx.ledger.create({
+        data: {
+          partyId: data.farmerId,
+          amount: data.totalAmount,
+          type: "DEBIT", // Farmer owes the total amount
+          description: `Sale for bill #${data.billNumber}`,
+          date: new Date(),
+          referenceId: sale.id,
+          referenceType: "FARMER_SALE",
+        },
+      });
+
+      // Update farmer's credit balance with the totalAmount
+      const farmer = await tx.party.findUnique({
+        where: { id: data.farmerId },
+      });
+
+      if (farmer) {
+        const currentCredit = farmer.creditBalance || 0;
+        await tx.party.update({
           where: { id: data.farmerId },
+          data: { creditBalance: currentCredit + data.totalAmount },
         });
-
-        if (farmer) {
-          const currentCredit = farmer.creditBalance || 0;
-          await tx.party.update({
-            where: { id: data.farmerId },
-            data: { creditBalance: currentCredit + data.balance },
-          });
-
-          // 5. Create a ledger entry for the credit
-          await tx.ledger.create({
-            data: {
-              partyId: data.farmerId,
-              amount: data.balance,
-              type: "DEBIT", // Party owes money
-              description: `Credit for bill #${data.billNumber}`,
-              date: new Date(),
-              referenceId: sale.id,
-              referenceType: "FARMER_SALE",
-            },
-          });
-        }
       }
 
-      // 6. If there's a payment, create a payment record
+      // 5. If there's a payment, create payment record and CREDIT ledger entry
       if (data.amountPaid > 0) {
         await tx.payment.create({
           data: {
@@ -148,20 +146,32 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        // 7. Create a ledger entry for the payment
+        // CREDIT entry for the payment
         await tx.ledger.create({
           data: {
             partyId: data.farmerId,
             amount: data.amountPaid,
-            type: "CREDIT", // Party paid money
+            type: "CREDIT", // Payment reduces the owed amount
             description: `Payment for bill #${data.billNumber}`,
             date: new Date(data.billDate),
             referenceId: sale.id,
             referenceType: "FARMER_SALE",
           },
         });
-      }
 
+        // Deduct the payment from the farmer's credit balance
+        const updatedFarmer = await tx.party.findUnique({
+          where: { id: data.farmerId },
+        });
+
+        if (updatedFarmer) {
+          const currentCreditAfterSale = updatedFarmer.creditBalance || 0;
+          await tx.party.update({
+            where: { id: data.farmerId },
+            data: { creditBalance: currentCreditAfterSale - data.amountPaid },
+          });
+        }
+      }
       return { sale, saleItems };
     });
 

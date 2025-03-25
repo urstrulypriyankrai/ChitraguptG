@@ -31,8 +31,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { addDays } from "date-fns";
 import { DateRange } from "react-day-picker";
+import PageHeading from "@/app/_components/PageHeading";
 
 interface Ledger {
   id: number;
@@ -69,7 +69,7 @@ export function PartyLedger({ filter, id }: PartyLedgerProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [transactions, setTransactions] = useState<Ledger[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [partyName, setPartyName] = useState<string>("");
+  const [, setPartyName] = useState<string>("");
   const [dateRange, setDateRange] = useState<DateRange>({
     from: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
     to: new Date(),
@@ -164,6 +164,18 @@ export function PartyLedger({ filter, id }: PartyLedgerProps) {
           title={row.getValue("description")}
         >
           {row.getValue("description") || "N/A"}
+        </div>
+      ),
+    },
+    {
+      accessorFn: (row) => row.party.name,
+      header: "Party Name",
+      cell: ({ row }) => (
+        <div
+          className="max-w-[300px] truncate"
+          title={row.getValue("description")}
+        >
+          {row.original.party.name || "N/A"}
         </div>
       ),
     },
@@ -270,12 +282,6 @@ export function PartyLedger({ filter, id }: PartyLedgerProps) {
 
   return (
     <div>
-      {partyName && (
-        <div className="mb-6">
-          <h2 className="text-2xl font-semibold">Ledger for: {partyName}</h2>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardHeader className="pb-2">
@@ -285,7 +291,7 @@ export function PartyLedger({ filter, id }: PartyLedgerProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {summary.totalTransactions}
+              {summary.totalTransactions.toFixed()}
             </div>
           </CardContent>
         </Card>
@@ -298,7 +304,7 @@ export function PartyLedger({ filter, id }: PartyLedgerProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              ₹{summary.totalCredit.toFixed(2)}
+              ₹{Number(summary.totalCredit).toFixed(2)}
             </div>
           </CardContent>
         </Card>
@@ -311,7 +317,7 @@ export function PartyLedger({ filter, id }: PartyLedgerProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              ₹{summary.totalDebit.toFixed(2)}
+              ₹{Number(summary.totalDebit).toFixed(2)}
             </div>
           </CardContent>
         </Card>
@@ -328,10 +334,7 @@ export function PartyLedger({ filter, id }: PartyLedgerProps) {
                 summary.balance >= 0 ? "text-green-600" : "text-red-600"
               }`}
             >
-              ₹{summary.balance.toFixed(2)}
-              <div className="text-sm font-normal text-muted-foreground mt-1">
-                {summary.balance >= 0 ? "Party owes you" : "You owe to party"}
-              </div>
+              ₹{Number(summary.balance).toFixed(2)}
             </div>
           </CardContent>
         </Card>
@@ -339,13 +342,24 @@ export function PartyLedger({ filter, id }: PartyLedgerProps) {
 
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-4 gap-4">
         <div className="flex flex-col md:flex-row gap-4">
+          {/* <Input
+          placeholder="Filter by description..."
+          value={
+            (table.getColumn("description")?.getFilterValue() as string) ?? ""
+          }
+          onChange={(event) =>
+            table.getColumn("description")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm"
+        /> */}
+
           <Input
-            placeholder="Filter by description..."
+            placeholder="Filter by party name..."
             value={
-              (table.getColumn("description")?.getFilterValue() as string) ?? ""
+              (table.getColumn("Party Name")?.getFilterValue() as string) ?? ""
             }
             onChange={(event) =>
-              table.getColumn("description")?.setFilterValue(event.target.value)
+              table.getColumn("Party Name")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
           />
@@ -369,18 +383,20 @@ export function PartyLedger({ filter, id }: PartyLedgerProps) {
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
-                .map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                ))}
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -397,16 +413,18 @@ export function PartyLedger({ filter, id }: PartyLedgerProps) {
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    ))}
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      );
+                    })}
                   </TableRow>
                 ))}
               </TableHeader>

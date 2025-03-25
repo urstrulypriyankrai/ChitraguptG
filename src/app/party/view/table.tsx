@@ -46,7 +46,21 @@ const columns: ColumnDef<PartyWithRelations>[] = [
   {
     accessorKey: "name",
     header: "Name",
-    cell: (props) => <>{props.getValue()}</>,
+    cell: (props) => (
+      <>
+        {
+          <Button
+            variant={"ghost"}
+            onClick={() =>
+              window.open(`/ledger/${props.row.original.id}`, "_blank")
+            }
+            className="underline"
+          >
+            {props.getValue() as string}
+          </Button>
+        }
+      </>
+    ),
   },
   {
     accessorKey: "id",
