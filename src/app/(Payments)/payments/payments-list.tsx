@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, SetStateAction, Dispatch } from "react";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
+import { useRouter } from "next/navigation";
 import {
   type ColumnDef,
   flexRender,
@@ -22,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUpDown, ChevronDown, Eye } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Eye, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -32,17 +33,18 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { addDays } from "date-fns";
+import { Party, Payment } from "@prisma/client";
 import { DateRange } from "react-day-picker";
-import { Ledger, Party } from "@prisma/client";
 
-interface UniversalLedgerProps {
-  filter: "all" | "CREDIT" | "DEBIT";
+interface PaymentsListProps {
+  filter: "all" | "FARMER" | "RETAILER";
 }
 
-export default function UniversalLedger({ filter }: UniversalLedgerProps) {
+export default function PaymentsList({ filter }: PaymentsListProps) {
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [transactions, setTransactions] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dateRange, setDateRange] = useState({
     from: addDays(new Date(), -30),
@@ -51,72 +53,61 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
 
   // Summary statistics
   const [summary, setSummary] = useState({
-    totalTransactions: 0,
-    totalCredit: 0,
-    totalDebit: 0,
-    balance: 0,
+    totalPayments: 0,
+    totalAmount: 0,
+    averageAmount: 0,
   });
 
   useEffect(() => {
-    async function fetchLedger() {
+    async function fetchPayments() {
       setIsLoading(true);
       try {
-        if (!dateRange) return;
         const fromDate = dateRange.from?.toISOString().split("T")[0];
         const toDate = dateRange.to?.toISOString().split("T")[0];
-        if (!fromDate || !toDate) return;
-        let url = `/api/ledger?startDate=${fromDate}&endDate=${toDate}`;
-        if (filter !== "all") {
-          url += `&type=${filter}`;
-        }
+
+        const url = `/api/payments?startDate=${fromDate}&endDate=${toDate}`;
 
         const response = await fetch(url);
         if (!response.ok) {
-          throw new Error("Failed to fetch ledger data");
+          throw new Error("Failed to fetch payments");
         }
 
-        const data = await response.json();
-        setTransactions(data);
+        let data = await response.json();
+
+        // Filter by party type if needed
+        if (filter !== "all") {
+          data = data.filter(
+            (payment: PaymentIncludePartyType) =>
+              payment.party?.partyType === filter
+          );
+        }
+
+        setPayments(data);
 
         // Calculate summary
-        const totalCredit = data
-          .filter((t: { type: string }) => t.type === "CREDIT")
-          .reduce(
-            (sum: number, t: { amount: string }) => sum + parseInt(t.amount),
-            0
-          );
-
-        const totalDebit = data
-          .filter((t: { type: string }) => t.type === "DEBIT")
-          .reduce(
-            (sum: number, t: { amount: string }) => sum + parseInt(t.amount),
-            0
-          );
+        const totalAmount = data.reduce(
+          (sum: number, p: { amount: number }) => sum + Number(p.amount),
+          0
+        );
 
         setSummary({
-          totalTransactions: data.length,
-          totalCredit,
-          totalDebit,
-          balance: totalCredit - totalDebit,
+          totalPayments: data.length,
+          totalAmount,
+          averageAmount: data.length > 0 ? totalAmount / data.length : 0,
         });
       } catch (error) {
-        console.error("Error fetching ledger data:", error);
+        console.error("Error fetching payments:", error);
       } finally {
         setIsLoading(false);
       }
     }
 
-    fetchLedger();
+    fetchPayments();
   }, [filter, dateRange]);
 
-  useEffect(() => {});
-  const columns: ColumnDef<
-    Ledger & {
-      party: Party;
-    }
-  >[] = [
+  const columns: ColumnDef<Payment & { party: Party }>[] = [
     {
-      accessorKey: "date",
+      accessorKey: "paymentDate",
       header: ({ column }) => {
         return (
           <Button
@@ -129,26 +120,12 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
         );
       },
       cell: ({ row }) => {
-        const date = new Date(row.getValue("date"));
+        const date = new Date(row.original.createdAt);
         return date.toLocaleDateString("en-IN");
       },
     },
     {
-      accessorKey: "description",
-      header: "Description",
-      cell: ({ row }) => {
-        return (
-          <div
-            className="max-w-[300px] truncate"
-            title={row.getValue("description")}
-          >
-            {row.getValue("description")}
-          </div>
-        );
-      },
-    },
-    {
-      accessorFn: (row) => row.party?.name,
+      accessorKey: "partyName",
       header: "Party Name",
       cell: ({ row }) => {
         const party = row.original.party;
@@ -156,37 +133,11 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
       },
     },
     {
-      accessorKey: "partyType",
+      accessorKey: "party.partyType",
       header: "Party Type",
       cell: ({ row }) => {
         const party = row.original.party;
         return party?.partyType || "N/A";
-      },
-    },
-    {
-      accessorKey: "Total Balance",
-      header: "Total Balance",
-      cell: ({ row }) => {
-        return row.original.party.creditBalance;
-      },
-    },
-
-    {
-      accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => {
-        const type = row.getValue("type") as string;
-        return (
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${
-              type === "CREDIT"
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
-          >
-            {type}
-          </span>
-        );
       },
     },
     {
@@ -204,53 +155,30 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
       },
       cell: ({ row }) => {
         const amount = Number.parseFloat(row.getValue("amount"));
-        const type = row.getValue("type") as string;
-
         return (
-          <span
-            className={
-              type === "CREDIT"
-                ? "text-green-600 font-medium"
-                : "text-red-600 font-medium"
-            }
-          >
+          <span className="text-green-600 font-medium">
             ₹{amount.toFixed(2)}
           </span>
         );
       },
     },
     {
-      accessorKey: "referenceType",
+      accessorKey: "reference",
       header: "Reference",
       cell: ({ row }) => {
-        return row.getValue("referenceType") || "N/A";
+        return `${row.original.description}` || "N/A";
       },
     },
     {
       id: "actions",
       cell: ({ row }) => {
-        const referenceType = row.original.referenceType;
-        const referenceId = row.original.referenceId;
-
-        if (!referenceId) return null;
-
-        let href = "#";
-        if (
-          referenceType === "FARMER_SALE" ||
-          referenceType === "RETAILER_SALE"
-        ) {
-          href = `/sales/bill/${referenceId}`;
-        } else if (referenceType === "PAYMENT") {
-          href = `/payments/${referenceId}`;
-        } else if (referenceType === "RETURN") {
-          href = `/returns/${referenceId}`;
-        }
-
         return (
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => window.open(href, "_blank", "noopener,noreferrer")}
+            onClick={() =>
+              window.open(`/payments/${row.original.id}`, "_blank")
+            }
           >
             <Eye className="h-4 w-4" />
           </Button>
@@ -260,7 +188,7 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
   ];
 
   const table = useReactTable({
-    data: transactions,
+    data: payments,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -276,29 +204,27 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Transactions
+              Total Payments
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {summary.totalTransactions.toFixed()}
-            </div>
+            <div className="text-2xl font-bold">{summary.totalPayments}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Credits
+              Total Amount
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              ₹{Number(summary.totalCredit).toFixed(2)}
+              ₹{summary.totalAmount.toFixed(2)}
             </div>
           </CardContent>
         </Card>
@@ -306,29 +232,12 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Debits
+              Average Payment
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              ₹{Number(summary.totalDebit).toFixed(2)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Balance
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div
-              className={`text-2xl font-bold ${
-                summary.balance >= 0 ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              ₹{Number(summary.balance).toFixed(2)}
+            <div className="text-2xl font-bold">
+              ₹{summary.averageAmount.toFixed(2)}
             </div>
           </CardContent>
         </Card>
@@ -336,35 +245,40 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
 
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-4 gap-4">
         <div className="flex flex-col md:flex-row gap-4">
-          {/* <Input
-            placeholder="Filter by description..."
-            value={
-              (table.getColumn("description")?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn("description")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          /> */}
-
           <Input
             placeholder="Filter by party name..."
             value={
-              (table.getColumn("Party Name")?.getFilterValue() as string) ?? ""
+              (table.getColumn("partyName")?.getFilterValue() as string) ?? ""
             }
             onChange={(event) =>
-              table.getColumn("Party Name")?.setFilterValue(event.target.value)
+              table.getColumn("partyName")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+
+          <Input
+            placeholder="Filter by reference..."
+            value={
+              (table.getColumn("reference")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("reference")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
           />
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            onClick={() => router.push("/payments/add")}
+            className="gap-2"
+          >
+            <Plus className="h-4 w-4" /> Add Payment
+          </Button>
+
           <DateRangePicker
             date={dateRange}
-            onDateChange={
-              setDateRange as Dispatch<SetStateAction<DateRange | undefined>>
-            }
+            onDateChange={setDateRange as Dispatch<SetStateAction<DateRange>>}
           />
 
           <DropdownMenu>
@@ -476,3 +390,6 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
     </div>
   );
 }
+type PaymentIncludePartyType = Payment & {
+  party: Party;
+};

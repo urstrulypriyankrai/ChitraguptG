@@ -89,6 +89,17 @@ const TILES_DATA = {
     },
   ],
   "Returns & Payments": [
+    {
+      id: 18,
+
+      name: "Payments",
+
+      href: "/payments",
+
+      icon: "💰",
+
+      description: "Manage payments and dues for suppliers and parties.",
+    },
     { id: 4, name: "Returns", href: "/returns", icon: "🔄" },
 
     {
@@ -102,18 +113,6 @@ const TILES_DATA = {
 
       description:
         "Manage product returns from farmers, retailers, or other parties.",
-    },
-
-    {
-      id: 18,
-
-      name: "Supplier Payments",
-
-      href: "/inventory-management/supplier-payments",
-
-      icon: "💰",
-
-      description: "Manage payments and dues for suppliers and parties.",
     },
   ],
   "Financial Records": [
