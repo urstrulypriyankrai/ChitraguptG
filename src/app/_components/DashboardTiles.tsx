@@ -116,18 +116,6 @@ const TILES_DATA = {
   "Financial Records": [
     { id: 5, name: "Ledger", href: "/ledger", icon: "📒" },
 
-    { id: 6, name: "Farmer Credit Ledger", href: "/farmer/credit", icon: "📜" },
-
-    {
-      id: 7,
-
-      name: "Retailer Credit Ledger",
-
-      href: "/retailer/credit",
-
-      icon: "📜",
-    },
-
     {
       id: 16,
 

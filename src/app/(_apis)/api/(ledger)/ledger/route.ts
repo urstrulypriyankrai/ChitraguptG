@@ -25,10 +25,25 @@ export async function GET(req: NextRequest) {
       const startDateObj = new Date(startDate);
       const endDateObj = new Date(endDate);
 
-      // Adjust endDate to include the entire day
-      endDateObj.setHours(23, 59, 59, 999);
+      if (isNaN(startDateObj.getTime())) {
+        return NextResponse.json(
+          { message: "Invalid start date format" },
+          { status: 400 }
+        );
+      }
 
-      whereClause.createdAt = {
+      if (isNaN(endDateObj.getTime())) {
+        return NextResponse.json(
+          { message: "Invalid end date format" },
+          { status: 400 }
+        );
+      }
+
+      // Set UTC times
+      startDateObj.setUTCHours(0, 0, 0, 0);
+      endDateObj.setUTCHours(23, 59, 59, 999);
+
+      whereClause.date = {
         gte: startDateObj,
         lte: endDateObj,
       };

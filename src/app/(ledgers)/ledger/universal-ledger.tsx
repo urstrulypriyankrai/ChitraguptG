@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { addDays } from "date-fns";
+import { addDays, endOfDay, format, startOfDay } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { Ledger, Party } from "@prisma/client";
 
@@ -61,9 +61,13 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
     async function fetchLedger() {
       setIsLoading(true);
       try {
-        if (!dateRange) return;
-        const fromDate = dateRange.from?.toISOString().split("T")[0];
-        const toDate = dateRange.to?.toISOString().split("T")[0];
+        if (!dateRange?.from || !dateRange?.to) {
+          // Check if both from and to exist
+          return;
+        }
+
+        const fromDate = format(startOfDay(dateRange?.from), "yyyy-MM-dd");
+        const toDate = format(endOfDay(dateRange?.to), "yyyy-MM-dd");
         if (!fromDate || !toDate) return;
         let url = `/api/ledger?startDate=${fromDate}&endDate=${toDate}`;
         if (filter !== "all") {
@@ -152,7 +156,16 @@ export default function UniversalLedger({ filter }: UniversalLedgerProps) {
       header: "Party Name",
       cell: ({ row }) => {
         const party = row.original.party;
-        return party?.name || "N/A";
+        return (
+          <Button
+            variant={"ghost"}
+            onClick={() =>
+              window.open(`/ledger/${row.original.partyId}`, "_blank")
+            }
+          >
+            {party?.name || "N/A"}
+          </Button>
+        );
       },
     },
     {
