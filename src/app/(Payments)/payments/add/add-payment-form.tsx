@@ -35,6 +35,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { Party } from "@prisma/client";
 
 const formSchema = z.object({
   partyId: z.string({
@@ -75,7 +76,7 @@ export default function AddPaymentForm({
 }: AddPaymentFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [parties, setParties] = useState<any[]>([]);
+  const [parties, setParties] = useState<Party[]>([]);
   const [partyType, setPartyType] = useState<string>(initialPartyType || "all");
 
   const form = useForm<FormValues>({

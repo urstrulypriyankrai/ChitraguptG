@@ -5,9 +5,28 @@ import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { generateReceiptPDF } from "@/lib/helpers/generateReceiptPDF";
+import { Payment } from "@prisma/client";
+import { ReceiptData } from "@/lib/types/Bill";
 
 interface PrintReceiptButtonProps {
-  payment: any;
+  payment: Payment & {
+    paymentId: number;
+    paymentDate: string;
+    amount: number;
+    reference?: string;
+    party: {
+      name: string;
+      partyType: string;
+      mobile: string;
+      address?: {
+        street?: string;
+        village?: string;
+        district: string;
+        state: string;
+        zip: string;
+      };
+    };
+  };
 }
 
 export default function PrintReceiptButton({
@@ -32,7 +51,7 @@ export default function PrintReceiptButton({
         },
       };
 
-      await generateReceiptPDF(receiptData, "print");
+      await generateReceiptPDF(receiptData as ReceiptData, "print");
 
       toast({
         title: "Receipt generated",

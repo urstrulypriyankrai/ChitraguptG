@@ -33,9 +33,10 @@ async function getPayment(id: string) {
 export default async function PaymentDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const payment = await getPayment(params.id);
+  const { id } = await params;
+  const payment = await getPayment(id);
 
   if (!payment) {
     notFound();

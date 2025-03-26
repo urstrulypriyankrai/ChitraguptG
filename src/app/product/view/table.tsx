@@ -8,8 +8,6 @@ import { ProductType } from "@/lib/types/Product/product";
 import { ProductSupplier } from "@prisma/client";
 import { Edit } from "lucide-react";
 import Link from "next/link";
-import ProductVariant from "@/app/_components/product/productVariant/ProductVariant";
-import { z } from "zod";
 
 export type ProductsWithRelations = ProductType & {
   variants: ProductVariantType[];

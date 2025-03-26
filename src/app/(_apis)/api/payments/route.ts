@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
     console.log(partyId);
-    const whereClause: any = {};
+    const whereClause: Record<string, unknown> = {};
 
     if (partyId) {
       whereClause.partyId = partyId;

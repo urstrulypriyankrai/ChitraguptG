@@ -32,7 +32,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { DateRange } from "react-day-picker";
-import PageHeading from "@/app/_components/PageHeading";
 
 interface Ledger {
   id: number;

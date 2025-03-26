@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const hasCredit = searchParams.get("hasCredit");
 
-    const whereClause: any = {
+    const whereClause: Record<string, unknown> = {
       partyType: "RETAILER",
     };
 

@@ -11,3 +11,22 @@ export interface BillItem {
   gstAmount: number;
   total: number;
 }
+
+export interface ReceiptData {
+  paymentId: number;
+  paymentDate: string;
+  amount: number;
+  reference?: string;
+  party: {
+    name: string;
+    partyType: string;
+    mobile: string;
+    address?: {
+      street?: string;
+      village?: string;
+      district: string;
+      state: string;
+      zip: string;
+    };
+  };
+}

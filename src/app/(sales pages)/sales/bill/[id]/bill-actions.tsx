@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Download, Printer, Share2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { generateBillPDF } from "@/lib/helpers/generateBillPDF";
+import { GSTRATE, Party } from "@prisma/client";
+import { ProductType } from "@/lib/types/Product/product";
+import { ProductVariantType } from "@/lib/types/Product/ProductVariantType";
 
-export default function BillActions({ bill }: { bill: any }) {
+export default function BillActions({ bill }: { bill: BillType }) {
   const [isLoading, setIsLoading] = useState({
     print: false,
     download: false,
@@ -24,23 +27,23 @@ export default function BillActions({ bill }: { bill: any }) {
         billNumber: bill.billNumber,
         billDate: bill.billDate,
         [isFarmerSale ? "farmer" : "retailer"]: party,
-        items: bill.items.map((item: any) => ({
+        items: bill?.items.map((item: BillItemsType) => ({
           productName: item.product.name as string,
           variantDetails:
             `${item.variant.weight} ${item.variant.quantityUnitName}` as string,
-          quantity: parseInt(item.quantity),
-          price: parseInt(item.price),
-          discount: parseInt(item.discount),
+          quantity: parseInt(item.quantity + ""),
+          price: parseInt(item.price + ""),
+          discount: parseInt(item.discount + ""),
           gstRate: item.gstRate as string,
           hsnCode: item.hsnCode,
-          subtotal: parseInt(item.subtotal),
-          discountAmount: parseInt(item.discountAmount),
-          gstAmount: parseInt(item.gstAmount),
-          total: parseInt(item.total),
+          subtotal: parseInt(item.subtotal + ""),
+          discountAmount: parseInt(item.discountAmount + ""),
+          gstAmount: parseInt(item.gstAmount + ""),
+          total: parseInt(item.total + ""),
         })),
-        totalAmount: parseInt(bill.totalAmount),
-        amountPaid: parseInt(bill.amountPaid),
-        balance: parseInt(bill.balance),
+        totalAmount: parseInt(bill.totalAmount + ""),
+        amountPaid: parseInt(bill.amountPaid + ""),
+        balance: parseInt(bill.balance + ""),
         paymentMethod: bill.paymentMethod,
         paymentStatus: bill.paymentStatus,
       };
@@ -66,7 +69,7 @@ export default function BillActions({ bill }: { bill: any }) {
         billNumber: bill.billNumber,
         billDate: bill.billDate,
         [isFarmerSale ? "farmer" : "retailer"]: party,
-        items: bill.items.map((item: any) => ({
+        items: bill.items.map((item: BillItemsType) => ({
           productName: item.product.name,
           variantDetails: `${item.variant.weight} ${item.variant.quantityUnitName}`,
           quantity: item.quantity,
@@ -107,7 +110,7 @@ export default function BillActions({ bill }: { bill: any }) {
         billNumber: bill.billNumber,
         billDate: bill.billDate,
         [isFarmerSale ? "farmer" : "retailer"]: party,
-        items: bill.items.map((item: any) => ({
+        items: bill.items.map((item: BillItemsType) => ({
           productName: item.product.name,
           variantDetails: `${item.variant.weight} ${item.variant.quantityUnitName}`,
           quantity: item.quantity,
@@ -200,16 +203,30 @@ export default function BillActions({ bill }: { bill: any }) {
   );
 }
 
-interface BillItem {
-  productName: string;
-  variantDetails: string;
-  quantity: number;
-  price: number;
-  discount: number;
-  gstRate: string;
-  hsnCode: string;
+type BillType = {
+  billNumber: string;
+  totalAmount: number;
+  amountPaid: number;
+  balance: number;
+  paymentMethod: string;
+  paymentStatus: string;
+  billDate: string;
+  type: string;
+  farmer?: Party;
+  retailer?: Party;
+  items: BillItemsType[];
+};
+
+type BillItemsType = {
   subtotal: number;
   discountAmount: number;
   gstAmount: number;
   total: number;
-}
+  product: ProductType;
+  variant: ProductVariantType;
+  quantity: number;
+  price: number;
+  discount: number;
+  gstRate: GSTRATE;
+  hsnCode: string;
+};
