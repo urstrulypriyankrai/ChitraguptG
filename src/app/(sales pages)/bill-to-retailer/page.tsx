@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import RetailerSalesForm from "./retailer-sales-form";
-// import getAllParty from "@/actions/GET/getAllParty";
-import getALlProducts from "@/actions/GET/getAllProducts";
 import PageHeading from "@/app/_components/PageHeading";
-import { ProductType } from "@/lib/types/Product/product";
 import getAllParty from "@/actions/GET/getAllParty";
 
 export const metadata: Metadata = {
@@ -24,12 +21,8 @@ export default async function RetailerSalesPage() {
     },
   });
 
-  const products = (await getALlProducts({
-    include: {
-      variants: true,
-      tax: true,
-    },
-  })) as unknown as ProductType[];
+  const allProducts = await fetch(process.env.BASE_URL + "/api/product");
+  const res = await allProducts.json();
 
   return (
     <div className="container mx-auto py-4">
@@ -43,10 +36,7 @@ export default async function RetailerSalesPage() {
       </div>
 
       <div className="bg-card rounded-lg shadow-md p-6">
-        <RetailerSalesForm
-          retailers={retailers || []}
-          products={products || []}
-        />
+        <RetailerSalesForm retailers={retailers || []} products={res || []} />
       </div>
     </div>
   );
