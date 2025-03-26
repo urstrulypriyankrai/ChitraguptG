@@ -46,7 +46,6 @@ export async function POST(req: Request) {
             productCategoryName: body.category,
             taxHsnCode: tax.hsnCode,
             lowStockThreshold: body.lowStockThreshold,
-            ProductSupplier: body.supplier.id,
           },
         });
         console.log("New product created:", newProduct);

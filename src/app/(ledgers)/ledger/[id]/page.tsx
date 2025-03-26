@@ -5,7 +5,7 @@ import PageHeading from "@/app/_components/PageHeading";
 export default async function LedgerPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
   const party = await prisma.party.findUnique({ where: { id } });
@@ -19,7 +19,7 @@ export default async function LedgerPage({
           </div>
         }
       >
-        <PartyLedger id={params.id} filter="DEBIT" />
+        <PartyLedger id={id} filter="DEBIT" />
       </Suspense>
     </div>
   );

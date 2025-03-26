@@ -28,7 +28,11 @@ async function getBill(id: string) {
   }
 }
 
-export default async function BillPage({ params }: { params: { id: string } }) {
+export default async function BillPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const bill = await getBill(id);
 

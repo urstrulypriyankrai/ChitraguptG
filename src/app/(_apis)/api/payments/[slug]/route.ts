@@ -1,14 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ slug: string }> }
 ) {
+  const { slug } = await params;
+  const idInt = parseInt(slug + "");
   try {
-    const { id } = await params;
-    const idInt = parseInt(id);
-
     if (isNaN(idInt)) {
       return NextResponse.json(
         { message: "Invalid payment ID" },
