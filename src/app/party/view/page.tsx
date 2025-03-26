@@ -2,11 +2,13 @@ import PageHeading from "@/app/_components/PageHeading";
 import PartyTable from "./table";
 import getAllParty from "@/actions/GET/getAllParty";
 import { Address, Party } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 type PartyWithRelations = Party & {
   address: Address | null;
 };
 export default async function Page() {
+  await fetch(process.env.BASE_URL + "/api/revalidate?tag=getAllParty");
   const parties = (await getAllParty({
     include: {
       address: true,
