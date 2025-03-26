@@ -6,6 +6,7 @@ import Navbar from "./_components/NavbarComponents/Navbar";
 import { Toaster } from "@/components/ui/toaster";
 import { auth } from "@/auth";
 import { Providers } from "./providers";
+import LoginPage from "./login/page";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,8 +41,14 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar session={session!} />
-          {children}
+          {session?.user ? (
+            <>
+              <Navbar session={session!} />
+              {children}
+            </>
+          ) : (
+            <LoginPage />
+          )}
           <Toaster />
         </Providers>
       </body>

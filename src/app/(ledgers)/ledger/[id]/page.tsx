@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { PartyLedger } from "./partyLedger";
 import PageHeading from "@/app/_components/PageHeading";
-
+import prisma from "@/lib/prisma";
 export default async function LedgerPage({
   params,
 }: {
