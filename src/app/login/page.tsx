@@ -1,8 +1,8 @@
-//login page
 "use client";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import loginWithCred from "@/actions/loginWIthCred";
+// import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,28 +11,30 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setIsSubmitting(true);
-    setError(""); // Clear any previous errors
+    setError("");
 
-    const result = await loginWithCred(formData);
+    const result = await signIn("credentials", {
+      redirect: false,
+      username,
+      password,
+    });
 
     setIsSubmitting(false);
 
-    if (!result) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+    if (result?.error) {
       setError(result.error);
     } else {
-      // Successful login, redirect to homepage
-      router.push("/");
+      // Force a full redirect to ensure middleware runs
+      router.refresh();
     }
   }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form
-        action={handleSubmit} // Use the handleSubmit function
+        onSubmit={handleSubmit}
         className="space-y-4 w-80 p-6 bg-white rounded shadow-md"
       >
         <div className="space-y-2">

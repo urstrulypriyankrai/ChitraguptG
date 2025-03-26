@@ -6,6 +6,11 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
 
+  // Allow NextAuth API routes to proceed without checks
+  if (pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
+
   // Redirect authenticated users from login page
   if (isLoggedIn && pathname === "/login") {
     return NextResponse.redirect(new URL("/", req.url));
