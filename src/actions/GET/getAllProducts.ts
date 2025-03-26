@@ -10,7 +10,7 @@ export default async function getALlProducts(
   try {
     const data = await unstable_cache(
       async () => {
-        return prisma.product.findMany(options);
+        return await prisma.product.findMany(options);
       },
       ["allProducts"],
       {

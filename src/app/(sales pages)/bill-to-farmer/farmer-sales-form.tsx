@@ -17,7 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { Trash2, Plus, Printer, Download, Share2 } from "lucide-react";
 import { generateBillPDF } from "@/lib/helpers/generateBillPDF";
-import { Address, Party } from "@prisma/client";
+import { Address, GSTRATE, Party } from "@prisma/client";
 import { ProductType } from "@/lib/types/Product/product";
 import { ProductVariantType } from "@/lib/types/Product/ProductVariantType";
 
@@ -113,14 +113,18 @@ export default function FarmerSalesForm({
     if (field === "productId" && typeof value === "string") {
       updatedItems[index].productId = value;
       const product = products.find((p) => p.id === value);
+      if (product) {
+        updatedItems[index].gstRate = product.tax.gstRate as GSTRATE;
+        updatedItems[index].hsnCode = product.tax.hsnCode as string;
+      }
       if (product && product.variants && product.variants.length > 0) {
         const variant = product.variants[index];
         updatedItems[index] = {
           ...updatedItems[index],
           productId: value,
           price: variant.MRP || 0,
-          gstRate: product.tax?.gstRate || "",
-          hsnCode: product.tax?.hsnCode || "",
+          // gstRate: product.tax?.gstRate || "",
+          // hsnCode: product.tax?.hsnCode || "",
         };
       }
     } else if (field === "variantId" && typeof value === "string") {

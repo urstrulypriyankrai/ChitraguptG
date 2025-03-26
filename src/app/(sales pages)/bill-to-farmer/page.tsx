@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import FarmerSalesForm from "./farmer-sales-form";
 import getAllParty from "@/actions/GET/getAllParty";
-import getALlProducts from "@/actions/GET/getAllProducts";
 import PageHeading from "@/app/_components/PageHeading";
-import { ProductType } from "@/lib/types/Product/product";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Sell to Farmer | ChitraguptG",
@@ -23,12 +22,8 @@ export default async function FarmerSalesPage() {
     },
   });
 
-  const products = (await getALlProducts({
-    include: {
-      variants: true,
-      tax: true,
-    },
-  })) as unknown as ProductType[];
+  const allProducts = await fetch(process.env.BASE_URL + "/api/product");
+  const res = await allProducts.json();
 
   return (
     <div className="container mx-auto py-4">
@@ -42,7 +37,9 @@ export default async function FarmerSalesPage() {
       </div>
 
       <div className="bg-card rounded-lg shadow-md p-6">
-        <FarmerSalesForm farmers={farmers || []} products={products || []} />
+        <Suspense fallback={<p>loading...</p>}>
+          <FarmerSalesForm farmers={farmers || []} products={res || []} />
+        </Suspense>
       </div>
     </div>
   );

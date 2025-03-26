@@ -406,9 +406,11 @@ model RetailerSaleItem {
 }
 
 model Tax {
-  hsnCode  String    @id @db.VarChar(8)
+  hsnCode  String    @id @unique @db.VarChar(8)
   gstRate  GSTRATE
-  products Product[]
+  products Product[] 
+
+  @@index([hsnCode])
 }
 
 model ProductCategory {

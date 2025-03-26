@@ -102,3 +102,13 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export async function GET() {
+  const data = await prisma.product.findMany({
+    include: {
+      tax: true,
+      variants: true,
+    },
+  });
+  return NextResponse.json(data);
+}
