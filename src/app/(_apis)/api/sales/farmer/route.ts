@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
-      if (variant.inStock < item.quantity) {
+      if (product.inStock < item.quantity) {
         console.log(variant.inStock);
         return NextResponse.json(
           { message: "Insufficient stock for variant" },

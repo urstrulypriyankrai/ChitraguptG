@@ -63,6 +63,12 @@ export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
     console.log("Return data received:", data);
+    let credit_note = 0;
+    data.items.map((item) => {
+      credit_note +=
+        parseInt(item.price) -
+        (parseInt(item.price) * parseInt(item.discountRate)) / 100;
+    });
 
     // Validate required fields
     if (!data.partyId || !data.items || data.items.length === 0) {
@@ -98,6 +104,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create the return in a transaction
+
     const result = await prisma.$transaction(async (tx) => {
       // 1. Generate return number
       const date = new Date();
@@ -122,29 +129,38 @@ export async function POST(req: NextRequest) {
       });
 
       // 3. Create transaction items separately
-      const returnItem = await Promise.all(
+      await Promise.all(
         data.items.map(
           async (
             item: ReturnItem & {
               returnQuantity: number;
               gstRate: GSTRATE;
-              totalAmount: number;
+              price: number;
             }
           ) => {
-            return tx.returnItem.create({
+            return await tx.returnItem.create({
               data: {
-                returnId: returnTransaction.id,
-                productId: item.productId,
-                variantId: item.variantId,
                 quantity: Number(item.returnQuantity),
                 price: Number(item.price),
                 discount: item.discount,
+                gstRate: convertGstRateToString(item.gstRate) as GSTRATE,
 
-                gstRate: convertGstRateToString(item.gstRate),
-                total: Number(item.totalAmount),
-              },
-              include: {
-                product: true,
+                return: {
+                  connect: {
+                    id: returnTransactionRef.id,
+                  },
+                },
+                product: {
+                  connect: {
+                    id: item.productId,
+                  },
+                },
+                variant: {
+                  connect: {
+                    id: item.variantId,
+                  },
+                },
+                total: item?.price,
               },
             });
           }
@@ -158,40 +174,38 @@ export async function POST(req: NextRequest) {
             where: { id: item.variantId },
           });
 
-          if (variant) {
-            const currentStock = variant.inStock || 0;
-            const newStock = currentStock - Number(item.returnQuantity);
+          const currentStock = variant?.inStock || 0;
+          const newStock = currentStock - Number(item.returnQuantity);
 
-            await tx.productVariant.update({
-              where: { id: item.variantId },
-              data: { inStock: newStock },
-            });
+          await tx.productVariant.update({
+            where: { id: item.variantId },
+            data: { inStock: newStock },
+          });
 
-            // Create stock history entry
-            return tx.stockHistory.create({
-              data: {
-                quantity: newStock,
-                type: "ADD",
-                reason: `Return from ${data.partyId} - ${returnNumber}`,
+          // Create stock history entry
+          return await tx.stockHistory.create({
+            data: {
+              quantity: newStock,
+              type: "ADD",
+              reason: `Return from ${data.partyId} - ${returnNumber}`,
 
-                referenceTransactionId: returnTransactionRef.id,
-                referenceType: "RETURN",
-                product: {
-                  connect: {
-                    id: item.productId,
-                  },
-                },
-                variant: {
-                  connect: { id: item.variantId },
-                },
-                party: {
-                  connect: {
-                    id: data.partyId,
-                  },
+              referenceTransactionId: returnTransactionRef.id,
+              referenceType: "RETURN",
+              product: {
+                connect: {
+                  id: item.productId,
                 },
               },
-            });
-          }
+              variant: {
+                connect: { id: item.variantId },
+              },
+              party: {
+                connect: {
+                  id: data.partyId,
+                },
+              },
+            },
+          });
         })
       );
 
@@ -200,27 +214,25 @@ export async function POST(req: NextRequest) {
           id: data.partyId,
         },
       });
-      const { payment, ledgerEntry, updatedParty } = await fetch(
-        process.env.BASE_URL + "/api/payments",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            partyId: data.partyId,
-            amount: data.totalAmount,
-            method: "CREDIT_NOTE",
-            date: data.date ? new Date(data.date) : new Date(),
-            reference: `CREDIT_NOTE FOR  ${party?.name}`,
-            description: `RETURN FOR  ${party?.name}`,
-            referenceType: "RETURN",
-          }),
-        }
-      );
+      const res = await fetch(process.env.BASE_URL + "/api/payments", {
+        method: "POST",
+        body: JSON.stringify({
+          partyId: data.partyId,
+          amount: credit_note,
+          method: "CREDIT_NOTE",
+          date: data.date ? new Date(data.date) : new Date(),
+          reference: `CREDIT_NOTE FOR  ${party?.name}`,
+          description: `RETURN FOR  ${party?.name}`,
+          referenceType: "RETURN",
+        }),
+      });
+      if (!res.ok) throw new Error("unable to complete payment");
 
       return {
         stockHistoryEntries,
-        payment,
-        ledgerEntry,
-        updatedParty,
+        // payment,
+        // ledgerEntry,
+        // updatedParty,
       };
     });
 
@@ -230,7 +242,7 @@ export async function POST(req: NextRequest) {
     revalidatePath(`/ledger/farmer/${data.partyId}`);
     revalidatePath(`/ledger/retailer/${data.partyId}`);
 
-    return NextResponse.json(result.ledgerEntry, { status: 201 });
+    return NextResponse.json(result, { status: 201 });
   } catch (error) {
     console.error("Error creating return:", error);
     return NextResponse.json(
