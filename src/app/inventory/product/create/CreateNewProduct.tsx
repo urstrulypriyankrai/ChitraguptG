@@ -1,7 +1,7 @@
 "use client";
 
 import { LabeledInput } from "@/components/ui/LabledInput";
-import _HsnCodeForm from "../../../_components/product/HsnCodeForm";
+import HsnCodeForm from "../../../_components/product/HsnCodeForm";
 import { useState } from "react";
 import ProductVariant from "@/app/_components/product/productVariant/ProductVariant";
 
@@ -63,11 +63,17 @@ export default function CreateNewProduct(props: Props) {
       hsnCode: "",
     });
   }
+  function calculateTotalStock() {
+    return variants.reduce((total, prev) => {
+      return (total += prev.piecePerBag * prev.bags);
+    }, 0);
+  }
   async function handleSubmit(e: React.MouseEvent) {
     e.preventDefault();
 
     const dataToValidate = {
       ...formData,
+
       variants: variants,
       taxInformation: taxInformation,
       lowStockThreshold: Number(formData.lowStockThreshold), // Ensure threshold is a number for validation
@@ -75,6 +81,7 @@ export default function CreateNewProduct(props: Props) {
         ...formData.supplier,
         id: String(formData.supplier.id), // Ensure ID is a string, but server parses to number
       },
+      inStock: calculateTotalStock(),
     };
 
     try {
@@ -89,8 +96,8 @@ export default function CreateNewProduct(props: Props) {
       });
 
       if (response.ok) {
-        ResetForm();
         toast({ title: "Product created successfully" });
+        ResetForm();
         //  reset form or redirect
       } else {
         const errorData = await response.json();
@@ -154,6 +161,7 @@ export default function CreateNewProduct(props: Props) {
             data={props.categories.map((val) => val.name)}
             message={formErrors.category}
             placeholder="Select Category"
+            value={formData.category}
             setValue={(value) => {
               setFormData({ ...formData, category: value });
             }}
@@ -176,7 +184,7 @@ export default function CreateNewProduct(props: Props) {
         </div>
       </div>
 
-      <_HsnCodeForm
+      <HsnCodeForm
         taxInformation={taxInformation}
         setTaxInformation={setTaxInformation}
         message={formErrors.taxInformation}

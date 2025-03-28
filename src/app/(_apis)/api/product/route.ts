@@ -30,10 +30,8 @@ export async function POST(req: Request) {
         console.log("Tax record upserted:", tax);
 
         // 2. Handle Product Category
-        const category = await tx.productCategory.upsert({
+        const category = await tx.productCategory.findUnique({
           where: { name: body.category },
-          create: { name: body.category },
-          update: {},
         });
         console.log("Product category upserted:", category);
 
@@ -46,6 +44,7 @@ export async function POST(req: Request) {
             productCategoryName: body.category,
             taxHsnCode: tax.hsnCode,
             lowStockThreshold: body.lowStockThreshold,
+            inStock: body.inStock,
           },
         });
         console.log("New product created:", newProduct);

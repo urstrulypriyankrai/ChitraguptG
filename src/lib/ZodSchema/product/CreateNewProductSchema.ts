@@ -38,4 +38,5 @@ export const productSchema = z.object({
 
     hsnCode: z.string().min(1, { message: "HSN Code is required" }),
   }),
+  inStock: z.number(),
 });

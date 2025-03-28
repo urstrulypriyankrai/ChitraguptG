@@ -58,7 +58,7 @@ const HsnCodeForm = ({ taxInformation, setTaxInformation, message }: Props) => {
           placeholder="Select GST Rate"
           message={[]}
           disabled={isGstRateDisabled}
-          value={isGstRateDisabled ? taxInformation.gstRate : undefined}
+          value={isGstRateDisabled ? taxInformation.gstRate : ""}
           setValue={(value) => {
             if (!isGstRateDisabled)
               setTaxInformation((prev) => ({
