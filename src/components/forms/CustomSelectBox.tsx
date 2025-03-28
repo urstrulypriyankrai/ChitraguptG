@@ -16,7 +16,7 @@ type Props = {
   disabled?: boolean;
   defaultValue?: string;
   message: string[];
-  value?: string | null;
+  value?: string;
 
   setValue?: (
     value: string
@@ -41,7 +41,7 @@ const CustomSelectBox = ({
   return (
     <div className="flex flex-col">
       <Select
-        value={value || ""}
+        value={value}
         onValueChange={(val) => {
           if (setValue) setValue(val);
         }}
