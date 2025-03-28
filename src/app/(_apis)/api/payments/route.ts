@@ -103,7 +103,7 @@ export async function POST(req: Request) {
         data: {
           partyId,
           amount,
-          type: "CREDIT", // Payment is a credit to the party's account
+          type: method || "CREDIT", // Payment is a credit to the party's account
           date: payment.date,
           description: description || `Payment: ${reference || payment.id}`,
           paymentId: payment.id,

@@ -1,7 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { v4 as uuid } from "uuid";
+import { convertGstRateToString } from "@/lib/helpers/convertGstRateToNumber";
+import { GSTRATE, ReturnItem } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
@@ -61,14 +62,39 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    console.log(data);
+    console.log("Return data received:", data);
 
     // Validate required fields
     if (!data.partyId || !data.items || data.items.length === 0) {
+      console.log("primary fields not provided");
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
       );
+    }
+
+    // Validate that all required item fields have values
+    for (const item of data.items) {
+      if (
+        !item.productId ||
+        !item.variantId ||
+        item.returnQuantity === undefined ||
+        item.price === undefined ||
+        item.gstRate === undefined
+      ) {
+        console.log("items detail missing");
+        return NextResponse.json(
+          {
+            message: "Missing required item fields",
+            item,
+          },
+          { status: 400 }
+        );
+      }
+
+      // Ensure numeric values are not undefined
+      item.returnQuantity = Number(item.returnQuantity) || 0;
+      item.price = Number(item.price) || 0;
     }
 
     // Create the return in a transaction
@@ -83,99 +109,119 @@ export async function POST(req: NextRequest) {
         .padStart(3, "0");
       const returnNumber = `RET${year}${month}${day}${random}`;
 
-      // // 2. Create the return record
-      // const returnTransaction = await tx.transaction.create({
-      //   data: {
-      //     transactionNumber: returnNumber,
-      //     type: "RETURN",
-      //     partyId: data.partyId,
-      //     totalAmount: data.totalAmount,
-      //     paymentMethod: data.paymentMethod || "CASH",
-      //     status: data.status || "COMPLETED",
-      //     date: data.date ? new Date(data.date) : new Date(),
-      //   },
-      // });
-
-      // 3. Create return items
-      await tx.transactionItem.createMany({
-        data: data.items.map((item) => ({
-          transactionId: uuid(),
-          productId: item.productId,
-          variantId: item.variantId,
-          quantity: item.quantity,
-          price: item.price,
-          gstRate: item.gstRate,
-          taxAmount: item.taxAmount,
-        })),
+      // 2. Create the return record first
+      const returnTransactionRef = await tx.return.create({
+        data: {
+          returnNumber: returnNumber,
+          partyId: data.partyId,
+          totalAmount: data.totalAmount,
+          status: data?.status || "COMPLETED",
+          returnDate: data.date ? new Date(data.date) : new Date(),
+          BillNumber: data.BillNumber,
+        },
       });
 
-      // 4. Update inventory (add stock back)
-      await Promise.all(
+      // 3. Create transaction items separately
+      const returnItem = await Promise.all(
         data.items.map(
-          async (item: { variantId: string; quantity: number }) => {
-            const variant = await tx.productVariant.findUnique({
-              where: { id: item.variantId },
-            });
-
-            if (variant) {
-              const currentStock = variant.inStock || 0;
-              const newStock = currentStock + Number(item.quantity);
-
-              await tx.productVariant.update({
-                where: { id: item.variantId },
-                data: { inStock: newStock },
-              });
-
-              // Create stock history entry
-              await tx.stockHistory.create({
-                data: {
-                  productId: item.productId,
-                  variantId: item.variantId,
-                  quantity: item.quantity,
-                  type: "ADD",
-                  reason: `Return from ${data.partyType.toLowerCase()} - ${returnNumber}`,
-                  partyId: data.partyId,
-                  referenceTransactionId: returnTransaction.id,
-                },
-              });
+          async (
+            item: ReturnItem & {
+              returnQuantity: number;
+              gstRate: GSTRATE;
+              totalAmount: number;
             }
+          ) => {
+            return tx.returnItem.create({
+              data: {
+                returnId: returnTransaction.id,
+                productId: item.productId,
+                variantId: item.variantId,
+                quantity: Number(item.returnQuantity),
+                price: Number(item.price),
+                discount: item.discount,
+
+                gstRate: convertGstRateToString(item.gstRate),
+                total: Number(item.totalAmount),
+              },
+              include: {
+                product: true,
+              },
+            });
           }
         )
       );
 
-      // 5. Create a ledger entry for the return
-      if (data.updateLedger) {
-        await tx.ledger.create({
-          data: {
+      // 4. Update inventory (add stock back)
+      const stockHistoryEntries = await Promise.all(
+        data.items.map(async (item: any) => {
+          const variant = await tx.productVariant.findUnique({
+            where: { id: item.variantId },
+          });
+
+          if (variant) {
+            const currentStock = variant.inStock || 0;
+            const newStock = currentStock - Number(item.returnQuantity);
+
+            await tx.productVariant.update({
+              where: { id: item.variantId },
+              data: { inStock: newStock },
+            });
+
+            // Create stock history entry
+            return tx.stockHistory.create({
+              data: {
+                quantity: newStock,
+                type: "ADD",
+                reason: `Return from ${data.partyId} - ${returnNumber}`,
+
+                referenceTransactionId: returnTransactionRef.id,
+                referenceType: "RETURN",
+                product: {
+                  connect: {
+                    id: item.productId,
+                  },
+                },
+                variant: {
+                  connect: { id: item.variantId },
+                },
+                party: {
+                  connect: {
+                    id: data.partyId,
+                  },
+                },
+              },
+            });
+          }
+        })
+      );
+
+      const party = await prisma.party.findUnique({
+        where: {
+          id: data.partyId,
+        },
+      });
+      const { payment, ledgerEntry, updatedParty } = await fetch(
+        process.env.BASE_URL + "/api/payments",
+        {
+          method: "POST",
+          body: JSON.stringify({
             partyId: data.partyId,
             amount: data.totalAmount,
-            type: "CREDIT", // Return reduces the credit balance
+            method: "CREDIT_NOTE",
             date: data.date ? new Date(data.date) : new Date(),
-            description: `Product return: ${returnNumber}`,
-            transactionId: returnTransaction.id,
-          },
-        });
-
-        // 6. Update party credit balance
-        const party = await tx.party.findUnique({
-          where: { id: data.partyId },
-        });
-
-        if (party) {
-          const currentCredit = party.creditBalance || 0;
-          const newCredit = Math.max(
-            0,
-            currentCredit - Number(data.totalAmount)
-          );
-
-          await tx.party.update({
-            where: { id: data.partyId },
-            data: { creditBalance: newCredit },
-          });
+            reference: `CREDIT_NOTE FOR  ${party?.name}`,
+            description: `RETURN FOR  ${party?.name}`,
+            referenceType: "RETURN",
+          }),
         }
-      }
+      );
 
-      return { returnTransaction, returnItems };
+      return {
+        stockHistoryEntries,
+        payment,
+        ledgerEntry,
+        updatedParty,
+      };
     });
 
     // Revalidate relevant paths
@@ -184,7 +230,7 @@ export async function POST(req: NextRequest) {
     revalidatePath(`/ledger/farmer/${data.partyId}`);
     revalidatePath(`/ledger/retailer/${data.partyId}`);
 
-    return NextResponse.json(result.returnTransaction, { status: 201 });
+    return NextResponse.json(result.ledgerEntry, { status: 201 });
   } catch (error) {
     console.error("Error creating return:", error);
     return NextResponse.json(
