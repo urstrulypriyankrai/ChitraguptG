@@ -102,7 +102,7 @@ export default function ReturnsList({ filter }: ReturnsListProps) {
 
   const columns: ColumnDef<any>[] = [
     {
-      accessorKey: "date",
+      accessorKey: "returnDate",
       header: ({ column }) => {
         return (
           <Button
@@ -115,8 +115,8 @@ export default function ReturnsList({ filter }: ReturnsListProps) {
         );
       },
       cell: ({ row }) => {
-        const date = new Date(row.getValue("date"));
-        return date.toLocaleDateString("en-IN");
+        const date = new Date(row.getValue("returnDate"));
+        return `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`;
       },
     },
     {
@@ -186,7 +186,7 @@ export default function ReturnsList({ filter }: ReturnsListProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push(`/returns/${row.original.id}`)}
+            onClick={() => router.push(`/payments/${row.original.id}`)}
           >
             <Eye className="h-4 w-4" />
           </Button>

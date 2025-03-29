@@ -8,7 +8,6 @@ export async function GET(req: NextRequest) {
     const partyId = searchParams.get("partyId");
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
-    console.log(partyId);
     const whereClause: Record<string, unknown> = {};
 
     if (partyId) {
@@ -37,7 +36,6 @@ export async function GET(req: NextRequest) {
         updatedAt: "desc",
       },
     });
-    console.log(payments);
     return NextResponse.json(payments);
   } catch (error) {
     console.error("Error fetching payments:", error);

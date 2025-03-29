@@ -4,7 +4,6 @@ import { checkDataValidation } from "../_utils/CheckDataValidation";
 import { farmerSchema } from "@/lib/ZodSchema/farmerSchema";
 
 export async function GET(request: NextRequest) {
-  console.log(request);
   const allParty = await prisma.party.findMany();
 
   return Response.json({
@@ -21,7 +20,6 @@ export async function POST(request: NextRequest) {
     const data = await request.json(); //extract data from req
 
     const farmerValidation = checkDataValidation(farmerSchema, data);
-    // console.log(farmerValidation.error);
     if (!farmerValidation.success)
       return Response.json(
         { message: "data Validataion failed" },
@@ -36,7 +34,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // console.log(isUserAlreadyPresent, "present users");
 
     if (isUserAlreadyPresent.length > 0) {
       return Response.json(

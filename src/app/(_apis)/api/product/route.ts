@@ -6,7 +6,6 @@ import { v4 as uuid } from "uuid";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log("Received body:", body);
     const productUUID = uuid();
     const productVariantArray = body?.variants.map(
       (variant: ProductVariantType) => ({
@@ -27,13 +26,11 @@ export async function POST(req: Request) {
           },
           update: {},
         });
-        console.log("Tax record upserted:", tax);
 
         // 2. Handle Product Category
-        const category = await tx.productCategory.findUnique({
+        await tx.productCategory.findUnique({
           where: { name: body.category },
         });
-        console.log("Product category upserted:", category);
 
         // 3. Create Main Product
         const newProduct = await tx.product.create({
@@ -63,7 +60,6 @@ export async function POST(req: Request) {
           },
           update: {},
         });
-        console.log("Supplier linked:", supplierLink);
 
         // 5. Create Variants (Simplified for debugging)
         if (productVariantArray.length > 0)

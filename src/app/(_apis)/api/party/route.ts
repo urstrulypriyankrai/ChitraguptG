@@ -4,7 +4,6 @@ import prisma from "@/lib/prisma";
 import { checkDataValidation } from "../_utils/CheckDataValidation";
 
 export async function GET() {
-  // console.log(request);
   const allParty = await prisma.party.findMany();
 
   return Response.json({

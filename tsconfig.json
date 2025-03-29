@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/forms/CreatePartyForm.tsx", "src/app/(_apis)/api/product/route.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/forms/CreatePartyForm.tsx", "src/app/(_apis)/api/product/route.ts", "src/actions/loginWIthCred.ts.delete"],
   "exclude": ["node_modules"]
 }

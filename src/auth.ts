@@ -17,7 +17,7 @@ export const authConfig: NextAuthConfig = {
         password: { label: "password", type: "password" },
       },
       authorize: async (credentials) => {
-        // console.log(`[Authorize] Credentials received:`, credentials);
+       
 
         if (!credentials?.username || !credentials?.password) {
           console.log(
@@ -30,7 +30,7 @@ export const authConfig: NextAuthConfig = {
           const user = await db.user.findUnique({
             where: { username: credentials.username as string },
           });
-          // console.log("[Authorize] User found:", user);
+         
 
           if (!user) {
             console.log("[Authorize] User not found, returning null.");
@@ -42,7 +42,7 @@ export const authConfig: NextAuthConfig = {
             user.password
           );
 
-          console.log("[Authorize] Password valid:", isValid);
+         
 
           if (!isValid) {
             console.log("[Authorize] Password not valid, returning null.");

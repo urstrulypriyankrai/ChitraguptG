@@ -147,7 +147,6 @@ export default function AddReturnForm({
         if (!response.ok) throw new Error("Failed to fetch sales");
         const data = await response.json();
         setSales(data);
-        console.log("Fetched sales:", data);
       } catch (error) {
         console.error("Error fetching sales:", error);
         toast({
@@ -174,16 +173,12 @@ export default function AddReturnForm({
     // Explicitly convert saleId to string
     form.setValue("saleId", String(saleId));
 
-    // Log the items we're processing
-    console.log("Sale items to load:", sale.items);
-
     // Clear existing items
     form.setValue("items", []);
 
     // Ensure all IDs are converted to strings
     if (sale.items && Array.isArray(sale.items) && sale.items.length > 0) {
       const mappedItems = sale.items.map((item: any) => {
-        console.log("Processing item:", item);
         return {
           saleItemId: String(item.id),
           productId: String(item.productId),
@@ -196,7 +191,6 @@ export default function AddReturnForm({
         };
       });
 
-      console.log("Mapped items for form:", mappedItems);
       form.setValue("items", mappedItems);
     } else {
       console.error(
@@ -260,27 +254,18 @@ export default function AddReturnForm({
   const submitForm = async () => {
     setShowConfirmDialog(false);
     const values = form.getValues();
-    console.log("Submitting form values:", values);
-
     setIsLoading(true);
     try {
       // Ensure all IDs are strings in the request payload
       const requestData = {
         ...values,
-        partyId: String(values.partyId),
+        partyId: values.partyId,
         // Make sure saleId is always a string when sent to API
         saleId: selectedSale?.id ? String(selectedSale.id) : undefined,
         date: values.date.toISOString(),
         totalAmount: calculateTotal(),
-        items: values.items.map((item) => ({
-          ...item,
-          saleItemId: String(item.saleItemId),
-          productId: String(item.productId),
-          variantId: String(item.variantId),
-        })),
+        items: values.items,
       };
-
-      console.log("Sending request to API:", requestData);
 
       const response = await fetch("/api/returns", {
         method: "POST",
@@ -288,14 +273,12 @@ export default function AddReturnForm({
         body: JSON.stringify(requestData),
       });
 
-      console.log("API response status:", response.status);
-
       let responseData;
       try {
         responseData = await response.json();
         console.log("API response data:", responseData);
       } catch (e) {
-        console.log("No JSON in response");
+        if (e instanceof Error) console.error("No JSON in response", e.message);
       }
 
       if (!response.ok) {
@@ -512,16 +495,16 @@ export default function AddReturnForm({
             </div>
 
             {fields.map((field, index) => {
-              const saleItem = selectedSale?.items?.find(
+               const saleItem = selectedSale?.items?.find(
                 (i: any) => String(i.id) === String(field.saleItemId)
               );
 
-              console.log(
-                "Rendering item:",
-                field,
-                "Matching sale item:",
-                saleItem
-              );
+              // console.log(
+              //   "Rendering item:",
+              //   field,
+              //   "Matching sale item:",
+              //   saleItem
+              // );
 
               return (
                 <Card key={field.id} className="bg-muted/50">

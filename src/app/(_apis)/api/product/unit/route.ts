@@ -25,7 +25,6 @@ const isThisExistingUnit = async (name: string) => {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log(body);
     const validation = unitSchema.safeParse(body);
 
     if (!validation.success) {

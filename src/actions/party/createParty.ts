@@ -2,6 +2,7 @@
 import prisma from "@/lib/prisma";
 import { PartyType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { NextResponse } from "next/server";
 
 export async function createParty(formData: FormData) {
   const name = formData.get("name") as string;
@@ -9,11 +10,8 @@ export async function createParty(formData: FormData) {
   const mobile = formData.get("mobile") as string;
   const email = formData.get("email") as string;
   const gstNumber = formData.get("gstNumber") as string;
-  // const street = formData.get("street") as string;
-  // const district = formData.get("district") as string;
-  // const state = formData.get("state") as string;
 
-  await prisma.party.create({
+  const party = await prisma.party.create({
     data: {
       name,
       partyType,
@@ -23,5 +21,14 @@ export async function createParty(formData: FormData) {
     },
   });
   revalidatePath("/inventory/party");
-  // console.log("Form action called data created");
+  await fetch("/api/revalidate?tag=getAllParty");
+  return NextResponse.json(
+    {
+      success: true,
+      data: party,
+    },
+    {
+      status: 200,
+    }
+  );
 }

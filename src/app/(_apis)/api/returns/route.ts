@@ -11,22 +11,20 @@ export async function GET(req: NextRequest) {
     const startDate = await searchParams.get("startDate");
     const endDate = await searchParams.get("endDate");
 
-    const whereClause: Record<string, unknown> = {
-      type: "RETURN",
-    };
+    const whereClause: Record<string, unknown> = {};
 
     if (partyId) {
       whereClause.partyId = partyId;
     }
 
     if (startDate && endDate) {
-      whereClause.date = {
+      whereClause.returnDate = {
         gte: new Date(startDate),
         lte: new Date(endDate),
       };
     }
 
-    const returns = await prisma.transaction.findMany({
+    const returns = await prisma.return.findMany({
       where: whereClause,
       include: {
         party: {
@@ -42,7 +40,7 @@ export async function GET(req: NextRequest) {
         },
       },
       orderBy: {
-        date: "desc",
+        returnDate: "desc",
       },
     });
 
@@ -62,7 +60,6 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    console.log("Return data received:", data);
     let credit_note = 0;
     data.items.map((item) => {
       credit_note +=
@@ -72,7 +69,6 @@ export async function POST(req: NextRequest) {
 
     // Validate required fields
     if (!data.partyId || !data.items || data.items.length === 0) {
-      console.log("primary fields not provided");
       return NextResponse.json(
         { message: "Missing required fields" },
         { status: 400 }
@@ -88,7 +84,6 @@ export async function POST(req: NextRequest) {
         item.price === undefined ||
         item.gstRate === undefined
       ) {
-        console.log("items detail missing");
         return NextResponse.json(
           {
             message: "Missing required item fields",

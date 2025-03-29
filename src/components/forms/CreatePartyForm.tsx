@@ -71,7 +71,6 @@ const CreatePartyForm = () => {
         // if parseData.sucess = false
         const errors = parsedData.error.flatten();
         const fieldErrors = errors.fieldErrors;
-        console.log(fieldErrors, "field errors from");
         const newErrorMsg: ErrorMsgObj = {
           partyName: fieldErrors.partyName || [],
           partyType: [],
