@@ -165,15 +165,15 @@ export async function POST(req: NextRequest) {
       // 4. Update inventory (add stock back)
       const stockHistoryEntries = await Promise.all(
         data.items.map(async (item: any) => {
-          const variant = await tx.productVariant.findUnique({
-            where: { id: item.variantId },
+          const product = await tx.product.findUnique({
+            where: { id: item.productId },
           });
 
-          const currentStock = variant?.inStock || 0;
+          const currentStock = product?.inStock || 0;
           const newStock = currentStock - Number(item.returnQuantity);
 
           await tx.productVariant.update({
-            where: { id: item.variantId },
+            where: { id: item.productId },
             data: { inStock: newStock },
           });
 

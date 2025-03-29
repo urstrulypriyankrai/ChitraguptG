@@ -58,15 +58,15 @@ import { SaleItem } from "@/lib/types/sales";
 //       // 3. Update inventory (reduce stock)
 //       await Promise.all(
 //         data.items.map(async (item: SaleItem) => {
-//           const variant = await tx.productVariant.findUnique({
+//           const variant = await tx.product.findUnique({
 //             where: { id: item.variantId },
 //           });
 
 //           if (variant) {
-//             const currentStock = variant.inStock || 0;
+//             const currentStock = product.inStock || 0;
 //             const newStock = Math.max(0, currentStock - item.quantity);
 
-//             await tx.productVariant.update({
+//             await tx.product.update({
 //               where: { id: item.variantId },
 //               data: { inStock: newStock },
 //             });
@@ -209,7 +209,7 @@ export async function POST(req: NextRequest) {
       // 3. Update inventory (atomic operations)
       await Promise.all(
         data.items.map(async (item: SaleItem) => {
-          await tx.productVariant.update({
+          await tx.product.update({
             where: { id: item.variantId },
             data: { inStock: { decrement: item.quantity } },
           });

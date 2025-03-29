@@ -47,7 +47,7 @@ export async function POST(req: Request) {
         console.log("New product created:", newProduct);
 
         // 4. Link Supplier
-        const supplierLink = await tx.productSupplier.upsert({
+        await tx.productSupplier.upsert({
           where: {
             productId_supplierId: {
               productId: productUUID,

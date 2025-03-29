@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         );
       }
       if (product.inStock < item.quantity) {
-        console.log(variant.inStock);
+        console.log(product.inStock);
         return NextResponse.json(
           { message: "Insufficient stock for variant" },
           { status: 400 }
@@ -90,16 +90,16 @@ export async function POST(req: NextRequest) {
       // 3. Update inventory (reduce stock)
       await Promise.all(
         data.items.map(async (item: SaleItem) => {
-          const variant = await tx.productVariant.findUnique({
-            where: { id: item.variantId },
+          const product = await tx.product.findUnique({
+            where: { id: item.productId },
           });
 
-          if (variant) {
-            const currentStock = variant.inStock || 0;
+          if (product) {
+            const currentStock = product.inStock || 0;
             const newStock = Math.max(0, currentStock - item.quantity);
 
-            return await tx.productVariant.update({
-              where: { id: item.variantId },
+            return await tx.product.update({
+              where: { id: item.productId },
               data: { inStock: newStock },
             });
           }
