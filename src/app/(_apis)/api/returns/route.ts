@@ -17,10 +17,33 @@ export async function GET(req: NextRequest) {
       whereClause.partyId = partyId;
     }
 
+   
     if (startDate && endDate) {
+      // Set UTC times
+      const startDateObj = new Date(startDate);
+      const endDateObj = new Date(endDate);
+
+      if (isNaN(startDateObj.getTime())) {
+        return NextResponse.json(
+          { message: "Invalid start date format" },
+          { status: 400 }
+        );
+      }
+
+      if (isNaN(endDateObj.getTime())) {
+        return NextResponse.json(
+          { message: "Invalid end date format" },
+          { status: 400 }
+        );
+      }
+
+      // Set UTC times
+      startDateObj.setUTCHours(0, 0, 0, 0);
+      endDateObj.setUTCHours(23, 59, 59, 999);
+
       whereClause.returnDate = {
-        gte: new Date(startDate),
-        lte: new Date(endDate),
+        gte: startDateObj,
+        lte: endDateObj,
       };
     }
 
@@ -61,7 +84,7 @@ export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
     let credit_note = 0;
-    data.items.map((item) => {
+    data.items.map((item: { price: string; discountRate: string }) => {
       credit_note +=
         parseInt(item.price) -
         (parseInt(item.price) * parseInt(item.discountRate)) / 100;
@@ -172,7 +195,7 @@ export async function POST(req: NextRequest) {
           const currentStock = product?.inStock || 0;
           const newStock = currentStock - Number(item.returnQuantity);
 
-          await tx.productVariant.update({
+          await tx.product.update({
             where: { id: item.productId },
             data: { inStock: newStock },
           });

@@ -210,7 +210,7 @@ export async function POST(req: NextRequest) {
       await Promise.all(
         data.items.map(async (item: SaleItem) => {
           await tx.product.update({
-            where: { id: item.variantId },
+            where: { id: item.productId },
             data: { inStock: { decrement: item.quantity } },
           });
         })

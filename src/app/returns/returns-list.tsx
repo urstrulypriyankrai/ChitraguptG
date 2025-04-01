@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { addDays } from "date-fns";
+import { addDays, endOfDay, format, startOfDay } from "date-fns";
 
 interface ReturnsListProps {
   filter: "all" | "FARMER" | "RETAILER";
@@ -60,8 +60,12 @@ export default function ReturnsList({ filter }: ReturnsListProps) {
     async function fetchReturns() {
       setIsLoading(true);
       try {
-        const fromDate = dateRange.from?.toISOString().split("T")[0];
-        const toDate = dateRange.to?.toISOString().split("T")[0];
+        if (!dateRange?.from || !dateRange?.to) return;
+
+        const fromDate = format(startOfDay(dateRange?.from), "yyyy-MM-dd");
+        const toDate = format(endOfDay(dateRange?.to), "yyyy-MM-dd");
+
+        if (!fromDate || !toDate) return;
 
         const url = `/api/returns?startDate=${fromDate}&endDate=${toDate}`;
 
@@ -116,7 +120,7 @@ export default function ReturnsList({ filter }: ReturnsListProps) {
       },
       cell: ({ row }) => {
         const date = new Date(row.getValue("returnDate"));
-        return `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`;
+        return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
       },
     },
     {
