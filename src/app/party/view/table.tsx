@@ -146,7 +146,7 @@ export default function PartyTable({ DATA }: { DATA: PartyWithRelations[] }) {
   });
   // console.log(table.getRowModel().rows[0].original);
   return (
-    <>
+    <div>
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter Names..."
@@ -241,6 +241,6 @@ export default function PartyTable({ DATA }: { DATA: PartyWithRelations[] }) {
           </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -32,9 +32,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { addDays } from "date-fns";
+import { addDays, endOfDay, format, startOfDay } from "date-fns";
 import { Party, Payment } from "@prisma/client";
 import { DateRange } from "react-day-picker";
+import Link from "next/link";
 
 interface PaymentsListProps {
   filter: "all" | "FARMER" | "RETAILER";
@@ -62,8 +63,9 @@ export default function PaymentsList({ filter }: PaymentsListProps) {
     async function fetchPayments() {
       setIsLoading(true);
       try {
-        const fromDate = dateRange.from?.toISOString().split("T")[0];
-        const toDate = dateRange.to?.toISOString().split("T")[0];
+        if (!dateRange || !dateRange.from || !dateRange.to) return;
+        const fromDate = format(startOfDay(dateRange?.from), "yyyy-MM-dd");
+        const toDate = format(endOfDay(dateRange?.to), "yyyy-MM-dd");
 
         const url = `/api/payments?startDate=${fromDate}&endDate=${toDate}`;
 
@@ -129,7 +131,9 @@ export default function PaymentsList({ filter }: PaymentsListProps) {
       header: "Party Name",
       cell: ({ row }) => {
         const party = row.original.party;
-        return party?.name || "N/A";
+        return (
+          <Link href={"/ledger/" + party.id}> {party?.name || "N/A"} </Link>
+        );
       },
     },
     {

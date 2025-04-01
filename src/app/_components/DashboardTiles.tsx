@@ -98,14 +98,13 @@ const TILES_DATA = {
 
       description: "Manage payments and dues for suppliers and parties.",
     },
-    { id: 4, name: "Returns", href: "/returns", icon: "🔄" },
 
     {
       id: 15,
 
       name: "Product Returns",
 
-      href: "/inventory-management/product-returns",
+      href: "/returns",
 
       icon: "🔄",
 
