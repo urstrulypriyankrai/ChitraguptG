@@ -22,6 +22,7 @@ export async function createParty(formData: FormData) {
   });
   revalidatePath("/inventory/party");
   await fetch("/api/revalidate?tag=getAllParty");
+  await fetch("/api/revalidate?tag=getAllSuppliers");
   return NextResponse.json(
     {
       success: true,

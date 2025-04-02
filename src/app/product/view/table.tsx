@@ -25,15 +25,7 @@ const columns: ColumnDef<ProductsWithRelations>[] = [
   {
     accessorKey: "stock",
     header: "STOCK",
-    cell: (props) => {
-      const stocksFromVariants = props.row.original.variants.reduce(
-        (acc, curr) => {
-          return acc + curr.bags * curr.piecePerBag * curr.weight;
-        },
-        0
-      );
-      return stocksFromVariants;
-    },
+    cell: (props) => props.row.original.inStock,
   },
   {
     accessorKey: "lowStockThreshold",

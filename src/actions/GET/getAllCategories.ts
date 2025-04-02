@@ -10,6 +10,7 @@ export default async function getAllCategories() {
       revalidate: 10000,
     },
   });
+
   const { categories } = await res.json();
   return categories;
 }

@@ -12,6 +12,7 @@ export async function POST(req: Request) {
         ...variant,
         id: uuid(),
         productId: productUUID,
+        inStock: variant.bags * variant.piecePerBag,
       })
     );
 
