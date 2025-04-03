@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { checkDataValidation } from "../_utils/CheckDataValidation";
 import { farmerSchema } from "@/lib/ZodSchema/farmerSchema";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const allParty = await prisma.party.findMany();
 
   return Response.json({
@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
         partyType: data.partyType,
       },
     });
-
 
     if (isUserAlreadyPresent.length > 0) {
       return Response.json(

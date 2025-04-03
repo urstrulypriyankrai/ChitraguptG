@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default async function AddReturnPage({
   searchParams,
 }: {
-  searchParams: { farmerId?: string; retailerId?: string };
+  searchParams: Promise<{ farmerId?: string; retailerId?: string }>;
 }) {
   const { farmerId, retailerId } = await searchParams;
   const partyId = farmerId || retailerId;

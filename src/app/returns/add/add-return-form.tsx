@@ -45,6 +45,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+import { Party } from "@prisma/client";
 
 const itemSchema = z
   .object({
@@ -84,12 +85,12 @@ export default function AddReturnForm({
   initialPartyType,
 }: AddReturnFormProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [parties, setParties] = useState<any[]>([]);
-  const [sales, setSales] = useState<any[]>([]);
-  const [selectedSale, setSelectedSale] = useState<any>(null);
+  const [parties, setParties] = useState<Party[]>([]);
+  const [sales, setSales] = useState<FarmerSale[]>([]);
+  const [selectedSale, setSelectedSale] = useState<FarmerSale | null>(null);
   const [partyType, setPartyType] = useState(initialPartyType || "all");
   const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
-  const [isLoadingParties, setIsLoadingParties] = useState(false);
+  const [, setIsLoadingParties] = useState(false);
   const [isLoadingSales, setIsLoadingSales] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
@@ -104,7 +105,7 @@ export default function AddReturnForm({
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, remove } = useFieldArray({
     control: form.control,
     name: "items",
   });
@@ -178,7 +179,7 @@ export default function AddReturnForm({
 
     // Ensure all IDs are converted to strings
     if (sale.items && Array.isArray(sale.items) && sale.items.length > 0) {
-      const mappedItems = sale.items.map((item: any) => {
+      const mappedItems = sale.items.map((item: SaleItem) => {
         return {
           saleItemId: String(item.id),
           productId: String(item.productId),
@@ -479,7 +480,7 @@ export default function AddReturnForm({
                 <div className="space-y-1 leading-none">
                   <FormLabel>Update Ledger Balance</FormLabel>
                   <FormDescription>
-                    Adjust the party's outstanding balance with this return
+                    Adjust the party&apos;s outstanding balance with this return
                   </FormDescription>
                 </div>
               </FormItem>
@@ -495,8 +496,8 @@ export default function AddReturnForm({
             </div>
 
             {fields.map((field, index) => {
-               const saleItem = selectedSale?.items?.find(
-                (i: any) => String(i.id) === String(field.saleItemId)
+              const saleItem = selectedSale?.items?.find(
+                (i: SaleItem) => String(i.id) === String(field.saleItemId)
               );
 
               // console.log(
@@ -614,4 +615,35 @@ export default function AddReturnForm({
       </Dialog>
     </>
   );
+}
+
+//================types=====================
+interface Variant {
+  id: number;
+  weight: string;
+  quantityUnitName: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+}
+
+interface SaleItem {
+  id: number;
+  productId: number;
+  variantId: number;
+  quantity: number;
+  price: number;
+  gstRate: string;
+  discount?: number;
+  product?: Product;
+  variant?: Variant;
+}
+
+interface FarmerSale {
+  id: number;
+  billNumber: string;
+  billDate: Date;
+  items: SaleItem[];
 }

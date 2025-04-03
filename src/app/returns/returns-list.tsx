@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { useRouter } from "next/navigation";
 import {
   type ColumnDef,
@@ -33,6 +33,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { addDays, endOfDay, format, startOfDay } from "date-fns";
+import { ReturnData } from "@/lib/types/return/returns-list";
+import { DateRange } from "react-day-picker";
 
 interface ReturnsListProps {
   filter: "all" | "FARMER" | "RETAILER";
@@ -42,7 +44,7 @@ export default function ReturnsList({ filter }: ReturnsListProps) {
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [returns, setReturns] = useState<any[]>([]);
+  const [returns, setReturns] = useState<[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dateRange, setDateRange] = useState({
     from: addDays(new Date(), -30),
@@ -78,14 +80,17 @@ export default function ReturnsList({ filter }: ReturnsListProps) {
 
         // Filter by party type if needed
         if (filter !== "all") {
-          data = data.filter((ret: any) => ret.party?.partyType === filter);
+          data = data.filter(
+            (ret: ReturnData) => ret.party?.partyType === filter
+          );
         }
 
         setReturns(data);
 
         // Calculate summary
         const totalAmount = data.reduce(
-          (sum: number, r: any) => sum + Number(r.totalAmount),
+          (sum: number, r: { totalAmount: number }) =>
+            sum + Number(r.totalAmount),
           0
         );
 
@@ -104,7 +109,7 @@ export default function ReturnsList({ filter }: ReturnsListProps) {
     fetchReturns();
   }, [filter, dateRange]);
 
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<ReturnData>[] = [
     {
       accessorKey: "returnDate",
       header: ({ column }) => {
@@ -128,15 +133,15 @@ export default function ReturnsList({ filter }: ReturnsListProps) {
       header: "Return #",
     },
     {
-      accessorKey: "Party Name",
+      accessorKey: "party",
       header: "Party Name",
       cell: ({ row }) => {
         const party = row.original.party;
-        return party?.name || "N/A";
+        return party.name || "N/A";
       },
     },
     {
-      accessorKey: "party.partyType",
+      accessorKey: "partyType",
       header: "Party Type",
       cell: ({ row }) => {
         const party = row.original.party;
@@ -190,7 +195,7 @@ export default function ReturnsList({ filter }: ReturnsListProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push(`/payments/${row.original.id}`)}
+            onClick={() => router.push(`/payments/${row.getValue("id")}`)}
           >
             <Eye className="h-4 w-4" />
           </Button>
@@ -288,7 +293,12 @@ export default function ReturnsList({ filter }: ReturnsListProps) {
             <Plus className="h-4 w-4" /> Add Return
           </Button>
 
-          <DateRangePicker date={dateRange} onDateChange={setDateRange} />
+          <DateRangePicker
+            date={dateRange}
+            onDateChange={
+              setDateRange as Dispatch<SetStateAction<DateRange | undefined>>
+            }
+          />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

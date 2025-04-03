@@ -17,7 +17,6 @@ export async function GET(req: NextRequest) {
       whereClause.partyId = partyId;
     }
 
-   
     if (startDate && endDate) {
       // Set UTC times
       const startDateObj = new Date(startDate);
@@ -161,7 +160,9 @@ export async function POST(req: NextRequest) {
                 quantity: Number(item.returnQuantity),
                 price: Number(item.price),
                 discount: item.discount,
-                gstRate: convertGstRateToString(item.gstRate) as GSTRATE,
+                gstRate: convertGstRateToString(
+                  Number(item.gstRate)
+                ) as GSTRATE,
 
                 return: {
                   connect: {
@@ -187,44 +188,50 @@ export async function POST(req: NextRequest) {
 
       // 4. Update inventory (add stock back)
       const stockHistoryEntries = await Promise.all(
-        data.items.map(async (item: any) => {
-          const product = await tx.product.findUnique({
-            where: { id: item.productId },
-          });
+        data.items.map(
+          async (item: {
+            productId: string;
+            returnQuantity: number;
+            variantId: string;
+          }) => {
+            const product = await tx.product.findUnique({
+              where: { id: item.productId },
+            });
 
-          const currentStock = product?.inStock || 0;
-          const newStock = currentStock - Number(item.returnQuantity);
+            const currentStock = product?.inStock || 0;
+            const newStock = currentStock - Number(item.returnQuantity);
 
-          await tx.product.update({
-            where: { id: item.productId },
-            data: { inStock: newStock },
-          });
+            await tx.product.update({
+              where: { id: item.productId },
+              data: { inStock: newStock },
+            });
 
-          // Create stock history entry
-          return await tx.stockHistory.create({
-            data: {
-              quantity: newStock,
-              type: "ADD",
-              reason: `Return from ${data.partyId} - ${returnNumber}`,
+            // Create stock history entry
+            return await tx.stockHistory.create({
+              data: {
+                quantity: newStock,
+                type: "ADD",
+                reason: `Return from ${data.partyId} - ${returnNumber}`,
 
-              referenceTransactionId: returnTransactionRef.id,
-              referenceType: "RETURN",
-              product: {
-                connect: {
-                  id: item.productId,
+                referenceTransactionId: returnTransactionRef.id,
+                referenceType: "RETURN",
+                product: {
+                  connect: {
+                    id: item.productId,
+                  },
+                },
+                variant: {
+                  connect: { id: item.variantId },
+                },
+                party: {
+                  connect: {
+                    id: data.partyId,
+                  },
                 },
               },
-              variant: {
-                connect: { id: item.variantId },
-              },
-              party: {
-                connect: {
-                  id: data.partyId,
-                },
-              },
-            },
-          });
-        })
+            });
+          }
+        )
       );
 
       const party = await prisma.party.findUnique({
