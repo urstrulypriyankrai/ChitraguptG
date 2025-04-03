@@ -93,6 +93,16 @@ export async function POST(req: NextRequest) {
           const product = await tx.productVariant.findUnique({
             where: { id: item.variantId },
           });
+          await tx.product.update({
+            where: {
+              id: item.productId,
+            },
+            data: {
+              inStock: {
+                decrement: item.quantity,
+              },
+            },
+          });
 
           if (product) {
             const currentStock = product.inStock || 0;
