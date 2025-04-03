@@ -44,18 +44,20 @@ export async function generateBillPDF(
   // Add company header
   doc.setFontSize(20);
   doc.setTextColor(0, 0, 0);
-  doc.text("ChitraguptG", 105, 20, { align: "center" });
+  doc.text(String(process.env.NEXT_PUBLIC_COMPANY_NAME), 105, 20, {
+    align: "center",
+  });
 
   doc.setFontSize(12);
-  doc.text("Your Reliable Billing and Stock Manager", 105, 28, {
+  doc.text(String(process.env.NEXT_PUBLIC_COMPANY_GSTIN), 105, 28, {
     align: "center",
   });
 
   doc.setFontSize(10);
-  doc.text("123 Agriculture Street, Seoni, Madhya Pradesh - 480991", 105, 35, {
+  doc.text(String(process.env.NEXT_PUBLIC_COMPANY_ADDRESS), 105, 35, {
     align: "center",
   });
-  doc.text("Phone: +91 9876543210 | Email: info@chitraguptg.com", 105, 40, {
+  doc.text(String(process.env.NEXT_PUBLIC_COMPANY_COMMUNICATION), 105, 40, {
     align: "center",
   });
 
@@ -196,7 +198,7 @@ export async function generateBillPDF(
   );
 
   // Signature
-  doc.text("For ChitraguptG", 150, finalY + 67);
+  doc.text("FOR " + process.env.NEXT_PUBLIC_COMPANY_NAME, 150, finalY + 67);
   doc.text("Authorized Signatory", 150, finalY + 80);
 
   // Footer

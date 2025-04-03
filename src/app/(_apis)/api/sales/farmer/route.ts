@@ -90,16 +90,16 @@ export async function POST(req: NextRequest) {
       // 3. Update inventory (reduce stock)
       await Promise.all(
         data.items.map(async (item: SaleItem) => {
-          const product = await tx.product.findUnique({
-            where: { id: item.productId },
+          const product = await tx.productVariant.findUnique({
+            where: { id: item.variantId },
           });
 
           if (product) {
             const currentStock = product.inStock || 0;
             const newStock = Math.max(0, currentStock - item.quantity);
 
-            return await tx.product.update({
-              where: { id: item.productId },
+            return await tx.productVariant.update({
+              where: { id: item.variantId },
               data: { inStock: newStock },
             });
           }
