@@ -15,11 +15,7 @@ export const NAVBAR_LINKS_LIST = [
     name: "Home",
     href: "/",
   },
-  {
-    _id: 2,
-    name: "About Us",
-    href: "/About",
-  },
+
   {
     _id: 3,
     name: "login",
