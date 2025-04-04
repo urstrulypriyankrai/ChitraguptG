@@ -18,7 +18,7 @@ export default async function Page() {
   if (!parties) return;
   return (
     <>
-      <PageHeading heading="FARMERS / RETAILERS / SUPPLIERS" />
+      <PageHeading heading="CUSTOMERS / SUPPLIERS" />
       <div className="container mx-auto py-6  px-2">
         <Tabs defaultValue="all" className="w-full px-2">
           <TabsList className="mb-4 space-x-6">

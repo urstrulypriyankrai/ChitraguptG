@@ -7,7 +7,10 @@ const TILES_DATA = [
     href: "/",
     icon: "🌾",
   },
-  { id: 2, name: "Sell to Retailer", href: "/bill-to-retailer", icon: "🏪" },
+  { id: 2, name: "quotes", href: "/bill-to-retailer", icon: "🏪" },
+  { id: 3, name: "invoices", href: "/bill-to-retailer", icon: "🏪" },
+  { id: 3, name: "credit notes", href: "/bill-to-retailer", icon: "🏪" },
+  { id: 4, name: "payment received", href: "/bill-to-retailer", icon: "🏪" },
 ];
 
 export default function Dashboard() {

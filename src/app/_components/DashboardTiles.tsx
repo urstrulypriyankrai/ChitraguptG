@@ -6,7 +6,7 @@ import Tile, { TileWrapper } from "./Tile";
 
 const TILES_DATA = {
   "Sales Operations": [
-    { id: 1, name: "Sell to Farmer", href: "/bill-to-farmer", icon: "🌾" },
+    { id: 1, name: "Sell to Customer", href: "/bill-to-farmer", icon: "🌾" },
     { id: 2, name: "Sell to Retailer", href: "/bill-to-retailer", icon: "🏪" },
   ],
 
@@ -24,21 +24,9 @@ const TILES_DATA = {
     },
 
     {
-      id: 11,
-
-      name: "Create a Party",
-
-      href: "/inventory/party/create",
-
-      icon: "🤝",
-
-      description: "Add a new supplier or party for inventory management.",
-    },
-
-    {
       id: 12,
 
-      name: "View All Products",
+      name: "Products",
 
       href: "/product/view",
 
@@ -50,7 +38,7 @@ const TILES_DATA = {
     {
       id: 13,
 
-      name: "View All Parties",
+      name: "Customers",
 
       href: "/party/view",
 
@@ -102,7 +90,7 @@ const TILES_DATA = {
     {
       id: 15,
 
-      name: "Product Returns",
+      name: "Product Return",
 
       href: "/returns",
 
@@ -128,7 +116,25 @@ const TILES_DATA = {
     },
   ],
   "User Management": [
-    { id: 8, name: "Create a Farmer", href: "/farmer/create", icon: "➕" },
+    {
+      id: 8,
+      name: "Create New Customer",
+      href: "/farmer/create",
+      icon: "➕",
+      description: "add new customers",
+    },
+    {
+      id: 11,
+
+      name: "Create a Party",
+
+      href: "/inventory/party/create",
+
+      icon: "🤝",
+
+      description: "Add a new supplier or party for inventory management.",
+    },
+
     { id: 9, name: "Admin", href: "/admin", icon: "👨‍💼" },
   ],
 };
