@@ -103,7 +103,7 @@ export async function GET() {
   const data = await prisma.product.findMany({
     include: {
       tax: true,
-      variants: true,
+      // variants: true,
     },
   });
   return NextResponse.json(data);
