@@ -1,16 +1,22 @@
 "use server";
 
+import { unstable_cache } from "next/cache";
+
 export default async function getAllCategories() {
-  const baseUrl = process.env.BASE_URL?.trim() || "http://localhost:3000"; // Default to localhost if undefined
+  try {
+    const category = await unstable_cache(
+      async () => {
+        return prisma.productCategory.findMany();
+      },
+      ["getAllCategories"],
+      {
+        tags: ["getAllCategories"],
+      }
+    )();
 
-  const res = await fetch(new URL(`${baseUrl}/api/product/category`), {
-    method: "GET",
-    next: {
-      tags: ["getAllCategories"],
-      revalidate: 10000,
-    },
-  });
-
-  const { categories } = await res.json();
-  return categories;
+    return category;
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    return null; // Or throw an error, depending on your error handling strategy
+  }
 }
