@@ -11,7 +11,7 @@ export default async function AllCategories() {
     <>
       <PageSubHeading heading="List Of All Categories" />
       <Suspense fallback={<Loading />}>
-        <CategoryItem categories={categories} />
+        <CategoryItem categories={categories || []} />
       </Suspense>
     </>
   );

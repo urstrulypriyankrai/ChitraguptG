@@ -6,8 +6,10 @@ import { toast } from "@/hooks/use-toast";
 import React, { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { categorySchema } from "@/lib/ZodSchema/categorySchema";
+import { useRouter } from "next/navigation";
 
 const CreateNewCategory = () => {
+  const router = useRouter();
   const [name, setName] = useState("");
   const { pending } = useFormStatus();
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -42,6 +44,7 @@ const CreateNewCategory = () => {
         });
         setName(""); // Clear input on success
         await fetch("/api/revalidate?tag=getAllCategories");
+        router.refresh();
       } else {
         if (response.status === 400) {
           toast({

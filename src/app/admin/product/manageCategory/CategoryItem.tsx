@@ -4,6 +4,8 @@ import { LabeledInput } from "@/components/ui/LabledInput";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { categorySchema } from "@/lib/ZodSchema/categorySchema";
+import { useRouter } from "next/navigation";
+
 import { useState } from "react";
 
 const CategoryItem = ({ categories }: { categories: { name: string }[] }) => {
@@ -61,6 +63,7 @@ const CategoryActions = ({
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [isDisabled, setIsDisabled] = useState(false);
+  const router = useRouter();
 
   const handleSave = async () => {
     if (prevName === labelValue) {
@@ -107,6 +110,7 @@ const CategoryActions = ({
     } finally {
       setIsDisabled(false);
       setIsEditing(false);
+      router.refresh();
     }
   };
 
@@ -121,11 +125,11 @@ const CategoryActions = ({
       });
 
       if (res.ok) {
+        router.refresh();
         toast({
           title: "Category Deleted Successfully",
           variant: "default",
         });
-        // revalidateCategoryAction();
 
         await fetch("/api/revalidate?tag=getAllCategories");
       } else {
