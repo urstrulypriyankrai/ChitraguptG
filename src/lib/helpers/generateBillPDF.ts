@@ -1,7 +1,7 @@
 import { jsPDF } from "jspdf";
 // import "jspdf-autotable";
 import autoTable from "jspdf-autotable";
-
+import LogoImage from "@/assets/1.SKE-LOGO.png";
 interface BillItem {
   productName: string;
   variantDetails: string;
@@ -38,26 +38,34 @@ export async function generateBillPDF(
   // Create a new PDF document
   const doc = new jsPDF();
 
+  // Optionally add the company logo image if available
+  const logoImage = LogoImage.src;
+  if (logoImage) {
+    // Add the image at x:15, y:10 with a width of 40 and height of 40 (adjust as needed)
+    doc.addImage(logoImage, "PNG", 15, 1, 51, 51);
+  }
+
   // Set font
   doc.setFont("helvetica");
 
-  // Add company header
+  // Add company header below the logo (centered horizontally)
   doc.setFontSize(20);
   doc.setTextColor(0, 0, 0);
-  doc.text(String(process.env.NEXT_PUBLIC_COMPANY_NAME), 105, 20, {
+  doc.text(String(process.env.NEXT_PUBLIC_COMPANY_NAME), 136, 20, {
     align: "center",
   });
 
   doc.setFontSize(12);
-  doc.text(String(process.env.NEXT_PUBLIC_COMPANY_GSTIN), 105, 28, {
+  doc.text(String(process.env.NEXT_PUBLIC_COMPANY_GSTIN), 136, 28, {
     align: "center",
   });
 
   doc.setFontSize(10);
-  doc.text(String(process.env.NEXT_PUBLIC_COMPANY_ADDRESS), 105, 35, {
+
+  doc.text(String(process.env.NEXT_PUBLIC_COMPANY_ADDRESS), 136, 35, {
     align: "center",
   });
-  doc.text(String(process.env.NEXT_PUBLIC_COMPANY_COMMUNICATION), 105, 40, {
+  doc.text(String(process.env.NEXT_PUBLIC_COMPANY_COMMUNICATION), 136, 40, {
     align: "center",
   });
 
